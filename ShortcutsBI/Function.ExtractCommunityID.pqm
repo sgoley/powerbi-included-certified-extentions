@@ -1,0 +1,22 @@
+﻿// Decode JWT to access communityID
+let 
+    GetCommunityID = (access_code as text) => 
+        let
+            source = Text.Split(access_code, "."),
+            jwtHeader = source{0},
+            jwtPayload= source{1},
+            jwtSignature = source{3},
+            payloadCharCount = Text.Length(jwtPayload),
+            payloadRemainer = Number.Mod(payloadCharCount, 4),
+            jwtPayloadEncoded = if payloadRemainer = 0 then jwtPayload else Text.Combine({jwtPayload, Text.Repeat("=", 4 - payloadRemainer)}), 
+            decodedPayload = Text.FromBinary(Binary.FromText(jwtPayloadEncoded,BinaryEncoding.Base64)),
+            jsonFullPayload = Json.Document(decodedPayload),
+            tablePayload = Record.ToTable(jsonFullPayload),
+            communityAccessCombinedList = tablePayload{4}[Value],
+            communityAccessText = Lines.ToText(communityAccessCombinedList, "|"),
+            communityAccessList = Text.Split(communityAccessText, "|"),
+            communityID = communityAccessList{1}
+        in
+            communityID
+in
+    GetCommunityID

@@ -1,0 +1,35 @@
+{
+    "tool_details": {
+        "tool_name": "Zoho Creator - PowerBI Connector",
+        "version_name": "Version 1",
+        "version_number": "1.0.0",
+        "user_agent": "ZohoCreator - PowerBI Connector",
+    },
+    "api_specification": {
+        "api_type": "export-api",
+        "throttle_limit": 100,
+        "max_retry": 5,
+        "domains": [
+            {
+                "domain": "zoho.com",
+                "host": "https://creator.zoho.com"
+            },
+            {
+                "domain": "zoho.eu",
+                "host": "https://creator.zoho.eu"
+            },
+            {
+                "domain": "zoho.com.cn",
+                "host": "https://creator.zoho.com.cn"
+            },
+            {
+                "domain": "zoho.in",
+                "host": "https://creator.zoho.in"
+            },
+            {
+                "domain": "zoho.com.au",
+                "host": "https://creator.zoho.com.au"
+            }
+        ]
+    }
+}

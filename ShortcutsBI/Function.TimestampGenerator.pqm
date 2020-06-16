@@ -1,0 +1,10 @@
+﻿// Generate time stamp helper function for oauth signature
+let 
+    TimeStampGenerator = () as text =>
+        let
+            currentDateTime = DateTime.LocalNow(),
+            currentTimestamp=Text.From(Number.Round(Duration.TotalSeconds(currentDateTime-#datetime(1970, 1, 1, 0, 0, 0))))
+        in
+            currentTimestamp
+in
+    TimeStampGenerator

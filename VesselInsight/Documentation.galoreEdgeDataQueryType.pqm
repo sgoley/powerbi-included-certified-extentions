@@ -1,0 +1,32 @@
+﻿type function(
+		optional interval as (type text meta [
+            Documentation.FieldCaption = "Interval",
+            Documentation.FieldDescription = "Choose an interval for resampling",
+            Documentation.AllowedValues = { "", "1s", "5s", ">=30s", "1m", "1h", "1d" }
+        ]),
+		optional timeDimensionType as (type text meta [
+            Documentation.FieldCaption = "Time",
+            Documentation.FieldDescription = "Choose a time mode (possible values: Latest, Period, Custom)",
+            Documentation.AllowedValues = { "Latest", "Period", "Custom" }
+        ]),
+        optional startDate as (type text meta [
+            Documentation.FieldCaption = "Start (Time: Period), e.g. 2019-10-08T00:00:00Z",
+            Documentation.FieldDescription = "Starting date in the format YYYY-MM-DDTHH:mm:ssZ",
+            Documentation.SampleValues = { "2019-10-08T00:00:00Z" },
+            Documentation.AllowedValues = { "2019-10-08T00:00:00Z", "yesterday", "today" }
+        ]),
+        optional endDate as (type text meta [
+            Documentation.FieldCaption = "End (Time: Period), e.g. 2019-10-08T01:00:00Z",
+            Documentation.FieldDescription = "Ending date in the format YYYY-MM-DDTHH:mm:ssZ",
+            Documentation.SampleValues = { "2019-10-08T00:00:00Z" },
+            Documentation.AllowedValues = { "2019-10-08T01:00:00Z", "today", "now" }
+        ]),
+        optional customPipe as (type text meta [
+            Documentation.FieldCaption = "Custom (Time: Custom), e.g. |> takebefore now 5",
+            Documentation.FieldDescription = "A period pipe in TQL which will be added to the TQL query",
+            Documentation.SampleValues = { "|> takebefore now 5" },
+            Documentation.AllowedValues = { "|> takebefore now 5" }
+        ])
+        )
+        as table meta[
+        ]

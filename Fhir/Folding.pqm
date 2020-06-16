@@ -1,0 +1,1388 @@
+﻿let
+    OperatorToPrefixPerSearchParameterType = [
+        #"date" = [ Equals = "", NotEquals = "ne", GreaterThan = "gt", GreaterThanOrEquals = "ge", LessThan = "lt", LessThanOrEquals = "le", StartsAfter = "sa", EndsBefore = "eb"  ],
+        #"token" = [ Equals = "", NotEquals = "", Text = ""],
+        #"uri" = [ Equals = "", StartsWith = "", FlippedStartsWith = "" ],
+        #"reference" = [ Equals = "" ],
+        #"string" = [ Equals = "", StartsWith = "", Contains = "" ],
+        #"quantity" = @OperatorToPrefixPerSearchParameterType[#"date"],
+        #"number" = @OperatorToPrefixPerSearchParameterType[#"date"],
+        #"composite" = [ Equals = "" ]
+    ],
+
+    OperatorToModifierPerSearchParameterType = [
+        #"date" = [ Equals = "", NotEquals = "", GreaterThan = "", GreaterThanOrEquals = "", LessThan = "", LessThanOrEquals = "", StartsAfter = "", EndsBefore = ""  ],
+        #"token" = [ Equals = "", NotEquals = ":not", Text = ":text" ],
+        #"uri" = [ Equals = "", StartsWith = ":below", FlippedStartsWith = ":above" ],
+        #"reference" = [ Equals = "" ],
+        #"string" = [ Equals = ":exact", StartsWith = "", Contains = ":contains" ],
+        #"quantity" = @OperatorToModifierPerSearchParameterType[#"date"],
+        #"number" = @OperatorToModifierPerSearchParameterType[#"date"],
+        #"composite" = [ Equals = "" ]
+    ],
+
+    // A modification of OperatorToModifierPerSearchParameterType above, where we do not specify :exact for string on Equals
+    OperatorToModifierPerSearchParameterTypeForCompositeComponent = OperatorToModifierPerSearchParameterType & [
+        #"string" = OperatorToModifierPerSearchParameterType[string] & [ Equals = "" ]
+    ],
+
+    // A combinator that allows defining an expression tree visitor using a record handlers.
+    // Function parameter "f" must take a function as a parameter that allows recursive calls.
+    // (kind of like a fixed-point combinator).
+    // Handlers should be named Visit<ExpressionKind> and take an expression parameter and optionally a context parameter
+    // In addition, a handler named OnBeforeVisit can be defined, which gets called before every handler, regardless or the expression kind.
+    MakeVisitor = (f as function) as function =>
+        let
+            handlers = f(visit),
+            renamedHandlers = Record.FromList(
+                List.Transform(Record.FieldValues(handlers), each if Record.FieldCount(Type.FunctionParameters(Value.Type(_))) = 2 then _ else (exp, ctx) => _(exp)),
+                List.Transform(Record.FieldNames(handlers), each if Text.StartsWith(_, "Visit") then Text.Range(_, 5) else _ )),
+            onBeforeVisitHandler = renamedHandlers[OnBeforeVisit]?,
+            visit = (expression, optional context) =>
+                        let
+                            previsitedExpression = if onBeforeVisitHandler = null then expression else onBeforeVisitHandler(expression, context)
+                        in
+                            Record.Field(renamedHandlers, expression[Kind])(previsitedExpression, context)
+        in
+            visit,
+
+    // Uses MakeVisitor to define a visitor that rewrites an expression tree, that is, it always returns an expression tree.
+    // This means that not all handlers need to be defined. If they are not, a default implementation is used.
+    MakeRewriter = (f as function) as function =>
+        let
+            defaultf = (visit) =>
+                [
+                    VisitBinary = (expression, ctx) => expression & [ Left = visit(expression[Left], ctx), Right = visit(expression[Right], ctx)],
+                    VisitConstant = (expression, ctx) => expression,
+                    VisitInvocation = (expression, ctx) => expression & [ Function = visit(expression[Function], ctx), Arguments = List.Transform(expression[Arguments], each visit(_, ctx)) ],
+                    VisitUnary = (expression, ctx) => expression & [ Expression = visit(expression[Expression], ctx) ],
+                    VisitIf = (expression, ctx) => expression & [ Condition = visit(expression[Condition], ctx), TrueCase = visit(expression[TrueCase], ctx), FalseCase = visit(expression[FalseCase], ctx)],
+                    VisitFieldAccess =  (expression, ctx) => expression & [ Expression = visit(expression[Expression], ctx) ],
+                    VisitRowExpression =  (expression, ctx) => expression & [ Value = visit(expression[Value], ctx) ]
+                ]
+        in
+            MakeVisitor((visit) => defaultf(visit) & f(visit)),
+
+    List.AllEqual = (list as list, selector as function)  =>
+        if List.Count(list) <= 1 then true else
+        let
+            first = selector(list{0})
+        in
+            List.MatchesAll(list, each first = selector(_)),
+
+    // This messy function combines "system" and "code" search parameter capture records into a single capture record.
+    // Both system and code are optional.
+    // The idea is to combine system = s and code = c into s|c
+    // Returns [] if it cannot combine the records
+    ProcessFieldsOfTokenSearchParameterCaptures = (systemRecord as nullable record, codeRecord as nullable record, toBeNegated as logical) =>
+        let
+            system = systemRecord[Value],
+            systemOperator = systemRecord[Operator],
+            code = codeRecord[Value],
+            codeOperator = codeRecord[Operator],
+            representative = if systemRecord <> null then systemRecord else codeRecord,
+            fallbackRecord =
+                let
+                    candidates = List.Select({ codeRecord, systemRecord }, each _ <> null),
+                    firstEqual = List.Select(candidates, each [Operator] = "Equals"){0}?,
+                    choiceIfNoneEqual = candidates{List.Count(candidates) - 1 },
+                    choice = if firstEqual <> null then firstEqual else choiceIfNoneEqual
+                in
+                    if toBeNegated then [] else
+                    @ProcessFieldsOfTokenSearchParameterCaptures(
+                        if choice = systemRecord then systemRecord else null,
+                        if choice = codeRecord then codeRecord else null, toBeNegated),
+            UpdateForReturn = (value as text) as record =>
+                representative & [ FieldName = null, Value = value ]
+        in
+            // a non-null check for system or null/not-null check on code cannot be expressed as a search parameter.
+            // Remove the clauses
+            if systemRecord <> null and systemOperator = "NotEquals" and systemRecord[Value] = null then
+                @ProcessFieldsOfTokenSearchParameterCaptures(null, codeRecord, toBeNegated)
+            else if codeRecord <> null and codeRecord[Value] = null then
+                @ProcessFieldsOfTokenSearchParameterCaptures(systemRecord, null, toBeNegated)
+
+            else if systemRecord <> null and codeRecord <> null then
+                if systemOperator = "Equals" and codeOperator = "Equals" then
+                    if system <> null and code <> null then UpdateForReturn(system & "|" & code) else
+                    if system = null and code <> null then  UpdateForReturn("|" & code) else
+                    fallbackRecord
+                else if systemOperator = "Equals" and codeOperator = "NotEquals" and system <> null and code = null then
+                     UpdateForReturn(system & "|") & [ Operator = "Equals" ]
+                else
+                    fallbackRecord
+            else if systemRecord = null and codeRecord <> null then
+                if code <> null then UpdateForReturn(code) else
+                []
+            else if systemRecord <> null and codeRecord = null then
+                if system <> null then UpdateForReturn(system & "|") else
+                []
+            else
+                fallbackRecord,
+
+    ProcessFieldsOfQuantitySearchParameterCaptures = (numberRecord as nullable record, systemRecord as nullable record, codeRecord as nullable record, toBeNegated as logical) =>
+        let
+            systemValue = if systemRecord <> null and systemRecord[Value] <> null and systemRecord[Operator] = "Equals" then systemRecord[Value] else "",
+            codeValue = if codeRecord <> null and codeRecord[Value] <> null and codeRecord[Operator] = "Equals" then codeRecord[Value] else "",
+            combinedStringValue = SearchParameterValueToText(numberRecord[SearchParameterType], numberRecord[DataType], numberRecord[Value]) & (if codeValue <> "" then "|" & systemValue & "|" & codeValue else if systemValue <> "" then "|" & systemValue else ""),
+            UpdateForReturn = (value as text) as record =>
+                numberRecord & [ FieldName = null, Value = value, DataType = "Quantity" ]
+        in
+            if numberRecord = null then [] else
+            if numberRecord[Value] = null then [] else
+            UpdateForReturn(combinedStringValue),
+
+    // Determines whether two functions are equivalent, either by equality comparison
+    // or by comparing their documented names. We have found that a function, say Text.StartsWith,
+    // loaded in a .query.pq file,
+    // will not be equal to Text.StarWith loaded in a .pqm module file.
+    FunctionsEqual = (f1, f2) =>
+        let
+            f1MetadataName = Value.Metadata(Value.Type(f1))[Documentation.Name]?,
+            f2MetadataName = Value.Metadata(Value.Type(f2))[Documentation.Name]?
+        in
+            f1 = f2 or f1 <> null and f2 <> null and f1MetadataName <> null and f1MetadataName = f2MetadataName,
+
+    patternMatchingFailureErrorRecord = Error.Record("Pattern matching failure"),
+    PatternMatchingFailure = () => error patternMatchingFailureErrorRecord,
+
+    TryApplyPatternToExpression = MakeVisitor((visit) =>
+        [
+            OnBeforeVisit = (expression, pattern) => if expression[Kind] <> pattern[Kind] then PatternMatchingFailure() else expression,
+            VisitBinary = (expression, pattern) =>
+                let
+                    left = visit(expression[Left], pattern[Left]),
+                    right = visit(expression[Right], pattern[Right]),
+                    captureOp = pattern[CaptureOperator]?,
+                    patternOp = pattern[Operator],
+                    op =
+                        if captureOp <> null then captureOp(expression[Operator]) else
+                        if patternOp = expression[Operator] then [] else PatternMatchingFailure()
+                in
+                    left & right & op,
+
+            VisitConstant = (expression, pattern) =>
+                let
+                    captureValueFunction = pattern[CaptureValue]?,
+                    patternValue = pattern[Value],
+                    expValue = expression[Value]
+                in
+                    if captureValueFunction <> null then captureValueFunction(expValue) else
+                    if FunctionsEqual(patternValue, expValue) then [] else
+                    PatternMatchingFailure(),
+
+            VisitInvocation = (expression, pattern) =>
+                if visit(expression[Function], pattern[Function]) <> [] then ... else
+                if not (FunctionsEqual(expression[Function][Value], Table.MatchesAnyRows) or FunctionsEqual(expression[Function][Value], List.MatchesAny)) then
+                    List.Accumulate(List.Zip({expression[Arguments], pattern[Arguments]}), [], (acc, l) => acc & visit(l{0}, l{1}))
+                // this is a Table.MatchesAnyRows or List.MatchesAny. The second argument is a row expression.
+                else if List.Count(expression[Arguments]) <> 2 then PatternMatchingFailure() else
+                let
+                    visitedTarget = visit(expression[Arguments]{0}, pattern[Arguments]{0}),
+                    visitedRowExpression = visit(expression[Arguments]{1}, pattern[Arguments]{1}),
+                    // eliminate "=null" expressions so that they are not incorrectly interpreted as :missing=true
+                    EliminateMissingTrue = (elements as list) =>
+                            List.Transform(
+                                elements,
+                                each
+                                    if _ is list then @EliminateMissingTrue(_) else
+                                    if _ <> [] and [Value] = null and [Operator] = "Equals" then [] else _) meta (Value.Metadata(elements))
+                in
+                    if visitedTarget <> [] or visitedRowExpression = {} then PatternMatchingFailure() else // force evaluation of visitedTarget
+                    EliminateMissingTrue(visitedRowExpression),
+
+            VisitUnary = (expression, pattern) => PatternMatchingFailure(),
+            VisitIf = (expression, pattern) => PatternMatchingFailure(),
+            VisitFieldAccess =  (expression, pattern) =>
+                if expression[MemberName] <> pattern[MemberName] then PatternMatchingFailure() else
+                visit(expression[Expression], pattern[Expression]),
+
+            VisitRowExpression = (expression, pattern) =>
+                // Recursively evaluate the expression against the set of patterns defined in the the rowexpression's pattern.
+                // This will yield a list, consumed in VisitInvocation above.
+                let
+                    res = WalkExpressionTreeWithPatternList(expression[Value], pattern[Value]) meta [ Atomic = true, Path = pattern[Path] ]
+                in
+                    // for current scenarios, no captures implies failure
+                    if IsEmptyCaptureList(res) then PatternMatchingFailure() else res
+        ]),
+
+    IsEmptyCaptureList = (captures) =>
+        List.MatchesAll(captures, each _ is record and _ = [] or _ is list and @IsEmptyCaptureList(_)),
+
+    WalkExpressionTreeWithPatternList = (expression, patternList) =>
+        if expression[Kind] = "Binary" and (expression[Operator] = "And" or expression[Operator] = "Or") then
+            let
+                left = @WalkExpressionTreeWithPatternList(expression[Left], patternList),
+                right = @WalkExpressionTreeWithPatternList(expression[Right], patternList),
+                leftOperator = Value.Metadata(left)[Operator],
+                rightOperator = Value.Metadata(right)[Operator],
+                thisOperator = expression[Operator],
+                combined = { left, right },
+                simplified = List.Accumulate(
+                    combined,
+                    {},
+                    (acc, e) =>
+                        let
+                            eMetadata = Value.Metadata(e)
+                        in
+                            if eMetadata[Atomic]? <> true and (List.Count(e) = 1 or eMetadata[Operator] = thisOperator) then acc & e else acc & { e meta eMetadata })
+            in
+                if left = { [] } and expression[Left][NullConditional]? = expression[Operator] then right else
+                simplified meta [ Operator = thisOperator ]
+        else
+            let
+                isNegation = expression[Kind] = "Unary" and expression[Operator] = "Not",
+                res = TryApplyAllPatternsToExpression(if isNegation then expression[Expression] else expression, patternList)
+            in
+                if isNegation then
+                    if Value.Metadata(res)[Atomic]? = true then
+                        // add Negate = true result's metadata
+                        res meta (Value.Metadata(res) & [ Negate = true ])
+                    else if res is list then
+                        NegateCapturedParameters(res)
+                    else
+                        NegateCapturedParameters({res} meta [ Operator = "And" ])
+                else
+                    {res} meta [ Operator = "And" ],
+
+    // negates a list of captured parameters.
+    // Negates the operator and the And/Or operator on the list
+    NegateCapturedParameters = (elements as list) =>
+        List.Transform(
+            elements,
+            each
+                if _ is list then
+                    if List.Count(_) = 1 then
+                        @NegateCapturedParameters(_)
+                    else
+                        error "Cannot safely negate captures"
+                else if _ = [] then [] else
+                let
+                    negatedOperator =
+                        if [Operator] = "Equals" then "NotEquals" else
+                        if [Operator] = "NotEquals" then "Equals" else
+                        if [Operator] = "LessThan" then "GreaterThanOrEquals" else
+                        if [Operator] = "LessThanOrEquals" then "GreaterThan" else
+                        if [Operator] = "GreaterThan" then "LessThanOrEquals" else
+                        if [Operator] = "GreaterThanOrEquals" then "LessThan" else
+                        if [Operator] = "StartsWith" then "NotStartsWith" else
+                        if [Operator] = "NotStartsWith" then "StartsWith" else
+                        if [Operator] = "FlippedStartsWith" then "NotOtherStartsWith" else
+                        if [Operator] = "NotOtherStartsWith" then "FlippedStartsWith" else
+                        if [Operator] = "Contains" then "NotContains" else
+                        if [Operator] = "NotContains" then "Contains" else
+                        if [Operator] = "StartsAfter" then "NotStartsAfter" else
+                        if [Operator] = "NotStartsAfter" then "StartsAfter" else
+                        if [Operator] = "EndsBefore" then "NotEndsBefore" else
+                        if [Operator] = "NotEndsBefore" then "NotEndsBefore" else
+                        if [Operator] = "Text" then "NotText" else
+                        if [Operator] = "NotText" then "Text" else
+                        error "unable to negate operator " & [Operator]
+                in
+                    _ & [Operator = negatedOperator]
+        ) meta (Value.Metadata(elements) & [ Operator = if Value.Metadata(elements)[Operator] = "And" then "Or" else "And" ]),
+
+    TryApplyAllPatternsToExpression = (expression, patternList) =>
+        let
+            TryPattern = (pattern) =>
+                let
+                    res = try TryApplyPatternToExpression(expression, pattern)
+                in
+                    if res[HasError] then
+                        if res[Error] = patternMatchingFailureErrorRecord then null else
+                        // Trace entries are truncated, write out tree separate entries
+                        Diagnostics.Trace(TraceLevel.Error, "Pattern matching failed on pattern:#(cr)#(lf)" & Diagnostics.ValueToText(pattern),
+                            Diagnostics.Trace(TraceLevel.Error, "Pattern matching failed on expression:#(cr)#(lf)" & Diagnostics.ValueToText(expression),
+                                Diagnostics.Trace(TraceLevel.Error, "Pattern matching failed unexpectedly:#(cr)#(lf)" & Diagnostics.ValueToText(res[Error]), null)))
+                    else
+                        res[Value],
+            res = List.Accumulate(patternList, null, (acc, t) => if acc <> null then acc else TryPattern(t))
+        in
+            if res = null then [] else res,
+
+    RangeConversionParameters = [
+        dateTime = [
+            LowFieldName = "start",
+            HighFieldName = "end",
+            Epsilon = #duration(0, 0, 0, 0.001),
+            FinalFieldName = null
+        ],
+        decimal = [
+            LowFieldName = "lowNumber",
+            HighFieldName = "highNumber",
+            Epsilon = 0.001,
+            FinalFieldName = "number"
+        ]
+    ],
+
+    // rewrites captures that are over low/high range fields
+    ProcessRanges = (captures) =>
+        List.Transform(captures, each
+            if _ is list then @ProcessRanges(_) else
+            let
+                conversionSpec = Record.FieldOrDefault(RangeConversionParameters, [DataType])
+            in
+                if _ = [] or conversionSpec = null then _ else
+                if [Value] = null then _
+                else if [FieldName]? = conversionSpec[LowFieldName] then
+                    if [Operator] = "GreaterThan" then
+                        _ & [ FieldName = conversionSpec[FinalFieldName], Operator = "StartsAfter" ]
+                    else if [Operator] = "GreaterThanOrEquals" then
+                        let
+                            // so that we can use "sa" (starts after), we need to set the value to a millisecond earlier
+                            adjustedValue = [Value] - conversionSpec[Epsilon]
+                        in
+                            _ & [ FieldName = conversionSpec[FinalFieldName], Operator = "StartsAfter", Value = adjustedValue ]
+                    else if [Operator] = "LessThan" or [Operator] = "LessThanOrEquals" then
+                        _ & [ FieldName = conversionSpec[FinalFieldName] ]
+                    else
+                        []
+                else if [FieldName]? = conversionSpec[HighFieldName] then
+                    if [Operator] = "LessThan" then
+                        _ & [ FieldName = conversionSpec[FinalFieldName], Operator = "EndsBefore" ]
+                    else if [Operator] = "LessThanOrEquals" then
+                        let
+                            // so that we can use "eb" (ends before), we need to set the value to a millisecond later
+                            adjustedValue = [Value] + conversionSpec[Epsilon]
+                        in
+                            _ & [ FieldName = conversionSpec[FinalFieldName], Operator = "EndsBefore", Value = adjustedValue ]
+                    else if [Operator] = "GreaterThan" or [Operator] = "GreaterThanOrEquals" then
+                        _ & [ FieldName = conversionSpec[FinalFieldName] ]
+                    else
+                        []
+                else _
+        ) meta Value.Metadata(captures),
+
+    // Combines a list of search parameter capture records that are over the same search parameter
+    // but may represent different capture fields (like system, code).
+    // Returns a list of records, where all FieldName fields of the captured records will be set to null
+    EliminateSearchParameterCaptureFields = (records as list, toBeNegated as logical) as list =>
+        let
+            ProcessTokens = (records) =>
+                let
+                    systems = List.Select(records, each [FieldName] = "system"),
+                    codes = List.Select(records, each [FieldName] = "code"),
+                    ProcessTextFieldCapture = (capture) =>
+                        if (capture[Operator] = "Equals" or capture[Operator] = "StartsWith") and capture[Value] <> null then
+                            capture & [ FieldName = null, Operator = "Text" ]
+                        else
+                            [],
+                    texts = List.Transform(List.Select(records, each [FieldName] = "text"), ProcessTextFieldCapture)
+                in
+                    List.Transform(List.Zip({systems, codes}), each ProcessFieldsOfTokenSearchParameterCaptures(_{0}, _{1}, toBeNegated)) & texts,
+
+            ProcessQuantities = (records) =>
+                let
+                    numbers = List.Select(records, each [FieldName] = "number"),
+                    systems = List.Select(records, each [FieldName] = "system"),
+                    codes = List.Select(records, each [FieldName] = "code")
+                in
+                    List.Transform(List.Zip({numbers, systems, codes}), each ProcessFieldsOfQuantitySearchParameterCaptures(_{0}, _{1}, _{2}, toBeNegated)),
+
+            withFields = List.Select(records, each [FieldName]? <> null),
+            withoutFields = List.Select(records, each [FieldName]? = null),
+            searchParameterType = records{0}[SearchParameterType]
+        in
+            withoutFields &
+                (if withFields = {} then {} else
+                 if searchParameterType = "token" then ProcessTokens(withFields) else
+                 if searchParameterType = "quantity" then ProcessQuantities(withFields) else
+                 error Text.Format("Don't know how to combine parameters of type #{0} with FieldNames set", { searchParameterType })),
+
+    // Groups a list of search parameter capture records using the specified grouping function.
+    // The grouping function should return a list of the values to group by
+    // Returns a list of lists of records
+    GroupParameterCaptureRecords = (records as list, groupingFunction as function) as list =>
+        let
+            asKeyedTable = Table.FromRecords(List.Transform(records, each [ Key = groupingFunction(_), Value = _ ])),
+            grouped = Table.Group(asKeyedTable, "Key", { "Records", each [Value] } meta Value.Metadata(records))
+        in
+            if records = {} then {} else grouped[Records],
+
+    SearchParameterValueToText = (searchParameterType, dataType, value) =>
+        if searchParameterType = "composite"
+        then
+            Text.Combine(
+                List.Transform(
+                    value,
+                    each
+                        Record.FieldOrDefault(Record.Field(OperatorToPrefixPerSearchParameterType, [SearchParameterType]), [Operator]) &
+                        @SearchParameterValueToText([SearchParameterType], [DataType], [Value])),
+                "$")
+        else
+            let
+                textValue =
+                    if dataType = "date" then Date.ToText(value, "yyyy-MM-dd") else
+                    if dataType = "dateTime" or dataType = "instant" then DateTimeZone.ToText(value, "yyyy-MM-ddTHH:mm:ss.fffK") else
+                    if dataType = "boolean" then Logical.ToText(value) else
+                    if dataType = "decimal" or dataType = "integer" then Number.ToText(value) else
+                    value
+            in
+                Uri.EscapeDataString(textValue),
+
+    RecordsToORedSearchParameter = (records as list) =>
+        let
+            withModifiersAndPrefixes = List.Transform(
+                records,
+                each
+                    let
+                        specifiedValue = [Value],
+                        // should  this be interpreted as :missing=true?
+                        isMissingCheck = specifiedValue = null and [Operator] = "Equals",
+                        // should  this be interpreted as :missing=false?
+                        isNotMissingCheck = specifiedValue = null and [Operator] = "NotEquals",
+                        modifier = if isMissingCheck or isNotMissingCheck then ":missing" else Record.FieldOrDefault(Record.Field(OperatorToModifierPerSearchParameterType, [SearchParameterType]), [Operator]),
+                        prefix = if isMissingCheck or isNotMissingCheck then "" else Record.FieldOrDefault(Record.Field(OperatorToPrefixPerSearchParameterType, [SearchParameterType]), [Operator])
+                    in
+                        _ & [
+                                IsValid = if [FieldName]? <> null then error "FieldName not eliminated" else _ <> [] and (specifiedValue <> null or isMissingCheck or isNotMissingCheck) and modifier <> null and prefix <> null,
+                                Modifier = modifier,
+                                Prefix = prefix,
+                                Value = if isMissingCheck then "true" else if isNotMissingCheck then "false" else SearchParameterValueToText([SearchParameterType], [DataType], specifiedValue)
+                            ]),
+            allCompatible = List.AllEqual(withModifiersAndPrefixes, each [SearchParameterName]) and List.AllEqual(withModifiersAndPrefixes, each [Modifier]) and
+                List.MatchesAll(withModifiersAndPrefixes, each [IsValid]),
+            first = withModifiersAndPrefixes{0},
+            firstModifier = first[Modifier]
+        in
+            if not allCompatible then "" else
+            if firstModifier = ":not" and List.Count(withModifiersAndPrefixes) > 1 then "" else // we cannot combine negation (NOT a) OR (NOT b) is not the same as NOT (a or b)
+            first[SearchParameterName] & firstModifier & "=" & Text.Combine(List.Distinct(List.Transform(withModifiersAndPrefixes, each [Prefix] & [Value])), ","),
+
+    // Reduces a list of search parameter captures by combining captures that are
+    // of the same search parameter but different fields. Does this recursively for
+    // lists of lists of captures.
+    CombineSearchParameterCaptures =
+        MakeSearchParameterCaptureTreeVisitor(
+            each { [SearchParameterName], [Path], [UnionElement]? },
+            (captures) =>
+                if Value.Metadata(captures)[Operator] = "And" or List.Count(captures) = 1 then
+                    EliminateSearchParameterCaptureFields(captures, false)
+                else
+                    NegateCapturedParameters(EliminateSearchParameterCaptureFields(NegateCapturedParameters(captures), true))),
+
+    // Inspects a list of search parameter captures, looking to turn as many as possible into captures for composite search parameters.
+    // All components of a composite search parameter must match. Composites component captures will typically be found in the "Alternates"
+    // property on a capture.
+    CombineComposites = (captures) =>
+        let
+            individualCaptures = List.Select(captures, each _ is record and _ <> []),
+            emptyCaptures = List.Select(captures, each _ = []),
+            listCaptures = List.Transform(List.Select(captures, each _ is list), @CombineComposites),
+            Process = (captures) =>
+                let
+                    // create a list composite component captures
+                    compositeCandidates =
+                        List.Combine(
+                            List.Transform(
+                                individualCaptures,
+                                each
+                                    let
+                                        primary = _
+                                    in
+                                        if [Alternates]? = null then (if [CompositeElement]? = null then { } else { _ }) else
+                                        List.Transform(
+                                            List.Select([Alternates], each [CompositeElement]? <> null),
+                                            each _ & [
+                                                Value = primary[Value],
+                                                DataType = primary[DataType],
+                                                Operator = primary[Operator],
+                                                OriginatingSearchParameterName = primary[SearchParameterName],
+                                                Path = primary[Path]
+                                            ]))),
+
+                    // group by search parameter name (and its base path)
+                    groupedByName = GroupParameterCaptureRecords(compositeCandidates, each { [SearchParameterName], [CompositeBasePath] }),
+
+                    // get a list of "complete" composite captures (where all components have been captured)
+                    completeComposites =
+                        List.Combine(
+                            List.Transform(
+                                groupedByName,
+                                each
+                                    let
+                                        // the total number of components for this composite parameter
+                                        totalElementCount = _{0}[CompositeElementCount],
+
+                                        // group by component number
+                                        groups = List.Sort(GroupParameterCaptureRecords(_, each [CompositeElement]), (x, y) => Value.Compare(x{0}[CompositeElement], y{0}[CompositeElement])),
+
+                                        // create a table where each component index is a column
+
+                                        tableOfComponents = Table.FromColumns(groups, List.Transform(groups, each Number.ToText(_{0}[CompositeElement]))),
+
+                                        // This function is used to determine whether a row in tableOfComponents is valid, that is all components are properly set
+                                        RowValidityCriteria = each
+                                            let
+                                                fieldValues = Record.FieldValues(_),
+                                                nullValueCount = List.Count(List.Select(fieldValues, each [Value] = null))
+                                            in
+                                                // all components set
+                                                List.Count(fieldValues) = totalElementCount and
+
+                                                // no cells are empty
+                                                List.MatchesAll(fieldValues, each _ <> null) and
+
+                                                // no component requires a modifier, (like :under, :contains, etc.)
+                                                (nullValueCount > 0 or
+                                                    List.MatchesAll(
+                                                        fieldValues,
+                                                        each Record.FieldOrDefault(Record.Field(OperatorToModifierPerSearchParameterTypeForCompositeComponent, [SearchParameterType]), [Operator]) = "")) and
+
+                                                // either no values are null or they all are and have the same operator
+                                                (nullValueCount = 0 or
+                                                    (nullValueCount = totalElementCount and
+                                                    List.Count(List.Distinct(List.Transform(fieldValues, each [Operator]))) = 1)),
+
+                                        // get an initial set of valid entries
+                                        partialTableOfComponents = Table.SelectRows(tableOfComponents, RowValidityCriteria),
+
+                                        // Now consider the case where not all components of a composite are specified,
+                                        // but a full set of components already match. We can reuse the components of the complete
+                                        // composite to complete the remaining ones.
+
+                                        completeTableOfComponents =
+                                            let
+                                                rowElementsToCopy = Record.FieldValues(partialTableOfComponents{0}),
+                                                newCandidateRows =
+                                                    Table.FromRows(
+                                                        List.Transform(
+                                                            Table.ToRows(
+                                                                Table.SelectRows(
+                                                                    tableOfComponents,
+                                                                    each List.MatchesAny(Record.FieldValues(_), each _ = null))),
+                                                            each List.Transform(List.Zip({ _ , rowElementsToCopy }), each if _{0} = null then _{1} else _{0})),
+                                                        Table.ColumnNames(partialTableOfComponents))
+                                            in
+                                                if Table.IsEmpty(partialTableOfComponents) then
+                                                    partialTableOfComponents
+                                                else
+                                                    partialTableOfComponents & Table.SelectRows(newCandidateRows, RowValidityCriteria),
+
+                                        // Finally, in the case where =null is specified on all components of a composite,
+                                        // make sure that all component union elements are specified as null in another row
+                                        filteredOutIncompleteNullUnionElements =
+                                            Table.SelectRows(
+                                                completeTableOfComponents,
+                                                (r) =>
+                                                    List.MatchesAll(
+                                                        {0..(totalElementCount - 1)},
+                                                        each
+                                                            let
+                                                                columnName = Number.ToText(_),
+                                                                cell =  Record.Field(r, columnName),
+                                                                unionCount = cell[ComponentUnionElementCount]
+                                                            in
+                                                                if cell[Value] <> null or cell[Operator] <> "Equals" or cell[ComponentUnionElement]? = null then true else
+                                                                List.Count(
+                                                                    List.Distinct(
+                                                                        List.Transform(
+                                                                            List.Select(Table.Column(completeTableOfComponents, columnName), each [Value] = null and [Operator] = "Equals"),
+                                                                            each [ComponentUnionElement]))) = unionCount))
+                                    in
+                                        List.Transform(
+                                            Table.ToRows(filteredOutIncompleteNullUnionElements),
+                                            each [
+                                                SearchParameterName = _{0}[SearchParameterName],
+                                                SearchParameterType = "composite",
+                                                Value = _,
+                                                DataType = "",
+                                                Operator = "Equals",
+                                                UnionElement = filteredOutIncompleteNullUnionElements{0}[UnionElement]?,
+                                                UnionElementCount = filteredOutIncompleteNullUnionElements{0}[UnionElementCount]?
+                                            ]))),
+
+                    // In some cases, multiple composite parameters will match for the same set of original captures.
+                    // For example, code-value-quantity and combo-code-value-quantity will both match on Observation[code] and Observation[value][Quantity].
+                    // We want to take just one, and we pick the one that is the most selective, that it it is part the the smallest number of unions.
+                    // We keep the others in the alternate field. When used in an OR expression, it may be necessary to use one of the alternates.
+                    redundantCompleteCapturesEliminated =
+                        let
+                            groupedByNameValueOperator =
+                                GroupParameterCaptureRecords(
+                                    completeComposites,
+                                    each
+                                        Table.Sort(
+                                            Table.FromRows(List.Transform([Value], each { [OriginatingSearchParameterName], [Value], [Operator] })),
+                                            { "Column1", "Column2", "Column3" }))
+                        in
+                            List.Accumulate(
+                                groupedByNameValueOperator,
+                                {},
+                                (acc, g) => 
+                                    let 
+                                        sorted = List.Sort(g, each Record.FieldOrDefault([Value]{0}, "UnionElementCount", 0)),
+                                        primary = sorted{0} & [ Alternates = List.Skip(sorted, 1)]
+                                    in
+                                        acc & { primary }),
+
+                    // For composites where each component captures "= null" or "<> null", set the value
+                    // and operator on the composite to the value and operator of the components
+                    nullsPromoted = List.Transform(
+                        redundantCompleteCapturesEliminated,
+                        each
+                            if List.MatchesAll([Value], each [Value] = null) then
+                                if List.MatchesAll([Value], each [Operator] = "Equals") then
+                                    _ & [ Operator = "Equals", Value = null]
+                                else if List.MatchesAll([Value], each [Operator] = "NotEquals") then
+                                    _ & [ Operator = "NotEquals", Value = null]
+                                else
+                                    error "Unexpected combination of operators in composite. Should have been filtered out above."
+                            else
+                                _),
+
+                    // The original captures that did not end up being used as a composite component will been to be added back in
+                    nonCompositesToBeAddedBackIn =
+                        List.Transform(
+                            List.Select(
+                                List.Select(individualCaptures, each [CompositeElement]? = null),
+                                (nc) =>
+                                    not List.MatchesAny(
+                                        redundantCompleteCapturesEliminated,
+                                        each List.MatchesAny([Value], each [OriginatingSearchParameterName] = nc[SearchParameterName]))),
+                            each 
+                                if [Alternates]? = null then _ else
+                                _ & [ Alternates = List.Select([Alternates], each [CompositeElement]? = null)])
+
+                in
+                   nullsPromoted & nonCompositesToBeAddedBackIn
+        in
+            ((if Value.Metadata(captures)[Operator] = "Or" then individualCaptures else Process(individualCaptures)) & listCaptures & emptyCaptures) meta Value.Metadata(captures),
+
+    // Discards search parameter captures that specify null = true where the other elements of the search parameter are not captured with null = true.
+    // For example, if a search parameter is defined with the FHIRPath a | b, and the M expression is [a] = null then that is not sufficient for the search
+    // parameter to be specified as :missing=true (but [a] = null and [b] = null would be)
+    EnsureNullChecksSufficientForUnions =
+        MakeSearchParameterCaptureTreeVisitor(
+            each { [SearchParameterName] },
+            (captures as list) =>
+                let
+                    capturesWhereUnionElementChecksNull = List.Select(captures, each [UnionElement]? <> null and [Value] = null and [Operator] = "Equals"),
+                    filteredCaptures = List.RemoveItems(captures, capturesWhereUnionElementChecksNull),
+                    unionElementCount = capturesWhereUnionElementChecksNull{0}[UnionElementCount],
+                    areAllElementsChecked = List.Count(List.Distinct(List.Transform(capturesWhereUnionElementChecksNull, each [UnionElement]))) = unionElementCount
+                in
+                    if capturesWhereUnionElementChecksNull = {} then captures else
+                    if areAllElementsChecked then  filteredCaptures & { capturesWhereUnionElementChecksNull{0} & [ UnionElement = null, UnionElementCount = null ] } else
+                    filteredCaptures & { [] }),
+    
+    // ORs can only be applied to expressions over the same search parameter. So you cannot express code=c1 OR component-code=c2 in FHIR search.
+    // However, it may be possible to turn captures into something that can be ORed together, such as combo-code=c1 OR combo-code=c2.
+    // We do this be looking at the Alternates field on the capture record, and looking for search parameter among the primary and alternates 
+    // that is common to all the captures.
+    ChooseCommonSearchParameterForOr = 
+        MakeSearchParameterCaptureTreeVisitor(
+            null,
+            (captures as list ) =>
+                if Value.Metadata(captures)[Operator] = "And" then captures else
+                if List.Count(List.Distinct(List.Transform(captures, each [SearchParameterName]))) = 1 then captures else
+                let
+                    allAlternates = 
+                        List.Combine(
+                            List.Transform(
+                                captures,
+                                (primary) =>
+                                    let
+                                        preparedAlternates =  
+                                            if primary[Alternates]? = null then {} else 
+                                            List.Transform(
+                                                primary[Alternates], 
+                                                each _ & [ 
+                                                    Value = primary[Value], 
+                                                    Operator = primary[Operator], 
+                                                    DataType = primary[DataType], 
+                                                    Path = primary[Path]])
+                                    in
+                                        { primary } & preparedAlternates)),
+                    grouped = GroupParameterCaptureRecords(allAlternates, each [SearchParameterName]),
+                    validOptions = List.Sort(List.Select(grouped, each List.Count(_) = List.Count(captures)), each Record.FieldOrDefault(_{0}, "UnionElementCount", 0))
+                in
+                    if validOptions = {} then captures else validOptions{0}),
+
+    // Creates a function for visiting a tree of search parameter captures (leaf nodes are records,
+    // non-leaf nodes are lists with metadata specifying the operator that relates the captures (AND or OR)).
+    // This function takes a function with which to group the captured records and a function to process
+    // a group created by the first function. The result is returned ungrouped.
+    MakeSearchParameterCaptureTreeVisitor = (groupingFunction as nullable function, processor as function) =>
+        let
+            self = (captures) =>
+                let
+                    individualCaptures = List.Select(captures, each _ is record and _ <> []),
+                    emptyCaptures = List.Select(captures, each _ = []),
+                    listCaptures = List.Transform(List.Select(captures, each _ is list), @self),
+                    grouped = if groupingFunction = null then { individualCaptures } else GroupParameterCaptureRecords(individualCaptures, groupingFunction),
+                    combined = List.Combine(List.Transform(grouped, each processor(_ meta Value.Metadata(captures)))) & listCaptures & emptyCaptures
+                in
+                    combined meta Value.Metadata(captures)
+        in
+            self,
+
+    // Simplifies a tree of search parameter captures. Combines a nested list with its parent
+    // if their operators are the same or if the inner list has a single element.
+    // For example, (AND a, b, (AND c, d)) becomes (AND a, b, c, d)
+    // And (AND a, b, (OR c)) becomes (AND, a, b, c)
+    SimplifyCaptures = (captures as list) as list =>
+        let
+            simplified = List.Accumulate(
+                captures,
+                {},
+                (acc, element) =>
+                    if not (element is list) then acc & { element } else
+                    let
+                        combined = @SimplifyCaptures(element)
+                    in
+                        if Value.Metadata(combined)[Atomic]? <> true and
+                            (Value.Metadata(captures)[Operator] = Value.Metadata(combined)[Operator] or List.Count(combined) = 1) then
+                            acc & combined
+                        else
+                            acc & { combined }),
+            withMetadata = simplified meta Value.Metadata(captures),
+            singleAsAnd = if List.Count(withMetadata) = 1 then withMetadata meta (Value.Metadata(withMetadata) & [ Operator = "And" ]) else withMetadata
+        in
+            singleAsAnd,
+
+    // Removes the [ Atomic = true ] metadata from lists of search parameter captures and negates the entries if necessary.
+    RemoveAtomics =  (captures as list) as list =>
+        let
+            withoutMetadata = List.Transform(captures, each if _ is list then @RemoveAtomics(_) else _),
+            metadata = Value.Metadata(captures)
+        in
+            if metadata[Atomic]? = true then
+                if metadata[Negate]? = true then
+                    NegateCapturedParameters(withoutMetadata) meta Record.RemoveFields(metadata, {"Atomic", "Negate"}, MissingField.Ignore)
+                else
+                    withoutMetadata meta Record.RemoveFields(metadata, {"Atomic"}, MissingField.Ignore)
+            else
+                withoutMetadata meta metadata,
+
+    // An adaptation of SimplifyCaptures and SimplifyCaptures that is meant to be run
+    // right before CombineComposites. It selectively inlines nested atomic lists of captures as long as there is at most one nested
+    // capture list with a given path. This is so that nested elements can be considered when combining composites, but we want to
+    // avoid combining captures with the same path from different atomic groups (which would imply separate Table.MatchesAnyRows() calls)
+    SimplifyCapturesForComposites = (captures as list) as list =>
+        let
+            operator = Value.Metadata(captures)[Operator],
+            simplified = List.Transform(captures, each  if _ is list then @SimplifyCapturesForComposites(_) else _),
+            atomicListCaptures = List.Select(simplified, each _ is list and Value.Metadata(_)[Atomic]? = true and (Value.Metadata(_)[Negate]? <> true or List.Count(_) = 1) and Value.Metadata(_)[Operator] = operator),
+            otherCaptures = List.Difference(simplified, atomicListCaptures),
+            groupedByPath = GroupParameterCaptureRecords(atomicListCaptures, each Value.Metadata(_)[Path])
+        in
+            (List.Combine(List.Select(groupedByPath, each List.Count(_) > 1)) &
+             List.Combine(List.Transform(List.Combine(List.Select(groupedByPath, each List.Count(_) = 1)), each if Value.Metadata(_)[Negate]? = true then NegateCapturedParameters(_) else _)) &
+             otherCaptures) meta Value.Metadata(captures),
+
+    ProcessCombinedElements = (elements) =>
+        if Value.Metadata(elements)[Operator] = "And" then
+            let
+                listParameters = List.Transform(List.Select(elements, each _ is list), @ProcessCombinedElements),
+                andParameters = List.Select(elements, each _ is record),
+                ands = List.Transform(andParameters, each RecordsToORedSearchParameter({ _ })),
+                combined = ands & listParameters
+            in
+                Text.Combine(List.Select(combined, each _ <> "") , "&")
+        else
+            if not List.MatchesAll(elements, each _ is record and _ <> []) then "" else
+                RecordsToORedSearchParameter(elements),
+
+    // This turns expressions that look like this:
+    // Table.MatchesAnyRows([myfield], each true)
+    // into:
+    // Table.MatchesAnyRows([myfield], each _ <> null)
+    // The resulting expression will be recognized as a :missing=false expression
+    BooleanConstantRowExpressionToNullCheck = MakeRewriter((visit) =>
+        [
+            VisitRowExpression = (expression) =>
+                let
+                    rowType = Record.FieldValues(Type.FunctionParameters(expression[Type])){0}
+                in
+                    expression & [ Value = visit(expression[Value], rowType) ],
+            VisitConstant = (expression, rowExpressionType) =>
+                if rowExpressionType = null or not (expression[Value] is logical) then expression else
+                [
+                    Kind = "Binary",
+                    Operator = (if expression[Value] then "NotEquals" else "Equals"),
+                    Left = RowExpression.Row & [ Type = rowExpressionType ],
+                    Right = [ Kind = "Constant", Value = null ]
+                ]
+        ]
+    ),
+
+    // Rewrites an expression tree turning comparisons that look like this:
+    // 2 = [a]
+    // into:
+    // [a] = 2
+    NormalizeBinaryOperands = MakeRewriter((visit) =>
+        [
+            VisitBinary = (expression) as record =>
+                let
+                    FlipOperator = (op) =>
+                        if op = "GreaterThan" then "LessThan" else
+                        if op = "LessThan" then "GreaterThan" else
+                        if op = "GreaterThanOrEquals" then "LessThanOrEquals" else
+                        if op = "LessThanOrEquals" then "GreaterThanOrEquals" else
+                        if op = "StartsWith" then "FlippedStartsWith" else
+                        if op = "FlippedStartsWith" then "StartsWith" else
+                        if op = "Contains" then ... else
+                        op,
+                    operator = expression[Operator],
+                    flippedOp = try FlipOperator(operator)
+                in
+                    if expression[Left][Kind] = "Constant" and not flippedOp[HasError] then
+                        expression & [ Operator = flippedOp[Value], Left = @NormalizeBinaryOperands(expression[Right]), Right = expression[Left] ]
+                    else
+                        expression & [ Left = @NormalizeBinaryOperands(expression[Left]), Right = @NormalizeBinaryOperands(expression[Right]) ]
+        ]),
+
+    // The expression we get from RowExpression.From() will not expand out
+    // nested row expressions, so we do that here.
+    // Note that we have no way of know which RowExpression.Row variable an inner function's body refers to.
+    // For example, cannot distinguish between
+    // (r1) => Table.MatchesAnyRows(r1[a], (r2) => r2[b])
+    // (r1) => Table.MatchesAnyRows(r1[a], (r2) => r1[b])
+    // We assume the former.
+    ExpandNestedFunctions = MakeRewriter((visit) =>
+        [
+            VisitConstant = (expression) =>
+                let
+                    value = expression[Value],
+                    valueType = Value.Type(value)
+                in
+                    if value is function and
+                        Record.FieldCount(Type.FunctionParameters(valueType)) = 1 and // make sure signature is what we expect
+                        Value.Metadata(valueType)[Documentation.Name]? = null // make sure it's not one of the built-in functions
+                    then
+                        [ Kind = "RowExpression", Value = @ExpandNestedFunctions(RowExpression.From(value)) ]
+                    else
+                        expression
+        ]),
+
+    // Adds a Type member on expression records where it can be resolved against the schema.
+    // The implementation is not complete, but suffices for our needs.
+    TypeResolve = MakeRewriter((visit) =>
+        [
+            VisitConstant = (expression, rootType) => expression & [ Type = Value.Type(expression[Value]) ],
+            VisitInvocation = (expression, rootType) =>
+                let
+                    isRowExpression = expression = RowExpression.Row,
+                    resolvedFunction = if isRowExpression then expression[Function] else visit(expression[Function], rootType),
+                    functionReturnType = if isRowExpression then rootType else Type.FunctionReturn(resolvedFunction[Type]),
+                    isTableFunction = FunctionsEqual(resolvedFunction[Value], Table.MatchesAnyRows) or FunctionsEqual(resolvedFunction[Value], Table.MatchesAllRows),
+                    isListFunction = FunctionsEqual(resolvedFunction[Value], List.MatchesAny) or FunctionsEqual(resolvedFunction[Value], List.MatchesAll),
+                    resolvedArguments =
+                        if isTableFunction or isListFunction then
+                            let
+                                firstArgument = visit(expression[Arguments]{0}, rootType),
+                                firstArgumentType = firstArgument[Type]?,
+                                rowType =
+                                    if isTableFunction then
+                                        if firstArgumentType <> null and Type.Is(firstArgumentType, Table.Type) then Type.TableRow(firstArgumentType) else rootType
+                                    else
+                                        if firstArgumentType <> null and Type.Is(firstArgumentType, List.Type) then Type.ListItem(firstArgumentType) else rootType,
+                                conditionArgument = visit(expression[Arguments]{1}, rowType)
+                            in
+                                { firstArgument, conditionArgument }
+                        else
+                            List.Transform(expression[Arguments], each visit(_, rootType))
+                in
+                        expression & [ Function = resolvedFunction, Arguments = resolvedArguments, Type = functionReturnType ],
+
+            VisitUnary = (expression, rootType) =>
+                let
+                    resolvedExpression = visit(expression[Expression], rootType)
+                in
+                    expression & [ Expression = resolvedExpression, Type = resolvedExpression[Type]? ],
+            VisitIf = (expression, rootType) => expression & [ Condition = visit(expression[Condition], rootType), TrueCase = visit(expression[TrueCase], rootType), FalseCase = visit(expression[FalseCase], rootType)],
+            VisitFieldAccess =  (expression, rootType) =>
+                let
+                    resolvedInner = visit(expression[Expression], rootType),
+                    innerType = resolvedInner[Type]?,
+                    thisType = if innerType = null or not Type.Is(innerType, Record.Type) then null else Record.FieldOrDefault(Type.RecordFields(innerType), expression[MemberName], [])[Type]?
+                in
+                    expression & [ Expression = resolvedInner, Type = thisType ],
+
+            VisitRowExpression = (expression, rootType) => expression & [ Value = visit(expression[Value], rootType), Type = type function (row as rootType) as logical ]
+        ]),
+
+    // Turns accesses to boolean fields, such as:
+    // each [a]
+    // into:
+    // each [a] = true
+    NormalizeBooleanExpressions = MakeRewriter((visit) =>
+        [
+            VisitBinary = (expression, parent) => expression & [ Left = visit(expression[Left], expression), Right = visit(expression[Right], expression)],
+            VisitInvocation = (expression, parent) => expression & [ Arguments = List.Transform(expression[Arguments], each visit(_, expression)) ],
+            VisitUnary = (expression, parent) =>
+                let
+                    child = expression[Expression]
+                in
+                    if expression[Operator] = "Not" and child[Kind] = "FieldAccess" and child[Type]? = Logical.Type
+                    then
+                        [ Kind = "Binary", Operator = "Equals", Left = child, Right = [ Kind = "Constant", Value = false ]]
+                    else
+                        expression & [ Expression = visit(child, expression) ],
+
+            VisitIf = (expression, parent) => expression & [ Condition = visit(expression[Condition], expression), TrueCase = visit(expression[TrueCase], expression), FalseCase = visit(expression[FalseCase], expression)],
+            VisitFieldAccess =  (expression, parent) =>
+                if expression[Type]? <> Logical.Type then expression else
+                if parent = null or parent[Kind] <> "Binary" or (parent[Operator] <> "Equals" and parent[Operator] <> "NotEquals")
+                then
+                    [ Kind = "Binary", Operator = "Equals", Left = expression, Right = [ Kind = "Constant", Value = true ]]
+                else
+                    expression,
+
+            VisitRowExpression =  (expression, parent) => expression & [ Value = visit(expression[Value], expression) ]
+        ]),
+
+    // Attempts to negate an expression, or throws if we don't know how to
+    TryNegate = MakeRewriter((visit) =>
+        [
+            VisitUnary = (expression) => if expression[Operator] = "Not" then expression[Expression] else ...,
+            VisitConstant = (expression) =>
+                if expression[Value] = true then expression & [ Value = false ] else
+                if expression[Value] = false then expression & [ Value = true ] else ...,
+            VisitBinary = (expression) =>
+                let
+                    op = expression[Operator],
+                    left = try visit(expression[Left]),
+                    right = try visit(expression[Right])
+                in
+                    if op = "Equals" then expression & [ Operator = "NotEquals"] else
+                    if op = "NotEquals" then expression & [ Operator = "Equals"] else
+                    if op = "LessThan" then expression & [ Operator = "GreaterThanOrEquals"] else
+                    if op = "LessThanOrEquals" then expression & [ Operator = "GreaterThan"] else
+                    if op = "GreaterThanOrEquals" then expression & [ Operator = "LessThan"] else
+                    if op = "GreaterThan" then expression & [ Operator = "LessThanOrEquals"] else
+                    if (op = "And" or op = "Or") and not left[HasError] and not right[HasError] then // force evaluation before constructing record
+                        expression & [ Operator = if op = "And" then "Or" else "And", Left = left[Value], Right = right[Value] ]
+                    else
+                        ...,
+
+            VisitInvocation = (expression) =>
+                // Turn Table.MatchesAnyRows into Table.MatchesAllRows and vice versa
+                let
+                    arguments = expression[Arguments],
+                    negatedRowExpression = try visit(expression[Arguments]{1}),
+                    oppositeFunction =
+                        if FunctionsEqual(expression[Function][Value], Table.MatchesAllRows) then Table.MatchesAnyRows else
+                        if FunctionsEqual(expression[Function][Value], Table.MatchesAnyRows) then Table.MatchesAllRows else
+                        if FunctionsEqual(expression[Function][Value], List.MatchesAll) then List.MatchesAny else
+                        if FunctionsEqual(expression[Function][Value], List.MatchesAny) then List.MatchesAll else
+                        null
+                in
+                    if oppositeFunction = null or List.Count(arguments) <> 2 or negatedRowExpression[HasError] then ...else
+                    expression & [
+                        Function = [ Kind = "Constant", Value = oppositeFunction ],
+                        Arguments = {
+                            arguments{0},
+                            negatedRowExpression[Value]
+                        }
+                    ],
+            VisitIf = (expression) => ...
+        ]),
+
+    // Tries to eliminate "not" operators from an expression, so that we turn:
+    // each not([a] = 1 or [a] = 2)
+    // into
+    // each [a] != 1 and [a] != 2
+    TryEliminateNots = MakeRewriter((visit) =>
+        [
+            VisitUnary = (expression) =>
+                if expression[Operator] <> "Not" then expression
+                else try TryNegate(expression[Expression]) otherwise expression
+        ]),
+
+    // turn an invocation of Table.MatchesAllRows into a negated Table.MatchesAnyRows
+    TryRewriteMatchesAllRows = MakeRewriter((visit) =>
+        [
+            VisitInvocation = (expression) =>
+                if FunctionsEqual(expression[Function][Value], Table.MatchesAllRows) or
+                   FunctionsEqual(expression[Function][Value], List.MatchesAll)
+                then
+                    let
+                        negated = try TryNegate(expression)
+                    in
+                        if negated[HasError] then ... else
+                        [ Kind = "Unary", Operator = "Not", Expression = negated[Value] ]
+                else
+                    expression
+        ]),
+
+    // Determines whether the context expression parameter (the second parameter) is contained in the expression to be visited (first parameter)
+    // Example: Does [a] exist in [a][b] = 5? Yes.
+    ContainsSubExpression = MakeVisitor((visit) =>
+        [
+            VisitBinary = (expression, ctx) =>
+                expression = ctx or visit(expression[Left], ctx) or visit(expression[Right], ctx),
+            VisitConstant = (expression, ctx) => expression = ctx,
+            VisitInvocation = (expression, ctx) =>
+                expression = ctx or
+                List.MatchesAny(expression[Arguments], each visit(_, ctx)),
+            VisitUnary = (expression, ctx) => expression = ctx or visit(expression[Expression], ctx),
+            VisitIf = (expression, ctx) =>
+                expression = ctx or
+                visit(expression[Condition], ctx) or
+                visit(expression[TrueCase], ctx) or
+                visit(expression[FalseCase], ctx),
+            VisitFieldAccess =  (expression, ctx) => expression = ctx or visit(expression[Expression], ctx),
+            VisitRowExpression = (expression, ctx) => expression = ctx or visit(expression[Value], ctx)
+        ]
+    ),
+
+    // Annotates the null check in a null-conditional expression.
+    // For example, the expression [a] <> null and [a][b] = 5
+    // will have [a] <> null annotated with NullConditional = "And".
+    // Similarly, in the expression [a] = null or [a][b] = false,
+    // [a] = null will be annotated with NullConditional = "Or".
+    AnnotateNullConditionalExpressions = MakeRewriter((visit) =>
+        [
+            VisitBinary = (expression) =>
+                if expression[Operator] = "And" then
+                    let
+                        leftVisited = visit(expression[Left]),
+                        rightVisited = visit(expression[Right]),
+                        leftSimplified = if leftVisited[Kind] = "Binary" and leftVisited[Left][NullConditional]? = "And" then leftVisited[Right] else leftVisited,
+                        rightSimplified = if rightVisited[Kind] = "Binary" and rightVisited[Left][NullConditional]? = "And" then rightVisited[Right] else rightVisited
+                    in
+                        if  leftSimplified[Kind] = "Binary" and
+                            leftSimplified[Operator] = "NotEquals" and
+                            leftSimplified[Right][Kind] = "Constant" and
+                            leftSimplified[Right][Value] = null and
+                            ContainsSubExpression(rightSimplified, leftSimplified[Left])
+                        then
+                            expression & [ Left = leftVisited & [ NullConditional = "And" ], Right = rightVisited ]
+                        else
+                            expression & [ Left = leftVisited, Right = rightVisited ]
+                else if expression[Operator] = "Or" then
+                    let
+                        leftVisited = visit(expression[Left]),
+                            rightVisited = visit(expression[Right]),
+                            leftSimplified = if leftVisited[Kind] = "Binary" and leftVisited[Left][NullConditional]? = "Or" then leftVisited[Right] else leftVisited,
+                            rightSimplified = if rightVisited[Kind] = "Binary" and rightVisited[Left][NullConditional]? = "Or" then rightVisited[Right] else rightVisited
+                    in
+                            if  leftSimplified[Kind] = "Binary" and
+                                leftSimplified[Operator] = "Equals" and
+                                leftSimplified[Right][Kind] = "Constant" and
+                                leftSimplified[Right][Value] = null and
+                                ContainsSubExpression(rightSimplified, leftSimplified[Left])
+                        then
+                                expression & [ Left = leftVisited & [ NullConditional = "Or" ], Right = rightVisited ]
+                        else
+                            expression & [ Left = leftVisited, Right = rightVisited ]
+                else
+                    expression
+        ]),
+
+    // Turns an expression [listField] = null into
+    // not List.MatchesAny([listField], _ <> null), which may be recognized as :missing=true.
+    // Does the same for fields of type table. Note that this implementation is limited to a
+    // single field level. For example, if the expression is [component] = null on Observation,
+    // then there are about sx search parameters that we would set to null. We are not
+    // currently doing that.
+    TableOrListIsNullToMissingPattern = MakeRewriter((visit) =>
+        [
+            VisitBinary = (expression) =>
+                if expression[Operator] = "Equals" and
+                   expression[Right][Kind] = "Constant" and
+                   expression[Right][Value] = null and
+                   expression[Left][Type]? <> null and
+                   (Type.Is(expression[Left][Type], List.Type) or
+                    Type.Is(expression[Left][Type], Table.Type)) and
+                   expression[Left][NullConditional]? <> "Or"
+                then
+                    [
+                        Kind = "Unary",
+                        Operator = "Not",
+                        Expression = [
+                            Kind = "Invocation",
+                            Function = [
+                                Kind = "Constant",
+                                Value = if Type.Is(expression[Left][Type], List.Type) then List.MatchesAny else Table.MatchesAnyRows
+                            ],
+                            Arguments = {
+                                expression[Left],
+                                [
+                                    Kind = "RowExpression",
+                                    Value = [
+                                        Kind = "Binary",
+                                        Operator = "NotEquals",
+                                        Left = RowExpression.Row,
+                                        Right = [ Kind = "Constant", Value = null ]
+                                    ]
+                                ]
+                            }
+                        ]
+                    ]
+                else
+                    expression & [ Left = visit(expression[Left]), Right = visit(expression[Right]) ]
+
+        ]
+    ),
+
+    // When the user filters on an expression like
+    // each Table.MatchesAnyRows([meta][security], each [code] = "c")
+    // PowerQuery actually gives us
+    // each List.MatchesAny(Table.ToRecords([meta][security]), each [code] = "c'))
+    // Another example: the user specifies
+    // each List.MatchesAny([category], each _ = "food")
+    // but we get
+    // each not List.IsEmpty(List.Select([category], each _ = "food"))
+    // This rewriter undoes these transformations
+    TurnListMatchesAnyToTableMatchesAnyRows = MakeRewriter((visit) =>
+        [
+            RestoreTableFunction = (expression) =>
+                let
+                    listArgument = expression[Arguments]{0},
+                    isMatchesAny = FunctionsEqual(expression[Function][Value], List.MatchesAny),
+                    isMatchesAll = FunctionsEqual(expression[Function][Value], List.MatchesAll)
+                in
+                    if
+                        (isMatchesAny or isMatchesAll) and
+                        List.Count(expression[Arguments]) = 2 and
+                        listArgument[Kind] = "Invocation" and
+                        FunctionsEqual(listArgument[Function][Value], Table.ToRecords) and
+                        List.Count(listArgument[Arguments]) = 1
+                    then
+                        [
+                            Kind = "Invocation",
+                            Function = [ Kind = "Constant", Value = if isMatchesAny then Table.MatchesAnyRows else Table.MatchesAllRows ],
+                            Arguments = {
+                                listArgument[Arguments]{0},
+                                expression[Arguments]{1}
+                            }
+                        ]
+                    else
+                        null,
+
+            RestoreListFunction = (expression) =>
+                if FunctionsEqual(expression[Function][Value], List.IsEmpty) and
+                   List.Count(expression[Arguments]) = 1 and
+                   expression[Arguments]{0}[Kind] = "Invocation" and
+                   FunctionsEqual(expression[Arguments]{0}[Function][Value], List.Select) then
+                    [
+                        Kind = "Unary",
+                        Operator = "Not",
+                        Expression = [
+                            Kind = "Invocation",
+                            Function = [
+                                Kind = "Constant",
+                                Value = List.MatchesAny
+                            ],
+                            Arguments = List.Transform(expression[Arguments]{0}[Arguments], visit)
+                        ]
+                    ]
+                else
+                    null,
+
+            VisitInvocation = (expression) =>
+                let
+                    restoredTableFunction = RestoreTableFunction(expression),
+                    restoredListFunction = RestoreListFunction(expression)
+                in
+                    if restoredTableFunction <> null then restoredTableFunction else
+                    if restoredListFunction <> null then restoredListFunction else
+                        expression
+        ]
+    ),
+
+    // This is a MONSTROUSLY GROTESQUE workaround for the ASTs being heavily mangled in an inner row expression.
+    // Specifically, if the user specifies the given row expression:
+    // each Table.MatchesAnyRows([category], each Table.MatchesAnyRows([coding], each [code] = "c"))
+    // Once we expand the inner row expression, we are given an AST that looks like this:
+    // each Table.MatchesAnyRows([category], each MysteryFunction1(MysteryFunction2(MysteryFunction3([coding], Table.Type), each [code] = "c"), type logical))
+    // MysteryFunctions 1, 2, and 3 do do not have Documentation.Name set on their type's metadata.
+    // MysteryFunction1 and MysteryFunction3 are Value.ReplaceType
+    // MysteryFunction2 is a wrapper around Table.MatchesAnyRows.
+    //
+    // This rewriter determines whether a function appears to be Value.ReplaceType by looking at the signature and throws away the call (keeping the first argument).
+    // Then for Table.MatchesAnyRows and Table.MatchesAllRows, it actually calls the function with a few test cases to see how it behaves.
+    // If it looks, swims, and quacks like Table.MatchesAnyRows then it must be Table.MatchesAnyRows, right?
+    // Hopefully, this workaround won't be needed in the future.
+    RestoreFunctionCalls = MakeRewriter((visit) =>
+        [
+            IsValueReplaceType = (f) =>
+                FunctionsEqual(f, Value.ReplaceType) or
+                (
+                    let
+                        functionType = Value.Type(f),
+                        argTypes = Type.FunctionParameters(functionType),
+                        returnType = Type.FunctionReturn(functionType)
+                    in
+                        Record.FieldCount(argTypes) = 2 and
+                        argTypes[value]? = type any and
+                        argTypes[#"type"]? = type type and
+                        returnType = type any
+                ),
+
+            testTable = #table({ "EachDifferent", "AllSame" },{ { 0, 1 }, { 1, 1 } }),
+
+            IsTableMatchesAnyRows = (f) =>
+                FunctionsEqual(f, Table.MatchesAnyRows) or
+                (
+                    let
+                        functionType = Value.Type(f),
+                        argTypes = Type.FunctionParameters(functionType),
+                        returnType = Type.FunctionReturn(functionType)
+                    in
+                        Record.FieldCount(argTypes) = 2 and
+                        returnType = type any
+                        and (try f(testTable, each [EachDifferent] = 1) and f(testTable, each [EachDifferent] = 0) and not f(testTable, each [EachDifferent] = 2) otherwise false)
+                ),
+
+            IsTableMatchesAllRows = (f) =>
+                FunctionsEqual(f, Table.MatchesAllRows) or
+                (
+                    let
+                        functionType = Value.Type(f),
+                        argTypes = Type.FunctionParameters(functionType),
+                        returnType = Type.FunctionReturn(functionType)
+                    in
+                        Record.FieldCount(argTypes) = 2 and
+                        returnType = type any
+                        and (try not f(testTable, each [EachDifferent] = 1) and not f(testTable, each [EachDifferent] = 0) and f(testTable, each [AllSame] = 1) otherwise false)
+                ),
+
+            testList = { 2, 4, 6 },
+
+            IsListMatchesAny = (f) =>
+                FunctionsEqual(f, List.MatchesAny) or
+                (
+                    let
+                        functionType = Value.Type(f),
+                        argTypes = Type.FunctionParameters(functionType),
+                        returnType = Type.FunctionReturn(functionType)
+                    in
+                        Record.FieldCount(argTypes) = 2 and
+                        returnType = type any
+                        and (try f(testList, each _ = 2) and f(testList, each _ = 4) and f(testList, each _ = 6) and not f(testList, each _ = 1) otherwise false)
+                ),
+
+            IsListMatchesAll = (f) =>
+                FunctionsEqual(f, List.MatchesAll) or
+                (
+                    let
+                        functionType = Value.Type(f),
+                        argTypes = Type.FunctionParameters(functionType),
+                        returnType = Type.FunctionReturn(functionType)
+                    in
+                        Record.FieldCount(argTypes) = 2 and
+                        returnType = type any
+                        and (try not f(testList, each _ = 2) and not f(testList, each _ = 1) and f(testList, each Number.Mod(_, 2) = 0) otherwise false)
+                ),
+
+            IsRecordField = (f) =>
+                FunctionsEqual(f, Record.Field) or
+                (
+                    let
+                        functionType = Value.Type(f),
+                        argTypes = Type.FunctionParameters(functionType),
+                        returnType = Type.FunctionReturn(functionType)
+                    in
+                        Record.FieldCount(argTypes) = 2 and
+                        returnType = type any
+                        and (try f([ A = "a" ], "A") = "a" and f([ B = "a" ], "B") = "a" otherwise false)
+                ),
+
+            VisitInvocation = (expression) =>
+                let
+                    func = expression[Function][Value],
+                    visitedArguments = List.Transform(expression[Arguments], visit)
+                in
+                    if IsValueReplaceType(func) then
+                        visit(expression[Arguments]{0})
+                    else if IsTableMatchesAnyRows(func) then
+                        expression & [ Function = expression[Function] & [ Value = Table.MatchesAnyRows ], Arguments = visitedArguments ]
+                    else if IsTableMatchesAllRows(func) then
+                        expression & [ Function = expression[Function] & [ Value = Table.MatchesAllRows ], Arguments = visitedArguments ]
+                    else if IsListMatchesAny(func) then
+                        expression & [ Function = expression[Function] & [ Value = List.MatchesAny ], Arguments = visitedArguments ]
+                    else if IsListMatchesAll(func) then
+                        expression & [ Function = expression[Function] & [ Value = List.MatchesAll ], Arguments = visitedArguments ]
+                    else if IsRecordField(func) and List.Count(visitedArguments) = 2 and visitedArguments{1}[Kind] = "Constant" then
+                        [ Kind = "FieldAccess", MemberName = visitedArguments{1}[Value], Expression = visitedArguments{0} ]
+                    else
+                        expression & [ Arguments = visitedArguments]
+        ]
+    ),
+
+    // Turns well-known function calls into binary expressions
+    FunctionsToOperators = MakeRewriter((visit) =>
+        [
+            VisitInvocation = (expression) =>
+                if FunctionsEqual(expression[Function][Value], Text.StartsWith) and List.Count(expression[Arguments]) >= 2 then
+                    [ Kind = "Binary", Operator = "StartsWith", Left = visit(expression[Arguments]{0}), Right = visit(expression[Arguments]{1}) ]
+                else if FunctionsEqual(expression[Function][Value], Text.Contains) and List.Count(expression[Arguments]) >= 2 then
+                    [ Kind = "Binary", Operator = "Contains", Left = visit(expression[Arguments]{0}), Right = visit(expression[Arguments]{1}) ]
+                else
+                    expression & [ Arguments = List.Transform(expression[Arguments], visit) ]
+        ]),
+
+    Fold = (resourceType as type, expression as record, patternList as list) =>
+        let
+            withNestedFunctionsExpanded =  ExpandNestedFunctions(expression),
+            withRestoredFunctions = RestoreFunctionCalls(withNestedFunctionsExpanded),
+            withFunctionsAsOperators = FunctionsToOperators(withRestoredFunctions),
+            withListMatchesToTableMatches = TurnListMatchesAnyToTableMatchesAnyRows(withFunctionsAsOperators),
+            withNormalizedBinaryOperands = NormalizeBinaryOperands(withListMatchesToTableMatches),
+            withTypesResolved = TypeResolve(withNormalizedBinaryOperands, Type.TableRow(resourceType)),
+            withNormalizedBooleanExpressions = NormalizeBooleanExpressions(withTypesResolved),
+            withBooleanConstantRowsConvertedToNullChecks = BooleanConstantRowExpressionToNullCheck(withNormalizedBooleanExpressions),
+            withNotsEliminated = TryEliminateNots(withBooleanConstantRowsConvertedToNullChecks),
+            withMatchesAllNegated = TryRewriteMatchesAllRows(withNotsEliminated),
+            withAnnotatedNullConditionalExpressions = AnnotateNullConditionalExpressions(withMatchesAllNegated),
+            withNullsAsMissingPatterns = TableOrListIsNullToMissingPattern(withAnnotatedNullConditionalExpressions),
+
+            captures = WalkExpressionTreeWithPatternList(withNullsAsMissingPatterns, patternList),
+            withRangesProcessed = ProcessRanges(captures),
+            combinedCaptures = CombineSearchParameterCaptures(withRangesProcessed),
+            simplifiedCombined = SimplifyCapturesForComposites(combinedCaptures),
+            compositesProcessed = CombineComposites(simplifiedCombined),
+            atomicsRemoved = RemoveAtomics(compositesProcessed),
+            simplifiedProcessedComposites = SimplifyCaptures(atomicsRemoved),
+            withBestSearchParametersForORs = ChooseCommonSearchParameterForOr(simplifiedProcessedComposites),
+            withNullChecksSufficientForUnions = EnsureNullChecksSufficientForUnions(withBestSearchParametersForORs),
+            simplifiedWithNullChecksSufficientForUnions = SimplifyCaptures(withNullChecksSufficientForUnions),
+
+            res = try ProcessCombinedElements(simplifiedWithNullChecksSufficientForUnions)
+        in
+            if (res[HasError]) then
+                Diagnostics.Trace(TraceLevel.Information, "Folding failed with:#(cr)#(lf)" & Diagnostics.ValueToText(res[Error]), "")
+            else
+                res[Value],
+
+    // intended to be called from unit tests to debug failures.
+    Debug = (resourceType as type, expression as record, patternList as list) =>
+        let
+            withNestedFunctionsExpanded =  ExpandNestedFunctions(expression),
+            withRestoredFunctions = RestoreFunctionCalls(withNestedFunctionsExpanded),
+            withFunctionsAsOperators = FunctionsToOperators(withRestoredFunctions),
+            withListMatchesToTableMatches = TurnListMatchesAnyToTableMatchesAnyRows(withFunctionsAsOperators),
+            withNormalizedBinaryOperands = NormalizeBinaryOperands(withListMatchesToTableMatches),
+            withTypesResolved = TypeResolve(withNormalizedBinaryOperands, Type.TableRow(resourceType)),
+            withNormalizedBooleanExpressions = NormalizeBooleanExpressions(withTypesResolved),
+            withBooleanConstantRowsConvertedToNullChecks = BooleanConstantRowExpressionToNullCheck(withNormalizedBooleanExpressions),
+            withNotsEliminated = TryEliminateNots(withBooleanConstantRowsConvertedToNullChecks),
+            withMatchesAllNegated = TryRewriteMatchesAllRows(withNotsEliminated),
+            withAnnotatedNullConditionalExpressions = AnnotateNullConditionalExpressions(withMatchesAllNegated),
+            withNullsAsMissingPatterns = TableOrListIsNullToMissingPattern(withAnnotatedNullConditionalExpressions),
+
+            captures = WalkExpressionTreeWithPatternList(withNullsAsMissingPatterns, patternList),
+            withRangesProcessed = ProcessRanges(captures),
+            combinedCaptures = CombineSearchParameterCaptures(withRangesProcessed),
+            simplifiedCombined = SimplifyCapturesForComposites(combinedCaptures),
+            compositesProcessed = CombineComposites(simplifiedCombined),
+            atomicsRemoved = RemoveAtomics(compositesProcessed),
+            simplifiedProcessedComposites = SimplifyCaptures(atomicsRemoved),
+            withBestSearchParametersForORs = ChooseCommonSearchParameterForOr(simplifiedProcessedComposites),
+            withNullChecksSufficientForUnions = EnsureNullChecksSufficientForUnions(withBestSearchParametersForORs),
+            simplifiedWithNullChecksSufficientForUnions = SimplifyCaptures(withNullChecksSufficientForUnions),
+
+            res = ProcessCombinedElements(simplifiedWithNullChecksSufficientForUnions)
+        in
+            withBestSearchParametersForORs
+
+
+in
+    [ Fold = Fold, Debug = Debug  ]
+
+

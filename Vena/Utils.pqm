@@ -1,0 +1,208 @@
+﻿let
+	
+	User.FetchModels = (url as text, VenaBasic as text) =>
+	let
+		modelsResponse = Generic.Fetch(url, "", VenaBasic)
+	in
+		Response.Handle(modelsResponse, Json.Document, Text.FromBinary),
+
+
+    Model.Dimensions = (url as text, VenaBasic as text) =>
+    let
+        requestUrl = url & "/dimensions?includeMembers=false",
+        modelResponse = Generic.Fetch(requestUrl, "", VenaBasic)
+    in
+		Response.Handle(modelResponse, Json.Document, Text.FromBinary),
+    
+
+    Generic.Fetch = (url as text, content as text, VenaBasic as text) => 
+    let
+        requestBody = [
+            ManualStatusHandling = {400,401,403,404,422,429,500,503},
+            Headers=[
+                Authorization=VenaBasic,
+                #"Content-Type"="application/json"
+            ]
+        ],
+
+        response = Web.Contents(url,
+                        if content = null then
+                            Record.AddField(requestBody, "Content", Text.ToBinary(""))
+						else if content <> "" then
+							Record.AddField(requestBody, "Content", Text.ToBinary(content))
+                        else
+							requestBody
+                   )
+    in
+        response,
+
+	Response.Handle = (response, success, failure) =>
+	let
+		responseMetadata = Value.Metadata(response),
+        responseCode = responseMetadata[Response.Status], 
+
+		json = if responseCode < 300 then 
+            success(response)
+        else 
+            failure(response)			
+	in
+		json,
+                                                                
+
+    Hierarchy.Fetch = (url as text, dimensionNumber as text, VenaBasic as text, optional modelQuery as text) =>  
+    let                                      
+        hierarchyBodyRecord = [
+            dimensionNumber = dimensionNumber,
+            destination = "ToCSV",
+            includeExternalID = false,
+            headerPrependString = ""
+        ],
+ 
+        hierarchyBodyWithQuery = if modelQuery = null then
+                                    hierarchyBodyRecord
+                                 else
+                                    Record.AddField(hierarchyBodyRecord, "queryString", modelQuery),
+                                                        
+        hierarchyBody = Text.FromBinary(Json.FromValue(hierarchyBodyWithQuery)),
+
+        hierarchyWebUrl = url & "/etl/query/hierarchy_table",
+        hierarchyResponse = Generic.Fetch(hierarchyWebUrl, hierarchyBody, VenaBasic)
+    in
+        Response.Handle(hierarchyResponse, Hierarchy.Buffer, Text.FromBinary),
+
+                             
+    Hierarchy.Buffer = (binary) => 
+    let
+        buffered = Csv.Document(Binary.Buffer(binary))
+    in
+        buffered,
+
+
+	Hierarchies.CreateTablesForModel = (modelUrl as text, VenaBasic as text, optional modelQuery as text) =>
+	let         
+		dimensionRecord = Model.Dimensions(modelUrl, VenaBasic),
+
+		hierarchyList = 
+		try
+			List.Transform(dimensionRecord,     
+				each let
+						number = Number.ToText(_[number]),    
+						name = _[name],
+						response = Hierarchy.Fetch(modelUrl, number, VenaBasic, modelQuery),
+						Table = let
+									Promoted = Table.PromoteHeaders(response),
+									TextTransformationList = List.Transform(Table.ColumnNames(Promoted), each {_, type text}),
+									TextTypeTransformation = Table.TransformColumnTypes(Promoted, TextTransformationList)
+								in
+									TextTypeTransformation
+					in
+						{name, number & modelUrl, Table, "Table", "Table", true}
+			)
+		otherwise
+			{{"Fetch Dimension Error", "Fetch Dimension Error", Table.FromValue(dimensionRecord), "Table", "Table", true}}
+	in
+		hierarchyList,
+
+            
+    Values.Fetch = (url as text, VenaBasic as text, optional modelQuery as text) => 
+    let 
+        valuesBodyRecord = [
+            destination = "ToCSV",
+            showHeaders = true,
+            isNamedHeader = true,
+            includeExternalID = false,
+            headerPrependString = ""
+        ],
+
+        valuesBodyWithQuery = if modelQuery = null then
+                                    valuesBodyRecord
+                              else
+                                    Record.AddField(valuesBodyRecord, "queryString", modelQuery),
+                                                         
+        valuesBody = Text.FromBinary(Json.FromValue(valuesBodyWithQuery)),
+                                                        
+        valuesWebUrl = url & "/etl/query/intersections2",
+        valuesResponse = Generic.Fetch(valuesWebUrl, valuesBody, VenaBasic)
+    in
+        Response.Handle(valuesResponse, Csv.Document, Text.FromBinary),
+
+	Values.CreateTableForModel = (modelUrl as text, VenaBasic as text, optional modelQuery as text) =>
+	let
+		response = Values.Fetch(modelUrl, VenaBasic, modelQuery),
+		Table = try
+					let
+						Promoted = Table.PromoteHeaders(response),
+						changedNames = Table.TransformColumnNames(Promoted, Column.ValidateName),//Changes "value" to "[Values]"
+						TextTransformationList = List.Transform(Table.ColumnNames(changedNames), each {_, type text}),
+						TextTypeTransformation = Table.TransformColumnTypes(changedNames, TextTransformationList),
+						NumbersTransformed = (Table.TransformColumns(TextTypeTransformation, {"[Values]", Number.FromStable})),
+						NumberTypedColumn = Table.TransformColumnTypes(NumbersTransformed, {"[Values]", type number})
+					in
+						NumberTypedColumn
+				otherwise
+					Table.FromValue(response)
+	in
+		{"values", "values" & modelUrl, Table, "Table", "Table", true},
+
+
+    Table.ToNavigationTable = (rows as list) as table =>
+    let
+        keyColumns = {"Key"},
+        nameColumn = "Name",
+        dataColumn = "Data",
+        itemKindColumn = "ItemKind",
+        itemNameColumn = "ItemName",
+        isLeafColumn = "IsLeaf",
+        table = #table({"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"}, rows),
+        tableType = Value.Type(table),
+        newTableType = Type.AddTableKey(tableType, keyColumns, true) meta 
+        [
+            NavigationTable.NameColumn = nameColumn, 
+            NavigationTable.DataColumn = dataColumn,
+            NavigationTable.ItemKindColumn = itemKindColumn, 
+            Preview.DelayColumn = itemNameColumn, 
+            NavigationTable.IsLeafColumn = isLeafColumn
+        ],
+        navigationTable = Value.ReplaceType(table, newTableType)
+    in
+        navigationTable,
+    
+    
+    Number.FromStable = (var as any) =>
+    let
+        number = try Number.From(var) otherwise 0
+    in
+        number,
+
+
+    Column.ValidateName = (name as text) =>
+    let
+        ret = if name = "value" then
+                    "[Values]"
+                else
+                    name
+    in
+        ret,
+
+
+	Validate = (modelUrl as text, VenaBasic as text, modelQuery as text) =>
+	let
+		response = Generic.Fetch(modelUrl & "/mql/validate", modelQuery, VenaBasic),
+		handled = Response.Handle(response, 
+								  (x) => {},	  //Eat the response and return an empty list
+								  Text.FromBinary //Cast the error message from binary
+				  )
+	in
+		if Value.Is(handled, Text.Type) then
+			handled		//Provided MQL is invalid, display the reason
+		else
+			"valid"		//Provided MQL is valid for the model		
+
+in
+    [
+        Hierarchies.CreateTablesForModel = Hierarchies.CreateTablesForModel,
+		Values.CreateTableForModel = Values.CreateTableForModel,
+        Table.ToNavigationTable = Table.ToNavigationTable,
+		User.FetchModels = User.FetchModels,
+		Validate = Validate
+    ]

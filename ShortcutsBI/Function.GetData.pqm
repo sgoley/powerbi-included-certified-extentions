@@ -1,0 +1,41 @@
+﻿let
+    // Helper function to expand tables
+    ExpandAll = (Table as table, ColumnName as text) =>
+        let
+            expanded = Table.ExpandRecordColumn(Table, ColumnName, Record.FieldNames(Record.Combine(Table.Column(Table, ColumnName))))
+        in 
+            expanded,
+
+    // Function to get data from the Shortcuts API
+    GetAllData = (access_code as text, community_id as text, max_rows as text, endpoint as text) as table =>
+    let
+		count = GetData(access_code, community_id, endpoint, max_rows, "1", "COUNT"),
+		countList = Table.FromList(count, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+		expandedCount = Table.ExpandRecordColumn(countList, "Column1", Record.FieldNames(Record.Combine(Table.Column(countList, "Column1")))),
+		totalPages = Number.RoundUp(Table.FirstValue(expandedCount) / Number.FromText(max_rows)),
+		pageList = List.Numbers(1, totalPages),
+		pageTable = Table.FromList(pageList, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+		changeType = Table.TransformColumnTypes(pageTable,{{"Column1", type text}}),
+		data = Table.AddColumn(changeType, "Data", each GetData(access_code, community_id, endpoint, max_rows, [Column1], "DATA")),
+		expandList = Table.ExpandListColumn(data, "Data"),
+		expandData = ExpandAll(expandList, "Data"),
+		removedColumns = Table.RemoveColumns(expandData,{"Column1"})
+    in
+        removedColumns,
+
+    // Function to get data from API based on endpoint parameter and date ranges
+    GetData = (access_code as text, communityID as text, endpoint as text, maxRows as text, pageNumber as text, returnType as text) =>
+        let
+            siteData = Json.Document(Web.Contents(
+                            "https://api.shortcutssoftware.io/insights/",
+                            [
+                                Headers=[Authorization=access_code],
+								ManualCredentials = true,
+                                RelativePath=endpoint,
+                                Query=[community_id=communityID, max_rows=maxRows, page_number=pageNumber, return_type=returnType]
+                            ]))
+        in
+            siteData
+
+in
+    GetAllData

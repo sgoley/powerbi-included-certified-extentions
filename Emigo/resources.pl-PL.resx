@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AuthorizationMode" xml:space="preserve">
+    <value>Typ Autoryzacji</value>
+  </data>
+  <data name="AuthorizationModeDescription" xml:space="preserve">
+    <value>Wybierz tryb autoryzacji, jeśli pozostanie niewybrany, użyty zostanie domyślny tryb autoryzacji użytkownika</value>
+  </data>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Połacz do Źródła Danych Emigo</value>
+  </data>
+  <data name="ButtonTitle" xml:space="preserve">
+    <value>Emigo Źródła Danych</value>
+  </data>
+  <data name="ChooseExtract" xml:space="preserve">
+    <value>Wybierz wyciąg Emigo</value>
+  </data>
+  <data name="ChooseExtractDescription" xml:space="preserve">
+    <value>Wybierz wyciąg, z którego chcesz uzyskac dane</value>
+  </data>
+  <data name="DataRestrictionMode" xml:space="preserve">
+    <value>Tryb działania ograniczenia</value>
+  </data>
+  <data name="DataRestrictionModeDescription" xml:space="preserve">
+    <value>Wybierz tryb działania ograniczenia ("Exact" oznacza , że zostaną zwróconw dane tylko za wybrany okres)</value>
+  </data>
+  <data name="DataRestrictionType" xml:space="preserve">
+    <value>Typ ograniczenia dla danych</value>
+  </data>
+  <data name="DataRestrictionTypeDescription" xml:space="preserve">
+    <value>Wybierz rodzaj ograniczenia dla danych</value>
+  </data>
+  <data name="DataSourceLabel" xml:space="preserve">
+    <value>Emigo System</value>
+  </data>
+  <data name="Documentation2_Examples1_Code" xml:space="preserve">
+    <value>let
+    Source = Emigo.Contents("DAYS", "3", "exact", null),
+    emigoList = Source{[Key="emigoList"]}[Data],
+    Dziennik_table = emigoList{[Name="Dziennik",Signature="table"]}[Data],
+    #"Removed Columns" = Table.RemoveColumns(Dziennik_table,{"CzasWykonywaniaSekundy", "CzyCzasUKlienta", "CzyCzasDojazdu", "CzyZdjecia", "Odrzucona", "Obligatoryjna", "Wykonana", "DataCzasRozpoczecia", "DataGodzina", "Data", "Hierarchia", "IDCzynnosciTypy", "IDDziennikGrup", "IDGrupaDocelowa", "IDLogin", "IDKlient", "IdPrzOdm", "IDZadania", "IDTypZadania", "IDTME", "SekundyMiedzyCzynnosciami", "IloscZdjec", "OkresWykonywaniaSekundy", "CzyZadanieWykonane", "AnulowaneNaTME", "OdlegloscKlientKM", "IDKatZad"}),
+    #"Filtered Rows" = Table.SelectRows(#"Removed Columns", each true)
+in
+    #"Filtered Rows"</value>
+  </data>
+  <data name="Documentation2_Examples1_Description" xml:space="preserve">
+    <value>Zadaniem metody jest ustawienie parametrów dla póżniejszych wywołan zródeł danych</value>
+  </data>
+  <data name="Documentation2_Examples1_Result" xml:space="preserve">
+    <value>"#Filtered Rows"({"IDDZiennik", "DataNumerycznie"}, {{132806, 20190220}, {132803, 20190220}})</value>
+  </data>
+  <data name="Documentation2_LongDescription" xml:space="preserve">
+    <value>Zadaniem metody jest ustawienie parametrów dla póżniejszych wywołan zródeł danych, dzieku temu zróła nie bedace funkcjami moga zostac ograniczone po np. okresie</value>
+  </data>
+  <data name="Documentation2_Name" xml:space="preserve">
+    <value>Emigo.Contents</value>
+  </data>
+  <data name="Documentation_Examples1_Code" xml:space="preserve">
+    <value>Emigo.GetExtractFunction("RefreshMetrics",null, null)</value>
+  </data>
+  <data name="Documentation_Examples1_Description" xml:space="preserve">
+    <value>Zwróć wyciąg o nazwie 'RefreshMetrics' bez ograniczenia dat</value>
+  </data>
+  <data name="Documentation_Examples1_Result" xml:space="preserve">
+    <value>#table({"Field", "Value"}, {{"ProcessDate", "2018-11-13 00:48:08"}, {"RefreshSimpleDate", "2018-11-13"}})</value>
+  </data>
+  <data name="Documentation_LongDescription" xml:space="preserve">
+    <value>Zadaniem funkcji jest pomoc w wyborze wyciągu, z którego chcemy pobrać dane. Dodatkowo fukcja pozwala ograniczyć - po dacie wiersza - ilość pobranych rekodrów. Wszystkie parametry wybierane są z listy.</value>
+  </data>
+  <data name="Documentation_Name" xml:space="preserve">
+    <value>Emigo.GetExtractFunction</value>
+  </data>
+  <data name="Error_footer" xml:space="preserve">
+    <value>By usunąć problem:</value>
+  </data>
+  <data name="Error_footer_lists" xml:space="preserve">
+    <value>Wybierz elementy z listy.</value>
+  </data>
+  <data name="Error_footer_value" xml:space="preserve">
+    <value>Wpisz liczbę dla wartości ograniczenia lub pozostaw ją pusta.</value>
+  </data>
+  <data name="Error_header" xml:space="preserve">
+    <value>Lista błędów:</value>
+  </data>
+  <data name="Error_isProperAuthType" xml:space="preserve">
+    <value>Nieprawidłowy typ autoryzacji</value>
+  </data>
+  <data name="Error_isProperOgraniczenieOkres" xml:space="preserve">
+    <value>Nieprawidłowa wartośc okresu ograniczenia.</value>
+  </data>
+  <data name="Error_isProperOgraniczenieTryb" xml:space="preserve">
+    <value>Nieprawidłowy tryb działania ograniczenia</value>
+  </data>
+  <data name="Error_isProperOgraniczenieTyp" xml:space="preserve">
+    <value>Nieprawidłowy typ ograniczenia danych.</value>
+  </data>
+  <data name="Error_isProperWyciag" xml:space="preserve">
+    <value>Nieprawidłowy wyciąg.</value>
+  </data>
+  <data name="LoginPasswordLabel" xml:space="preserve">
+    <value>Osobisty klucz dostepu:</value>
+  </data>
+  <data name="LoginUsernameLabel" xml:space="preserve">
+    <value>Login Emigo:</value>
+  </data>
+  <data name="RestrictionKind" xml:space="preserve">
+    <value>Typ ograniczenia dla danych</value>
+  </data>
+  <data name="RestrictionKindDescription" xml:space="preserve">
+    <value>Wybierz rodzaj ograniczenia dla danych</value>
+  </data>
+  <data name="RestrictionMode" xml:space="preserve">
+    <value>Tryb działania ograniczenia</value>
+  </data>
+  <data name="RestrictionModeDescription" xml:space="preserve">
+    <value>Wybierz tryb działania ograniczenia ("Exact" oznacza , że zostaną zwróconw dane tylko za wybrany okres)</value>
+  </data>
+  <data name="RestrictionValue" xml:space="preserve">
+    <value>Okres ograniczenia (1 to bieżący...)</value>
+  </data>
+  <data name="RestrictionValueDescription" xml:space="preserve">
+    <value>Wybierz okres ograniczenia gdzie 1 to bieżący</value>
+  </data>
+  <data name="SelectorNameExtract" xml:space="preserve">
+    <value>Wyciąg</value>
+  </data>
+  <data name="StringValueDefault" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="StringValueMissing" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+</root>

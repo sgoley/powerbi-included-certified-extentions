@@ -1,0 +1,11 @@
+﻿// Generate random string helper function for oauth signature
+let
+    RandomStringGenerator = () as text =>
+        let
+            ValidCharacters = Text.ToList("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456879"),
+            StrLenght = 8,
+            RandomString = Text.Combine(List.Transform( {1..StrLenght}, each ValidCharacters{Int32.From(Number.RandomBetween(0, List.Count(ValidCharacters)-1))}))
+        in
+            RandomString
+in
+    RandomStringGenerator

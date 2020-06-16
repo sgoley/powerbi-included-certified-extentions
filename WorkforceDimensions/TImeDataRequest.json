@@ -1,0 +1,122 @@
+{
+  "select": [
+
+    {
+      "key": "TK_ACTUAL_APPLY_DATE",
+      "alias": "Apply Date"
+    },
+    {
+      "key": "TK_ACTUAL_JOB_TRANSFER",
+      "alias": "Job Transfer"
+    },
+    {
+      "key": "TK_ACTUAL_LABOR_TRANSFER",
+      "alias": "Labor Transfer"
+    },
+    {
+      "key": "TK_ACTUAL_PAYPERIOD_NUMBER",
+      "alias": "Pay Period Number"
+    },
+    {
+      "key": "TK_ACTUAL_PAYPERIOD_WEEK",
+      "alias": "Pay Period Week"
+    },
+    {
+      "key": "TK_ACTUAL_SIGNED_OFF",
+      "alias": "Sign Off"
+    },
+    {
+      "key": "TK_ACTUAL_WAGE_ADD",
+      "alias": "Wage Add"
+    },
+    {
+      "key": "TK_ACTUAL_WAGE_MULTIPLIER",
+      "alias": "Wage Multiplier"
+    },
+    {
+      "key": "TK_AVG_ACTUAL_AMOUNT",
+      "alias": "Amount"
+    },
+    {
+      "key": "TK_AVG_ACTUAL_THROUGH_SELECTED_DAY_HOURS",
+      "alias": "Actual Through Selected Day Hours"
+    },
+    {
+      "key": "TK_AVG_ACTUAL_THROUGH_SELECTED_DAY_HOURS_MINUS_AVG_TARGET_HOURS",
+      "alias": "Actual Through Selected Day Hours Minus Avg Target Hours"
+    },
+    {
+      "key": "TK_AVG_AVG_TARGET_HOURS_MINUS_ACTUAL_THROUGH_SELECTED_DAY_HOURS",
+      "alias": "Avg Target Hours Minus Actual Through Selected Day Hours"
+    },
+    {
+      "key": "TK_AVG_VAR_ACTUAL_HOURS_MINUS_TARGET_THROUGH_SELECTED_DAY_HOURS",
+      "alias": "Var Actual Hours Minus Target Through Selected Day Hours"
+    },
+    {
+      "key": "TK_AVG_VAR_TARGET_HOURS_MINUS_ACTUAL_THROUGH_SELECTED_DAY_HOURS",
+      "alias": "Var Target Hours Minus Actual Through Selected Day Hours"
+    },
+    {
+      "key": "TK_DAILY_ACTUAL_APPLY_DATE",
+      "alias": "Daily Apply Date"
+    },
+    {
+      "key": "TK_DAILY_ACTUAL_DURATION_IN_HOURS",
+      "alias": "Daily Duration in Hours"
+    },
+    {
+      "key": "CORE_PAYCODE_IS_COMBINED",
+      "alias": "Paycode Is Combined"
+    },
+    {
+      "key": "CORE_PAYCODE",
+      "alias": "Paycode Name"
+    },
+    {
+      "key": "CORE_PAYCODE_TYPE",
+      "alias": "Paycode Type"
+    },
+    {
+      "key": "TK_DAILY_ACTUAL_TOTAL_DAYS",
+      "alias": "Daily Total Days"
+    },
+    {
+      "key": "TK_DAILY_ACTUAL_TOTAL_WAGES",
+      "alias": "Daily Total Wages"
+    },
+    {
+      "key": "TK_SHIFT_ACTUAL_APPLY_DATE",
+      "alias": "Shift Apply Date"
+    },
+    {
+      "key": "TK_SHIFT_ACTUAL_DURATION_IN_HOURS",
+      "alias": "Shift Duration in Hours"
+    },
+
+    {
+      "key": "TK_SHIFT_ACTUAL_TOTAL_DAYS",
+      "alias": "Shift Total Days"
+    },
+    {
+      "key": "TK_SHIFT_ACTUAL_TOTAL_WAGES",
+      "alias": "Shift Total Wages"
+    }
+
+  ],
+  "from": {
+    "view": 0,
+    "employeeSet": {
+      "hyperfind": { "id": 1 },
+      "dateRange": {
+        "startDate": "2017-09-01T00:00:00.000",
+        "endDate": "2018-01-01T00:00:00.000"
+      }
+    }
+  },
+  "options": {
+    "extended": {
+      "contributingWeekFlag": true
+    }
+  }
+}

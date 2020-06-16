@@ -1,0 +1,7 @@
+﻿type function(
+    galoreQueryText as (type text meta [
+            Documentation.FieldCaption = "TQL Query",
+            Documentation.FieldDescription = "Enter a valid TQL query"
+        ]))
+        as table meta[
+        ]

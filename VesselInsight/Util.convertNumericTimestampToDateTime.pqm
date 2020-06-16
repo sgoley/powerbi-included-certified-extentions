@@ -1,0 +1,5 @@
+﻿(numericTimestamp as number)=>
+    let 
+        datetimevalue = DateTime.From(#datetimezone(1970, 1, 1, 0, 0, 0, 0, 0) + #duration(0, 0, 0, numericTimestamp / 1000))
+    in 
+        datetimevalue

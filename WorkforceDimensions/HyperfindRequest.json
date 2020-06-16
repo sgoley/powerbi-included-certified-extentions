@@ -1,0 +1,11 @@
+{
+  "dateRange": {
+    "symbolicPeriod": {
+      "id": 1
+    }
+  },
+  "hyperfind": {
+    "id": 1
+  },
+  "threshold": 50000
+}

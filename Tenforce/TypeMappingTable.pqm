@@ -1,0 +1,52 @@
+﻿#table(type table[Tenforce field type= text, Power Bi column type= any],
+    {   
+        // Standard field types
+        {"Text", Text.Type},
+        {"BigText", Text.Type},
+        {"RTF", Any.Type},
+        {"SingleSelect", Text.Type},
+        {"MultiSelect", type {Text.Type}},
+        {"Radio", Logical.Type},
+        {"Date", DateTime.Type},
+        {"Time", DateTime.Type},
+	    {"CheckBox", Logical.Type},
+        {"Number", Number.Type},
+        {"Tab", Any.Type},
+        {"Title", Text.Type},
+        {"FieldGroup", Any.Type},
+        {"GDL", Any.Type},
+        {"Button", Any.Type},
+        {"DataList", Any.Type},
+        {"Custom", Any.Type},
+        {"ItemTool", Any.Type},
+
+        // Custom field types
+        {"TextBox", Text.Type},
+        {"Combobox", Text.Type},
+        {"OptionBox", Text.Type},
+        {"CheckboxList", type {Text.Type}},
+        // {"Number", Number.Type} already exists in Standard field types
+        {"Label", Text.Type},
+        {"TextArea", Text.Type},
+        {"DatePicker", DateTime.Type},
+        {"PersonPicker", Text.Type},
+        // {"CheckBox", Logical.Type} already exists in Standard field types
+        {"Explanation", Text.Type},
+        {"RTF", Text.Type},
+        {"TabPage", Any.Type},
+        {"MultiPersonPicker", type {Text.Type}},
+        {"LongTextField", Text.Type},
+        {"ItemRelation", Any.Type},
+        {"Location", Any.Type},
+        {"ItemSelect", Text.Type},
+        {"ItemMultiSelect", type {Text.Type}},
+        {"ToggleButton", Text.Type},
+        {"DataGrid", Any.Type},
+        {"ActionButtonScript", Any.Type},
+        {"Map", Any.Type},
+        {"ChildItems", type {Int64.Type}},
+        {"Answer", Any.Type},
+        {"Signature", Any.Type},
+
+        {"Integer", Int64.Type}
+    })

@@ -1,0 +1,5 @@
+﻿(displayName as text, key as text, data as any, itemKind as text, isLeaf as logical) => 
+    let
+        result = { displayName, key, data, itemKind, itemKind, isLeaf }
+    in
+        result

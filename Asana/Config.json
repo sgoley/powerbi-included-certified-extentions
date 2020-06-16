@@ -1,0 +1,7 @@
+﻿{
+    "client_id": "1134476836845694",
+	"redirect_uri": "https://oauth.powerbi.com/views/oauthredirect.html",
+	"token_uri": "https://app.asana.com/-/oauth_token",
+	"authorize_uri": "https://app.asana.com/-/oauth_authorize",
+	"api_url": "https://reporting-api.integrations.asana.plus"
+}

@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FormulaHelp" xml:space="preserve">
+    <value>Import data from Webtrends.</value>
+  </data>
+  <data name="FormulaTitle" xml:space="preserve">
+    <value>Webtrends Analytics</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ResourceLabel" xml:space="preserve">
+    <value>Webtrends Analytics</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="KeyMetrics.Function.Caption" xml:space="preserve">
+    <value>KeyMetrics</value>
+  </data>
+  <data name="KeyMetrics.Function.Description" xml:space="preserve">
+    <value>Returns a table with profile keymetrics.</value>
+  </data>
+  <data name="KeyMetrics.Function.DisplayName" xml:space="preserve">
+    <value>KeyMetrics</value>
+  </data>
+  <data name="KeyMetrics.Function.Example.Code" xml:space="preserve">
+    <value>KeyMetrics("98765")</value>
+  </data>
+  <data name="KeyMetrics.Function.Example.Description" xml:space="preserve">
+    <value>Pulls a table of key metrics for tenant 98765 in last 30 days</value>
+  </data>
+  <data name="KeyMetrics.Function.Example.Result" xml:space="preserve">
+    <value>A table of key metrics</value>
+  </data>
+  <data name="KeyMetrics.Function.LongDescription" xml:space="preserve">
+    <value>Makes a call to the Webtrends KeyMetrics endpoint and returns all data as a table.</value>
+  </data>
+  <data name="KeyMetrics.Function.Name" xml:space="preserve">
+    <value>KeyMetrics</value>
+  </data>
+  <data name="KeyMetrics.Parameter.endDate.FieldCaption" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="KeyMetrics.Parameter.endDate.FieldDescription" xml:space="preserve">
+    <value>Latest date to include in data (default is today)</value>
+  </data>
+  <data name="KeyMetrics.Parameter.endDate.SampleValues" xml:space="preserve">
+    <value>01/01/2020</value>
+  </data>
+  <data name="KeyMetrics.Parameter.endPeriod.FieldCaption" xml:space="preserve">
+    <value>End Period</value>
+  </data>
+  <data name="KeyMetrics.Parameter.endPeriod.FieldDescription" xml:space="preserve">
+    <value>Latest standard report period to include (default is the current_month). For allowed values see: https://product.webtrends.com/dxapi/api_description.html</value>
+  </data>
+  <data name="KeyMetrics.Parameter.endPeriod.SampleValues" xml:space="preserve">
+    <value>current_month</value>
+  </data>
+  <data name="KeyMetrics.Parameter.Period.FieldCaption" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="KeyMetrics.Parameter.Period.FieldDescription" xml:space="preserve">
+    <value>Designating use of a Custom Date range (the Start and End Date) or Standard Report period (Start and End Period). Only the start and end times for the period type selected here will be processed.</value>
+  </data>
+  <data name="KeyMetrics.Parameter.ProfileId.FieldCaption" xml:space="preserve">
+    <value>Profile ID</value>
+  </data>
+  <data name="KeyMetrics.Parameter.ProfileId.FieldDescription" xml:space="preserve">
+    <value>You can find your Webtrends Profile ID in the URL when you are navigating Webtrends. If the URL looks like https://analytics.webtrends.com/analytics/spaces/116717/profiles/98765#%7B%22Profile... then your Profile ID is 98765.</value>
+  </data>
+  <data name="KeyMetrics.Parameter.ProfileId.SampleValues" xml:space="preserve">
+    <value>98765</value>
+  </data>
+  <data name="KeyMetrics.Parameter.reportType.FieldCaption" xml:space="preserve">
+    <value>Report Type</value>
+  </data>
+  <data name="KeyMetrics.Parameter.reportType.FieldDescription" xml:space="preserve">
+    <value>The options are Summary (aggregated for the selected time period), Trend (data trended as if for a graph), and Individual (listing out each day separately). If Trend is selected on a multi-dimensional report, only the first dimension will be returned.</value>
+  </data>
+  <data name="KeyMetrics.Parameter.startDate.FieldCaption" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="KeyMetrics.Parameter.startDate.FieldDescription" xml:space="preserve">
+    <value>Earliest date to include in data (default is 30 days ago)</value>
+  </data>
+  <data name="KeyMetrics.Parameter.startDate.SampleValues" xml:space="preserve">
+    <value>01/01/2020</value>
+  </data>
+  <data name="KeyMetrics.Parameter.startPeriod.FieldDescription" xml:space="preserve">
+    <value>Earliest standard report period to include (default is the current_month-1). For allowed values see: https://product.webtrends.com/dxapi/api_description.html</value>
+  </data>
+  <data name="KeyMetrics.Parameter.startPeriod.SampleValues" xml:space="preserve">
+    <value>current_month-1</value>
+  </data>
+  <data name="ReportContents.Function.Caption" xml:space="preserve">
+    <value>ReportContents</value>
+  </data>
+  <data name="ReportContents.Function.Description" xml:space="preserve">
+    <value>Returns a table with report content from Webtrends.</value>
+  </data>
+  <data name="ReportContents.Function.DisplayName" xml:space="preserve">
+    <value>ReportContents</value>
+  </data>
+  <data name="ReportContents.Function.Example.Code" xml:space="preserve">
+    <value>ReportContents("98765", "xPcmTDDP0P6")</value>
+  </data>
+  <data name="ReportContents.Function.Example.Description" xml:space="preserve">
+    <value>Makes a call to the Webtrends visitors report endpoint for data in the last 30 days</value>
+  </data>
+  <data name="ReportContents.Function.Example.Result" xml:space="preserve">
+    <value>A table of visitor data</value>
+  </data>
+  <data name="ReportContents.Function.LongDescription" xml:space="preserve">
+    <value>Makes a call to the given Webtrends reporting endpoint and returns all data as a table.</value>
+  </data>
+  <data name="ReportContents.Function.Name" xml:space="preserve">
+    <value>ReportContents</value>
+  </data>
+  <data name="ReportContents.Parameter.endDate.FieldCaption" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="ReportContents.Parameter.endDate.FieldDescription" xml:space="preserve">
+    <value>Latest date to include in data (default is today)</value>
+  </data>
+  <data name="ReportContents.Parameter.endDate.SampleValues" xml:space="preserve">
+    <value>01/01/2020</value>
+  </data>
+  <data name="ReportContents.Parameter.endPeriod.FieldCaption" xml:space="preserve">
+    <value>End Period</value>
+  </data>
+  <data name="ReportContents.Parameter.endPeriod.FieldDescription" xml:space="preserve">
+    <value>Latest standard report period to include (default is the current_month). For allowed values see: https://product.webtrends.com/dxapi/api_description.html</value>
+  </data>
+  <data name="ReportContents.Parameter.endPeriod.SampleValues" xml:space="preserve">
+    <value>current_month</value>
+  </data>
+  <data name="ReportContents.Parameter.Period.FieldCaption" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="ReportContents.Parameter.Period.FieldDescription" xml:space="preserve">
+    <value>Designating use of a Custom Date range (the Start and End Date) or Standard Report period (Start and End Period). Only the start and end times for the period type selected here will be processed.</value>
+  </data>
+  <data name="ReportContents.Parameter.ProfileId.FieldCaption" xml:space="preserve">
+    <value>Profile ID</value>
+  </data>
+  <data name="ReportContents.Parameter.ProfileId.FieldDescription" xml:space="preserve">
+    <value>You can find your Webtrends Profile ID in the URL when you are navigating Webtrends. If the URL looks like https://analytics.webtrends.com/analytics/spaces/116717/profiles/98765#%7B%22Profile... then your Profile ID is 98765.</value>
+  </data>
+  <data name="ReportContents.Parameter.ProfileId.SampleValues" xml:space="preserve">
+    <value>98765</value>
+  </data>
+  <data name="ReportContents.Parameter.ReportId.FieldCaption" xml:space="preserve">
+    <value>Report ID</value>
+  </data>
+  <data name="ReportContents.Parameter.ReportId.FieldDescription" xml:space="preserve">
+    <value>Webtrends Report ID</value>
+  </data>
+  <data name="ReportContents.Parameter.ReportId.SampleValues" xml:space="preserve">
+    <value>xPcmTDDP0P6</value>
+  </data>
+  <data name="ReportContents.Parameter.reportType.FieldCaption" xml:space="preserve">
+    <value>Report Type</value>
+  </data>
+  <data name="ReportContents.Parameter.reportType.FieldDescription" xml:space="preserve">
+    <value>The options are Summary (aggregated for the selected time period), Trend (data trended as if for a graph), and Individual (listing out each day separately). If Trend is selected on a multi-dimensional report, only the first dimension will be returned.</value>
+  </data>
+  <data name="ReportContents.Parameter.startDate.FieldCaption" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="ReportContents.Parameter.startDate.FieldDescription" xml:space="preserve">
+    <value>Earliest date to include in data (default is 30 days ago)</value>
+  </data>
+  <data name="ReportContents.Parameter.startDate.SampleValues" xml:space="preserve">
+    <value>01/01/2020</value>
+  </data>
+  <data name="ReportContents.Parameter.startPeriod.FieldDescription" xml:space="preserve">
+    <value>Earliest standard report period to include (default is the current_month-1). For allowed values see: https://product.webtrends.com/dxapi/api_description.html</value>
+  </data>
+  <data name="ReportContents.Parameter.startPeriod.SampleValues" xml:space="preserve">
+    <value>current_month-1</value>
+  </data>
+  <data name="Tables.Function.Caption" xml:space="preserve">
+    <value>Tables</value>
+  </data>
+  <data name="Tables.Function.Description" xml:space="preserve">
+    <value>Enter the Profile ID associated with your Webtrends account.</value>
+  </data>
+  <data name="Tables.Function.DisplayName" xml:space="preserve">
+    <value>Webtrends</value>
+  </data>
+  <data name="Tables.Function.LongDescription" xml:space="preserve">
+    <value>Returns a table with relevant Webtrends data.</value>
+  </data>
+  <data name="Tables.Function.Name" xml:space="preserve">
+    <value>Webtrends Analytics</value>
+  </data>
+  <data name="Tables.Parameter.endDate.FieldCaption" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="Tables.Parameter.endDate.FieldDescription" xml:space="preserve">
+    <value>Latest date to include in data (default is today)</value>
+  </data>
+  <data name="Tables.Parameter.endDate.SampleValues" xml:space="preserve">
+    <value>01/01/2020</value>
+  </data>
+  <data name="Tables.Parameter.endPeriod.FieldCaption" xml:space="preserve">
+    <value>End Period</value>
+  </data>
+  <data name="Tables.Parameter.endPeriod.FieldDescription" xml:space="preserve">
+    <value>Latest standard report period to include (default is the current_month). For allowed values see: https://product.webtrends.com/dxapi/api_description.html</value>
+  </data>
+  <data name="Tables.Parameter.endPeriod.SampleValues" xml:space="preserve">
+    <value>current_month</value>
+  </data>
+  <data name="Tables.Parameter.Period.FieldCaption" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="Tables.Parameter.Period.FieldDescription" xml:space="preserve">
+    <value>Designating use of a Custom Date range (the Start and End Date) or Standard Report period (Start and End Period). Only the start and end times for the period type selected here will be processed.</value>
+  </data>
+  <data name="Tables.Parameter.ProfileId.FieldCaption" xml:space="preserve">
+    <value>Profile ID</value>
+  </data>
+  <data name="Tables.Parameter.ProfileId.FieldDescription" xml:space="preserve">
+    <value>You can find your Webtrends Profile ID in the URL when you are navigating Webtrends. If the URL looks like https://analytics.webtrends.com/analytics/spaces/116717/profiles/98765#%7B%22Profile... then your Profile ID is 98765.</value>
+  </data>
+  <data name="Tables.Parameter.ProfileId.SampleValues" xml:space="preserve">
+    <value>98765</value>
+  </data>
+  <data name="Tables.Parameter.ReportId.FieldCaption" xml:space="preserve">
+    <value>Report ID</value>
+  </data>
+  <data name="Tables.Parameter.ReportId.FieldDescription" xml:space="preserve">
+    <value>Webtrends Report ID</value>
+  </data>
+  <data name="Tables.Parameter.ReportId.SampleValues" xml:space="preserve">
+    <value>xPcmTDDP0P6</value>
+  </data>
+  <data name="Tables.Parameter.reportType.FieldCaption" xml:space="preserve">
+    <value>Report Type</value>
+  </data>
+  <data name="Tables.Parameter.reportType.FieldDescription" xml:space="preserve">
+    <value>The options are Summary (aggregated for the selected time period), Trend (data trended as if for a graph), and Individual (listing out each day separately). If Trend is selected on a multi-dimensional report, only the first dimension will be returned.</value>
+  </data>
+  <data name="Tables.Parameter.startDate.FieldCaption" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="Tables.Parameter.startDate.FieldDescription" xml:space="preserve">
+    <value>Earliest date to include in data (default is 30 days ago)</value>
+  </data>
+  <data name="Tables.Parameter.startDate.SampleValues" xml:space="preserve">
+    <value>01/01/2020</value>
+  </data>
+  <data name="Tables.Parameter.startPeriod.FieldDescription" xml:space="preserve">
+    <value>Earliest standard report period to include (default is the current_month-1). For allowed values see: https://product.webtrends.com/dxapi/api_description.html</value>
+  </data>
+  <data name="Tables.Parameter.startPeriod.SampleValues" xml:space="preserve">
+    <value>current_month-1</value>
+  </data>
+</root>

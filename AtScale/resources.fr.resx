@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonTitle" xml:space="preserve">
+    <value>Cubes AtScale</value>
+  </data>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Importer/Données DirectQuery d'un cube AtScale.</value>
+  </data>
+  <data name="Label" xml:space="preserve">
+    <value>Cubes AtScale</value>
+  </data>
+  <data name="AtScaleCubes_Description" xml:space="preserve">
+    <value>Données DirectQuery/d'importation d'un cube AtScale.</value>
+  </data>
+  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+    <value>
+Retourne les données d'un cube AtScale sur le serveur &lt;code&gt;server&lt;/code&gt;. Vous pouvez spécifier un paramètre d'enregistrement facultatif, &lt;code&gt;options&lt;/code&gt;, pour contrôler les options suivantes :
+&lt;ul&gt;
+        &lt;li&gt;&lt;code&gt;TypedMeasureColumns&lt;/code&gt; : Valeur logique indiquant si les types spécifiés dans le modèle tabulaire ou multidimensionnel sont utilisés pour les types des colonnes de mesure ajoutées. Si la valeur est false, le type « number » est utilisé pour toutes les colonnes de mesure. La valeur par défaut de cette option est false.&lt;/li&gt;
+        &lt;li&gt;&lt;code&gt;CommandTimeout&lt;/code&gt; : Durée (en secondes) qui contrôle le temps d'exécution de la requête côté serveur avant qu'elle ne soit annulée. La valeur par défaut dépend du pilote. &lt;/li&gt;
+        &lt;li&gt;&lt;code&gt;ConnectionTimeout&lt;/code&gt; : Durée (en secondes) qui contrôle le temps d'attente avant abandon d'une tentative de connexion au serveur. La valeur par défaut dépend du pilote. &lt;/li&gt;
+
+&lt;/ul&gt;
+Le paramètre d'enregistrement est spécifié sous la forme [option1 = value1, option2 = value2...].</value>
+  </data>
+  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+    <value>Liste les données d'un cube AtScale.</value>
+  </data>
+  <data name="FormulaTitle" xml:space="preserve">
+    <value>AtScale</value>
+  </data>
+  <data name="AuthenticationLabel" xml:space="preserve">
+    <value>AtScale</value>
+  </data>
+  <data name="ServerParameterCaption" xml:space="preserve">
+    <value>Serveur</value>
+  </data>
+  <data name="ServerParameterDescription" xml:space="preserve">
+    <value>Spécifier l'URL du serveur AtScale</value>
+  </data>
+  <data name="OptionsParameterCaption" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="OptionsParameterDescription" xml:space="preserve">
+    <value>Spécifier les options pour vous connecter au serveur AtScale</value>
+  </data>
+  <data name="InvalidServerNameError" xml:space="preserve">
+    <value>Un nom de serveur non valide a été spécifié. Le nom du serveur doit être au format « http(s)://contoso.atscale.com:10502/xmla/... », où le numéro de port est facultatif.</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>'#{0}' n'est pas une option AtScale valide. Les options valides sont : '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Cette fonction AtScale ne prend pas en charge l'option '#{0}' avec la valeur '#{1}'</value>
+  </data>
+</root>

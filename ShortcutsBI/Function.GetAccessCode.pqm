@@ -1,0 +1,38 @@
+﻿// Call API to retrieve access_code for further API calls 
+let
+    GetAccessCode = (consumerKey as text, consumerSecret as text, accessToken as text, accessTokenSecret as text, nonce as text, timestamp as text, signature as text) =>
+        let
+            url = "https://api.shortcutssoftware.io/authenticate",
+            oauthSignMethod = "HMAC-SHA1",
+            credential_type = "{""credential_type_code"":""oauth""}",
+            oauthVersion = "1.0",
+
+            authKeyParam = Text.Combine({
+            "OAuth ", 
+            "oauth_consumer_key=""",consumerKey,
+            """,oauth_token=""",accessToken,
+            """,oauth_signature_method=""",oauthSignMethod,
+            """,oauth_timestamp=""",timestamp,
+            """,oauth_nonce=""",nonce,
+            """,oauth_version=""",oauthVersion,
+            """,oauth_signature=""",signature,
+            """"}),
+        
+            Auth = Json.Document(Web.Contents(
+                url, 
+                [
+                    Headers=
+                    [Authorization=authKeyParam
+                    ], 
+					ManualCredentials = true,
+                    Content=Text.ToBinary(credential_type)
+                ]   
+                )
+            ),
+        
+            access_code_table = Record.ToTable(Auth),
+            access_code = access_code_table{0}[Value]
+        in
+            access_code
+in
+    GetAccessCode

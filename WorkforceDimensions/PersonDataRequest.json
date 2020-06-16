@@ -1,0 +1,81 @@
+{
+"select":[
+{      "key": "EMP_COMMON_ID" , "alias" : "Employee ID"},
+    {      "key": "EMP_COMMON_FULL_NAME" , "alias" : "Employee Name"},
+    {      "key": "EMP_COMMON_PRIMARY_JOB" , "alias" : "Primary Job"   },
+    {      "key": "EMP_COMMON_PRIMARY_ORG" , "alias" : "Location"   },
+    {      "key": "PEOPLE_BADGE_NUMBER" , "alias" : "Active Badge Number"   },
+    {      "key": "PEOPLE_EMAIL" , "alias" : "Email Address"    },
+    {      "key": "PEOPLE_EXPECTED_WEEKLY_HOURS" , "alias" : "Weekly Hours"  },
+    {      "key": "PEOPLE_EXPECTED_DAILY_HOURS" , "alias" : "Daily Hours"   },
+    {      "key": "PEOPLE_PAYRULE", "alias" : "Payrule"},
+                {      "key": "PEOPLE_PAYRULE_EFFECTIVE_DATE", "alias" : "Payrule Effective Date"},
+    {      "key": "PEOPLE_HIRE_DATE", "alias" : "HireDate"},
+    {      "key": "PEOPLE_EMP_TERM", "alias" : "EmployeeTerm"},
+    {      "key": "PEOPLE_EMP_STATUS", "alias" : "EmpStatus"},
+                {      "key": "PEOPLE_MANAGER_NAME", "alias" : "Manager Name"},
+                {      "key": "PEOPLE_WORKER_TYPE", "alias" : "Worker Type"},
+                {      "key": "PEOPLE_TIMEZONE", "alias" : "Time Zone"},
+                {      "key": "PEOPLE_USER_ACCOUNT_NAME", "alias" : "User Account"},
+                {      "key": "PEOPLE_PHONE_NUMBER", "alias" : "Phone Number",
+                                        "properties": [
+            {
+                "key": "1",
+                "value": "Phone_1"
+            },
+            {
+                "key": "2",
+                "value": "Phone_2"
+            },
+            {
+                "key": "3",
+                "value": "Phone_3"
+            }
+        ]
+                },
+                {      "key": "PEOPLE_MANAGER_JOB_TRANSFER_SET", "alias" : "Manager - Job Transfer Set"},
+                {      "key": "PEOPLE_EMPLOYEE_JOB_TRANSFER_SET", "alias" : "Employee - Job Transfer Set"},
+                {      "key": "PEOPLE_MANAGER_ACCESS_ORG_GROUP", "alias" : "Organization Group Set"},
+                {      "key": "PEOPLE_MANAGER_LABOR_CATEGORY", "alias" : "Manager - Labor Category List Profile"},
+                {      "key": "PEOPLE_EMPLOYEE_LABOR_CATEGORY", "alias" : "Employee - Labor Category List Profile"},
+                {      "key": "PEOPLE_ADDRESS_STATE_HOME", "alias" : "Home State"},
+                {      "key": "PEOPLE_ADDRESS_ZIPCODE_HOME", "alias" : "Zip Code"},
+                {      "key": "PEOPLE_ATTENDANCE_PROFILE_NAME", "alias" : "Attendance Profile"},
+                {      "key": "PEOPLE_ACCRUAL_PROFILE_NAME", "alias" : "Accrual Profile"},
+                {      "key": "PEOPLE_SENIORITY_DATE", "alias" : "Seniority Date"},
+                {      "key": "PEOPLE_UDM_DEVICE_GROUP", "alias" : "Device Group Name"},
+                {      "key": "PEOPLE_SCHEDULE_GROUP_ASSIGNMENT_NAME", "alias" : "Schedule Group Assignment Name"},
+                {      "key": "PEOPLE_WORKFLOW_MANAGER_PROFILE", "alias" : "Workflow Manager Profile"},
+                {      "key": "PEOPLE_WORKFLOW_EMPLOYEE_PROFILE", "alias" : "Workflow Employee Profile"},
+               
+                
+                {
+      "key" : "PEOPLE_CUSTOM",
+      "alias" : "Custom Data",
+      "properties" : [
+        {
+          "key" : "1"
+        },
+                                {
+          "key" : "2"
+        }
+      ]
+    }
+ 
+  ],
+  "from": {
+    "view": 0,
+    "employeeSet" : { 
+        "hyperfind": { "id" : 1} ,
+        "dateRange" : {
+             "startDate": "2017-10-03T00:00:00.000",
+             "endDate": "2017-12-10T00:00:00.000"
+          }
+    }
+      },
+  "options":{
+    "extended":{
+      "contributingWeekFlag": true
+    }
+  }
+}

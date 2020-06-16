@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Connect to Workforce Dimensions</value>
+  </data>
+  <data name="ButtonTitle" xml:space="preserve">
+    <value>Workforce Dimensions</value>
+  </data>
+  <data name="DataSourceLabel" xml:space="preserve">
+    <value>Workforce Dimensions</value>
+  </data>
+  <data name="WFServerUrlCaption" xml:space="preserve">
+    <value>Workforce Dimensions Server URL</value>
+  </data>
+  <data name="WFServerUrlDescription" xml:space="preserve">
+    <value>URL of the Workforce Dimensions server.</value>
+  </data>
+  <data name="WFServerUrlSample" xml:space="preserve">
+    <value>https://c79-epamdev01.cfn.mykronos.com</value>
+  </data>
+  <data name="AppKeyCaption" xml:space="preserve">
+    <value>Application Key</value>
+  </data>
+  <data name="AppKeyDescription" xml:space="preserve">
+    <value>Application key to access Workforce Dimensions.</value>
+  </data>
+  <data name="WFFormName" xml:space="preserve">
+    <value>Workforce Dimensions Connector Configuration</value>
+  </data>
+  <data name="WFFormDescription" xml:space="preserve">
+    <value>Configuration to access OAuth server as well as default date range settigns.</value>
+  </data>
+  <data name="EndDateCaption" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="EndDateDescription" xml:space="preserve">
+    <value>End date of the date range period. The date is ignored if Symbolic Period option is not Date Range.</value>
+  </data>
+  <data name="StartDateCaption" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="StartDateDescription" xml:space="preserve">
+    <value>Start date of the date range period. The date is ignored if Symbolic Period option is not Date Range.</value>
+  </data>
+  <data name="SymbolicPeriodCaption" xml:space="preserve">
+    <value>Symbolic Period.</value>
+  </data>
+  <data name="SymbolicPeriodDescription" xml:space="preserve">
+    <value>Symbolic period is required field. For Date Range option you must specify start and end dates.</value>
+  </data>
+  <data name="Error.DateOrSymbolicPeriodRequired" xml:space="preserve">
+    <value>Date range or symbolic period is required to be specified.</value>
+  </data>
+  <data name="Error.StartDateAfterEndDate" xml:space="preserve">
+    <value>Start date can't be after end date.</value>
+  </data>
+  <data name="Error.EndDateRequired" xml:space="preserve">
+    <value>For Date Range symbolic period end date must be specified.</value>
+  </data>
+  <data name="Error.StartAndEndDateRequired" xml:space="preserve">
+    <value>For Date Range symbolic period start date and end date must be specified.</value>
+  </data>
+  <data name="Error.StartDateRequired" xml:space="preserve">
+    <value>For Date Range symbolic period start date must be specified.</value>
+  </data>
+  <data name="Error.AuthToken" xml:space="preserve">
+    <value>Can't get authentication token. Please check your Workforce Dimensions Connector settings or credentials.</value>
+  </data>
+  <data name="Error.GetData" xml:space="preserve">
+    <value>Can't retrieve data from server. Please try later or contact your adminsitrator.</value>
+  </data>
+  <data name="SymbolicPeriod.Current_Payperiod" xml:space="preserve">
+    <value>Current Pay Period</value>
+  </data>
+  <data name="SymbolicPeriod.Current_Week" xml:space="preserve">
+    <value>Current Week</value>
+  </data>
+  <data name="SymbolicPeriod.DateRange" xml:space="preserve">
+    <value>Date Range (start and end dates are required)</value>
+  </data>
+  <data name="SymbolicPeriod.Last_Ninety_Days" xml:space="preserve">
+    <value>Last 90 Days</value>
+  </data>
+  <data name="SymbolicPeriod.Last_Thirty_Days" xml:space="preserve">
+    <value>Last 30 Days</value>
+  </data>
+  <data name="SymbolicPeriod.Previous_Payperiod" xml:space="preserve">
+    <value>Previous Pay Period</value>
+  </data>
+  <data name="SymbolicPeriod.Yesterday" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
+  <data name="SymbolicPeriod.Yesterday_Plus_Six_Days" xml:space="preserve">
+    <value>Yesterday Plus 6 Days</value>
+  </data>
+  <data name="SymbolicPeriod.Yesterday_Today_Tomorrow" xml:space="preserve">
+    <value>Yesterday, Today, Tomorrow</value>
+  </data>
+  <data name="ConfigirationServerUrlSample" xml:space="preserve">
+    <value>https://workforce-dimensions-bot.azurewebsites.net</value>
+  </data>
+  <data name="ConfigurationServerUrlCaption" xml:space="preserve">
+    <value>Configuration Server URL</value>
+  </data>
+  <data name="ConfigurationServerUrlDescription" xml:space="preserve">
+    <value>Url to be used to retrieve settings for connector.</value>
+  </data>
+  <data name="NoDataFound" xml:space="preserve">
+    <value>No data was found</value>
+  </data>
+</root>

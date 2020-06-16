@@ -1,0 +1,21 @@
+﻿// Generate OAuth Signature
+let
+    OAuthSignatureGenerator = (oauthConsumerKey as text, oauthConsumerSecret as text, oauthToken as text, oauthTokenSecret as text, nonce as text, timestamp as text) =>
+        let
+            url = "https://api.shortcutssoftware.io/authenticate",
+            baseString = Text.Combine({Uri.EscapeDataString("POST"), "&", Uri.EscapeDataString(Text.Combine({url})), "&", Uri.EscapeDataString(oauthParameters)}),
+            signatureKey = Text.Combine({oauthConsumerSecret, "&", oauthTokenSecret}),
+            oauthParameters = Text.Combine({
+            "oauth_consumer_key=",oauthConsumerKey,
+            "&oauth_nonce=",nonce,
+            "&oauth_signature_method=HMAC-SHA1",
+            "&oauth_timestamp=",timestamp,
+            "&oauth_token=",oauthToken,
+            "&oauth_version=1.0"
+            }),
+            signature = Crypto.CreateHmac(CryptoAlgorithm.SHA1, Text.ToBinary(signatureKey,BinaryEncoding.Base64), Text.ToBinary(baseString,BinaryEncoding.Base64)),
+            oauthSignature = Uri.EscapeDataString(Binary.ToText(signature,BinaryEncoding.Base64))
+        in
+            oauthSignature
+in
+    OAuthSignatureGenerator

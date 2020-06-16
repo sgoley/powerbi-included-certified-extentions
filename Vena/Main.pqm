@@ -1,0 +1,42 @@
+﻿(source as text, VenaBasic as text, Utils as record, optional modelQuery as text) as table =>
+    let
+		Hierarchies.CreateTablesForModel = Utils[Hierarchies.CreateTablesForModel],
+		Values.CreateTableForModel = Utils[Values.CreateTableForModel],
+        Table.ToNavigationTable = Utils[Table.ToNavigationTable],
+		User.FetchModels = Utils[User.FetchModels],
+		Validate = Utils[Validate],
+
+
+		modelBaseUrl = source & "/api/models/",
+
+		allModels = User.FetchModels(modelBaseUrl, VenaBasic),
+
+		allModelsTable = List.Transform(allModels,
+			each let
+				modelId = _[id],
+				modelName = _[name],
+				modelUrl = modelBaseUrl & modelId,
+
+				validationResponse = if modelQuery <> null then
+											Validate(modelUrl, VenaBasic, modelQuery)
+									 else
+											"valid",
+				navigationTable = 
+					if validationResponse <> "valid" then
+						Table.ToNavigationTable(
+							{{"Error in model: " & modelName, "Error in model: " & modelName, Table.FromValue(validationResponse), "Table", "Table", true}}
+						)
+					else
+						Table.ToNavigationTable(
+							let
+								valuesCSVRow = Values.CreateTableForModel(modelUrl, VenaBasic, modelQuery),
+								hierarchiesCSVRows = Hierarchies.CreateTablesForModel(modelUrl, VenaBasic, modelQuery)
+							in
+								//Combine the values and hierarchies
+								List.Combine({hierarchiesCSVRows, {valuesCSVRow}})
+						)
+			in
+				{modelName, modelId, navigationTable, "Table", "Table", false}
+		)
+    in
+        Table.ToNavigationTable(allModelsTable)

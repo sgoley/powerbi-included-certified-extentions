@@ -4,10 +4,51 @@ PowerBI's included certified M connector extensions - sourced from the default w
 Includes the full M or PQ sdk file for the following connector resources:
 
 * Asana
+* AtScale
+* AzureCostManagement
+* BI360
+* BIConnector
+* Cognite
+* CustomerInsights
 * Denodo
+* Dremio
+* Emigo
+* EntersoftBusinessSuite
 * Exasol
-
-(More to be listed)
+* FactSetAnalytics
+* Fhir
+* Indexima
+* IndustrialAppStore
+* InformationGrid
+* IntuneDataWarehouse
+* IRIS
+* JamfPro
+* JethroData1.0.1
+* Kyligence
+* MarkLogicODBC
+* MicrosoftGraphSecurity
+* MicrostrategyDataset
+* Paxata
+* PlanviewProjectplace
+* PowerPlatformDataflows
+* ProductInsights
+* QubolePresto
+* QuickBase
+* Roamler
+* ShortcutsBI
+* SiteImprove
+* SurveyMonkey
+* TeamDesk.PowerBI.DataConnector
+* Tenforce
+* TIBCO
+* TimeSeriesInsights
+* Vena
+* VesselInsight
+* WebtrendsAnalytics
+* WorkforceDimensions
+* WorkplaceAnalytics
+* ZohoCreator
+* Zucchetti
 
 ### Disclaimer: 
 

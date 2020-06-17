@@ -7,6 +7,8 @@ Includes the full M or PQ sdk file for the following connector resources:
 * Denodo
 * Exasol
 
+(More to be listed)
+
 ### Disclaimer: 
 
 No licensing has been included with third party connectors from PowerBI (see [Windows License Terms of Service](https://powerbi.microsoft.com/en-us/windows-license-terms/)). 

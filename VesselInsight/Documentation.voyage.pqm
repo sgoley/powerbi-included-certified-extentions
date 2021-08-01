@@ -1,0 +1,8 @@
+﻿type function(
+    voyageImo as (type text meta [
+            Documentation.FieldCaption = "Comma separated IMOs",
+            Documentation.FieldDescription = "Enter a valid comma separated IMOs",
+            Documentation.SampleValues = { "1234567,2222222" }
+        ]))
+        as table meta[
+        ]

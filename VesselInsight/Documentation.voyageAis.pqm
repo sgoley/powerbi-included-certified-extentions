@@ -1,0 +1,8 @@
+﻿type function(
+    voyageImo as (type text meta [
+            Documentation.FieldCaption = "Location Code",
+            Documentation.FieldDescription = "Enter a location code (eg. AF-ASH)",
+            Documentation.SampleValues = {"AF-ASH"}
+        ]))
+        as table meta[
+        ]

@@ -1,0 +1,19 @@
+﻿type function(
+		Imo as (type text meta [
+            Documentation.FieldCaption = "Comma Separated IMOs",
+            Documentation.FieldDescription = "Enter comma separated IMO",
+            Documentation.SampleValues = { "1234567, 2222222" }
+        ]),
+        StartDate as (type text meta [
+            Documentation.FieldCaption = "Start (Time: Period), e.g. 2019-10-08T00:00:00Z",
+            Documentation.FieldDescription = "Starting date in the format YYYY-MM-DDTHH:mm:ssZ",
+            Documentation.SampleValues = { "2019-10-08T00:00:00Z" }
+        ]),
+        EndDate as (type text meta [
+            Documentation.FieldCaption = "End (Time: Period), e.g. 2019-10-08T01:00:00Z",
+            Documentation.FieldDescription = "Ending date in the format YYYY-MM-DDTHH:mm:ssZ",
+            Documentation.SampleValues = { "2019-10-08T00:00:00Z" }
+        ])
+        )
+        as table meta[
+        ]

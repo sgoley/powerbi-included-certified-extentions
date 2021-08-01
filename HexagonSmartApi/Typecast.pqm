@@ -1,0 +1,116 @@
+﻿//
+//OData typecast support
+//
+
+let
+    EnableTraceOutput = false,
+    Diagnostics.LogValue = if (EnableTraceOutput) then 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => Diagnostics.Trace(traceLevel, message, value, false) 
+                           else 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => value,
+
+    ValidateUrlScheme = (url as text) as text => if (Uri.Parts(url)[Scheme] <> "https") then error "Url scheme must be HTTPS" else url,
+
+    // Append metadata to the destination item from the source item.  This is not table specific
+    AppendMetadata = (source as table, destination as table) as table =>
+        let
+            // Retrieve all metadata from the source table type
+            sourceTypeMetadata = Value.Metadata(Value.Type(source)),
+
+            // Retrieve the type of the destination table and append the source table metadata to its own metadata
+            newDestinationType = Value.Type(destination) meta sourceTypeMetadata,
+
+            // Replace the type of the destination table with the new type containing metadata from both tables.
+            newDestination = Value.ReplaceType(destination, newDestinationType)
+        in
+            newDestination,
+
+    TypecastFuncTypeWithDoc = type function (typecastTarget as (type any meta [Documentation.FieldCaption = "typecastTarget"]), 
+                                             outputType as (type text meta [Documentation.FieldCaption = "outputType"]))
+                                   as function meta [Documentation.Name = "Typecast", 
+                                                     Documentation.LongDescription = Extension.LoadString("TypecastFunc.Documentation.LongDescription")],
+    Typecast = Value.ReplaceType(TypecastImplFunc, TypecastFuncTypeWithDoc),
+
+    //Take as input a table, apply typecast and output table of cast type
+    TypecastImplFunc = (inputTypecastTarget as any, outputType as text) as table => 
+        let
+            typecastTarget = if (Type.Is(Value.Type(inputTypecastTarget), type table)) then
+                                    inputTypecastTarget
+                               else
+                                    error "Typecast.ApplyTypecast: Input to Apply Typecast Function must be a table.  Please provide a table as input.", 
+
+            //There may be no select list annotatons on the provided table.  If so then just return the input table untouched.
+            resultTable = if Table.RowCount(typecastTarget) > 0 then
+                            let
+                                //Get the table odata.id that provides the path to this table.  
+                                //This is needed so we can apply the typecast to the whole table
+                                tablePath = GetTablePath(typecastTarget),
+                                result = ExecuteTypecast(tablePath, outputType)
+                            in
+                                result
+                        else
+                            typecastTarget
+        in 
+            resultTable,
+
+    GetTablePath = (inputTypecastTarget as table) as text =>
+        let
+            selectListTarget = if (Table.RowCount(inputTypecastTarget) > 0) then
+                                    inputTypecastTarget
+                               else
+                                    error "Typecast.GetTablePath: Typecast target table has no rows.",
+            md = Value.Metadata(selectListTarget{0}),
+            mdTable = Record.ToTable(md),
+            odataId = Table.SelectRows(mdTable, each [Name] = "@odata.id"),
+            pathTmp = if Table.RowCount(odataId) > 0 then
+                        Diagnostics.LogValue(TraceLevel.Information, "Typecast.GetTablePath: " & odataId{0}[Value], odataId{0}[Value], false)
+                   else
+                        Diagnostics.LogValue(TraceLevel.Information, "Typecast.GetTablePath: No @odata.id found", null, false),
+            //if input typecast table has > 1 elements then need to apply the typecast to the entire table, not just element 0.
+            //  @odata.id for row 0 will be the path for row 0, not the entire table.
+            // for example
+            //    pipes = plants{[Id="E63F816D-B7E7-4FC9-AE62-7E709AFF290E"]}[Pipes],
+            //    CatalogItems = HexagonSmartApi.Typecast(pipes,"Com.Ingr.SampleApi.V1.CatalogItem")
+            path = if (Table.RowCount(inputTypecastTarget) > 1) then
+                        let 
+                            //replace path/path/entity('xyz') with path/path/entity
+                            openParenPos = Text.PositionOf(pathTmp, "(", Occurrence.Last),
+                            pathFixedTmp = Text.Start(pathTmp, openParenPos),
+                            pathFixed = Diagnostics.LogValue(TraceLevel.Information, 
+                                           "Typecast.GetTablePath: Multi-row table path fixed. Input path => " & pathTmp & ". Output path => " & pathFixedTmp, 
+                                           pathFixedTmp, false)
+                        in
+                            pathFixed
+                   else
+                        pathTmp
+        in
+            path,
+
+    ExecuteTypecast = (inputTablePath as text, outputType as text) as table =>
+        let
+            validInputTablePath = ValidateUrlScheme(inputTablePath),
+
+            //check for trailing slash
+            odataPath = if Text.EndsWith(validInputTablePath, "/") then 
+                            validInputTablePath & outputType
+                        else
+                            validInputTablePath & "/" & outputType,
+
+            castOData = HexagonSmartApi.Feed(odataPath),
+
+            castTableTmp = if (Type.Is(Value.Type(castOData), type table) = true) then
+                               castOData
+                           else
+                               Table.FromRecords({castOData}),
+            castTable =  Diagnostics.LogValue(TraceLevel.Information, "Typecast.Typecast: HexagonSmartApi.Feed table count " & Number.ToText(Table.RowCount(castTableTmp)), castTableTmp, false)
+        in
+            castTable
+
+in
+    [
+        Typecast = Typecast
+    ]
+
+
+
+

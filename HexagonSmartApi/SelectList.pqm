@@ -1,0 +1,520 @@
+﻿//
+//Select List support
+//
+
+let
+    EnableTraceOutput = false,
+    Diagnostics.LogValue = if (EnableTraceOutput) then 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => Diagnostics.Trace(traceLevel, message, value, false) 
+                           else 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => value,
+
+    ValidateUrlScheme = (url as text) as text => if (Uri.Parts(url)[Scheme] <> "https") then error "Url scheme must be HTTPS" else url,
+
+    // Append metadata to the destination item from the source item.  This is not table specific
+    AppendMetadata = (source as table, destination as table) as table =>
+        let
+            // Retrieve all metadata from the source table type
+            sourceTypeMetadata = Value.Metadata(Value.Type(source)),
+
+            // Retrieve the type of the destination table and append the source table metadata to its own metadata
+            newDestinationType = Value.Type(destination) meta sourceTypeMetadata,
+
+            // Replace the type of the destination table with the new type containing metadata from both tables.
+            newDestination = Value.ReplaceType(destination, newDestinationType)
+        in
+            newDestination,
+
+    //Navigation table function built with hardcoded service root URL
+    GenerateNavTableSelectListFunction = (serviceRoot as text) as function =>
+        let
+            //strip off any trailing slashes in service root.   Not currently handling more than one trailing slash
+            serviceRootNoSpace = Text.TrimEnd(serviceRoot),
+            serviceRootNoSlash = if Text.EndsWith(serviceRootNoSpace, "/") then 
+                                    Text.RemoveRange(serviceRootNoSpace, Text.Length(serviceRootNoSpace)-1)
+                                 else 
+                                    serviceRootNoSpace,
+
+            navTableFuncDef = "(selectListTarget as any) => HexagonSmartApi.ApplySelectList(""" & serviceRootNoSlash & """, selectListTarget)",
+            navTableFunc = Expression.Evaluate(navTableFuncDef, #shared),
+            //add function documentation
+            navTableFuncTypeDefTmp = "type function " & 
+                                     "(selectListTarget as (type any meta [Documentation.FieldCaption = ""selectListTarget""])) " & 
+                                        "as function meta [" &
+                                        "Documentation.Name = ""Apply Select List""," &
+                                        "Documentation.LongDescription = Extension.LoadString(""ApplySelectList.Documentation.LongDescription"")]",
+            navTableFuncType = Diagnostics.LogValue(TraceLevel.Verbose, "navTableFuncTypeDef: " & navTableFuncTypeDefTmp, navTableFuncTypeDefTmp, false),
+            navTableFuncTypeWithDoc = Expression.Evaluate(navTableFuncType, #shared),
+            navTableFuncWithDoc = Value.ReplaceType(navTableFunc, navTableFuncTypeWithDoc)
+        in 
+            navTableFuncWithDoc,
+
+    //Take as input a table, apply selectlist and output table wit new select list value column(s)
+    ApplySelectList = (serviceRoot as text, inputSelectListTarget as any) as table => 
+        let
+            validServiceRoot = ValidateUrlScheme(serviceRoot),
+
+            //strip off any trailing slashes in service root.   Not currently handling more than one trailing slash
+            serviceRootNoSpace = Text.TrimEnd(validServiceRoot),
+            serviceRootNoSlash = if Text.EndsWith(serviceRootNoSpace, "/") then 
+                                    Text.RemoveRange(serviceRootNoSpace, Text.Length(serviceRootNoSpace)-1)
+                                 else 
+                                    serviceRootNoSpace,
+
+            selectListTarget = if (Type.Is(Value.Type(inputSelectListTarget), type table)) then
+                                    inputSelectListTarget
+                               else
+                                    error "Input to Apply Select List Function must be a table.  Please provide a table as input.", 
+
+            //Get all columns in the table that have select list annotations
+            selListColsAndIds = GetSelectListColumnsAndIds(selectListTarget),
+
+            //There may be no select list annotatons on the provided table.  If so then just return the input table untouched.
+            resultTable = if Table.RowCount(selListColsAndIds) > 0 then
+                            let
+                                //Get the table odata.id that provides the path to this table.  This is needed so we can get the select list definitions from single or multi tenant path
+                                tablePath = GetTablePath(selectListTarget),
+
+                                //Get the mt path, if any.   This could be a single tenant API so the result will be null in this case
+                                mtPath = GetMultitenantPath(serviceRootNoSlash, tablePath),
+
+                                selectListResourcePath = if Text.Length(mtPath) = 0 then
+                                                            GetSingleTenantPath(serviceRootNoSlash)
+                                                         else
+                                                            mtPath,
+                                result = AddSelectListColumnsToTable(selectListTarget, selListColsAndIds, 0, selectListResourcePath)
+                            in
+                                result
+                        else
+                            selectListTarget
+        in 
+            resultTable,
+
+    //get table metadata and pull out list of fields with select list annotations
+    GetSelectListColumnsAndIds = (selectListTarget as table) as table =>
+        let
+            vt = Value.Type(selectListTarget),
+            md = Value.Metadata(vt),
+            fieldAnno = if Record.HasFields(md, "OData.FieldAnnotations") then
+                            md[OData.FieldAnnotations]
+                        else
+                            error "SelectList.GetSelectListColumnsAndIds: Select list target table missing Odata.FieldAnnotations",
+            fieldAnnoTable = Record.ToTable(fieldAnno),
+            faTableExpanded = Table.ExpandRecordColumn(fieldAnnoTable, "Value", {"Com.Ingr.Core.V1.SelectListId"}), 
+            selListAnno = Table.SelectRows(faTableExpanded, each [Com.Ingr.Core.V1.SelectListId] <> null),
+            selListAnnoDiag = Table.SelectRows(selListAnno, each TraceSelectListColumnsAndIds(_))
+
+            //output table columns:
+            //Name  (table column name with select list annotation)   |  Com.Ingr.Core.V1.SelectListId (select list id from Com.Ingr.Core.V1.SelectList)
+        in
+          selListAnnoDiag,
+
+    TraceSelectListColumnsAndIds = (selectListAnnoRow as record) as logical =>
+        let
+            isNotNull = Diagnostics.LogValue(TraceLevel.Information, 
+                                          "SelectList.GetSelectListColumnsAndIds: " & selectListAnnoRow[Name] & " => " & selectListAnnoRow[Com.Ingr.Core.V1.SelectListId], 
+                                          selectListAnnoRow[Com.Ingr.Core.V1.SelectListId], false) <> null
+        in
+            isNotNull,
+
+    GetTablePath = (inputSelectListTarget as table) as text =>
+        let
+            selectListTarget = if (Table.RowCount(inputSelectListTarget) > 0) then
+                                    inputSelectListTarget
+                               else
+                                    error "SelectList.GetTablePath: Select list target table no rows.",
+            md = Value.Metadata(selectListTarget{0}),
+            mdTable = Record.ToTable(md),
+            odataId = Table.SelectRows(mdTable, each [Name] = "@odata.id"),
+            path = if Table.RowCount(odataId) > 0 then
+                        Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetTablePath: " & odataId{0}[Value], odataId{0}[Value], false)
+                   else
+                        Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetTablePath: No @odata.id found", null, false)
+        in
+            path,
+
+    GetMultitenantPath = (serviceRoot as text, tablePath as text) as text =>
+        let
+            Source = HexagonSmartApi.GetODataMetadata(serviceRoot, true),
+            DataServices = Source{0}[DataServices],
+            edm = DataServices{0}[#"http://docs.oasis-open.org/odata/ns/edm"],
+            schema = edm{0}[Schema],
+            schemaFixed = Table.TransformColumnTypes(schema,{{"Attribute:Namespace", type text}}),
+            ec = Table.SelectRows(schemaFixed, each [EntityContainer] <> null),
+            entityContainer = ec{0}[EntityContainer],
+            ecFixed = Table.TransformColumnTypes(entityContainer,{{"Attribute:Name", type text}}),
+            entitySet = ecFixed{0}[EntitySet],
+            esFixed = Table.TransformColumnTypes(entitySet,{{"Attribute:Name", type text}, {"Attribute:EntityType", type text}}),
+            #"Expanded Annotation" = Table.ExpandTableColumn(esFixed, "Annotation", {"Attribute:Term", "Attribute:NavigationPropertyPath", "Attribute:String", "Record", "Attribute:Bool"}, 
+                                                                                    {"Annotation.Attribute:Term", "Annotation.Attribute:NavigationPropertyPath", "Annotation.Attribute:String", 
+                                                                                     "Annotation.Record", "Annotation.Attribute:Bool"}),
+            mtpTable = Table.SelectRows(#"Expanded Annotation", each [#"Annotation.Attribute:Term"] = "Com.Ingr.Core.V1.MultitenantPath"),
+            mtPath = if (Table.RowCount(mtpTable) = 1) then 
+                        let 
+                            rawPathTmp = serviceRoot & "/" & mtpTable{0}[#"Attribute:Name"] & "/" & 
+                                            mtpTable{0}[#"Annotation.Attribute:NavigationPropertyPath"] & "/" &
+                                            GetMtSelectListName(schemaFixed, mtpTable{0}[#"Attribute:EntityType"], mtpTable{0}[#"Annotation.Attribute:NavigationPropertyPath"]),
+                            rawPath = Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetMultitenantPath: rawPath => " & rawPathTmp, rawPathTmp, false),
+                            //rawpath will be 
+                            //   https://brannvs2015.ingrnet.com/SampleService/Sppid/V3/Sites/Plants/SelectLists
+                            //but true path is from tablePath
+                            //   https://brannvs2015.ingrnet.com/SampleService/Sppid/V3/Sites('SiteA')/Plants('PlantA')
+                            //Need to insert the collection members into the raw path
+                            fixedPathTmp = ConvertRawPathToTablePath(rawPath, tablePath),
+                            fixedPath = Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetMultitenantPath: fixedPath => " & fixedPathTmp, fixedPathTmp, false)
+                        in
+                            fixedPath
+                     else
+                        Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetMultitenantPath: No MultitenantPath found", "", false)
+        in
+            mtPath,
+
+    //now need to get the entity 
+    GetMtSelectListName = (schema as table, entityTypeName as text, navigationPropertyName as text) as text =>
+        let
+            GetNavEntityType = (entityName as text, navigationPropertyName as text, namespaceName as text, metadataSchema as table) as text =>
+                let
+                    entityNamespace = Table.SelectRows(metadataSchema, each [#"Attribute:Namespace"] = namespaceName),
+                    entityType = entityNamespace{0}[EntityType],
+                    entityTypeFixed = Table.TransformColumnTypes(entityType,
+                                             {{"Attribute:Name", type text}, {"Attribute:BaseType", type text}, {"Attribute:Abstract", type logical}, {"Attribute:OpenType", type logical}}),
+                    entityMetadata = Table.SelectRows(entityTypeFixed, each [#"Attribute:Name"] = entityName),
+                    navigationProperty = if (Table.RowCount(entityMetadata) = 1) then
+                                            entityMetadata{0}[NavigationProperty]
+                                         else
+                                            error "SelectList.GetMtSelectListName.GetNavEntityType:  expected 1 entityname [" & entityName & "], but found " & 
+                                                            Number.ToText(Table.RowCount(entityMetadata)),
+                    navigationPropertyFixed = Table.TransformColumnTypes(navigationProperty,{{"Attribute:Name", type text}, {"Attribute:Type", type text}}),
+                    //have entity metadata.   now get the nav property entitytype
+                    navPropRow = Table.SelectRows(navigationPropertyFixed, each [#"Attribute:Name"] = navigationPropertyName),
+                    //get nav prop entity type .   Handle case of "Collection(entitytype)"
+                    navPropType = if (Table.RowCount(navPropRow) = 1) then
+                                      navPropRow{0}[#"Attribute:Type"]
+                                  else
+                                      error "SelectList.GetMtSelectListName.GetNavEntityType:  expected 1 navigationPropertyName [" & entityName & "], but found " & 
+                                                    Number.ToText(Table.RowCount(navPropRow)),
+                    navEntityTypeTmp = if Text.Contains(navPropType, "Collection(") then
+                                         let
+                                            openParenPos = Text.PositionOf(navPropType, "("),
+                                            navPropTypeColStripped = Text.Range(navPropType, openParenPos+1),
+                                            closeParenPos = Text.PositionOf(navPropTypeColStripped, ")", Occurrence.First),
+                                            navEntityTypeFixed = Text.Start(navPropTypeColStripped, closeParenPos)
+                                         in
+                                            navEntityTypeFixed
+                                      else
+                                         navPropType,
+                    navEntityType = Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetMtSelectListName.GetNavEntityType: navEntityType => " & navEntityTypeTmp, navEntityTypeTmp, false)
+                in
+                    navEntityType,
+
+            //have nav prop entity type.   now get the metadata for this entitytype so we can find the SelectLists nav prop
+            GetSelectListNavPropName = (NavPropType as text, metadataSchema as table) as text =>  //any for now, text when done
+                let
+                    nspos = Text.PositionOf(NavPropType, ".", Occurrence.Last),
+                    namespaceName = Text.Start(NavPropType, nspos),
+                    entityName = Text.Range(NavPropType, nspos+1),
+                    entityNamespace = Table.SelectRows(metadataSchema, each [#"Attribute:Namespace"] = namespaceName),
+                    entityType =  if (Table.RowCount(entityNamespace) = 1) then
+                                        entityNamespace{0}[EntityType]
+                                  else
+                                      error "SelectList.GetMtSelectListName.GetSelectListNavPropName:  expected 1 namespaceName [" & namespaceName & "], but found " & 
+                                                    Number.ToText(Table.RowCount(entityNamespace)),
+                    entityTypeFixed = Table.TransformColumnTypes(entityType,
+                                                                 {{"Attribute:Name", type text}, {"Attribute:BaseType", type text}, 
+                                                                 {"Attribute:Abstract", type logical}, {"Attribute:OpenType", type logical}}),
+                    entityMetadata = Table.SelectRows(entityTypeFixed, each [#"Attribute:Name"] = entityName),                    
+                    //have entity metadata.   now get the nav property entitytype
+                    navigationProperty = if (Table.RowCount(entityMetadata) = 1) then
+                                            entityMetadata{0}[NavigationProperty]
+                                         else
+                                            error "SelectList.GetMtSelectListName.GetSelectListNavPropName:  expected 1 entityName [" & entityName & "], but found " & 
+                                                    Number.ToText(Table.RowCount(entityMetadata)),
+                    navigationPropertyFixed = Table.TransformColumnTypes(navigationProperty,{{"Attribute:Name", type text}, {"Attribute:Type", type text}}),
+                    navPropRow = Table.SelectRows(navigationPropertyFixed, 
+                                                  each ([#"Attribute:Type"] = "Com.Ingr.Core.V1.SelectList" or [#"Attribute:Type"] = "Collection(Com.Ingr.Core.V1.SelectList)")),
+                    navPropName = if (Table.RowCount(navPropRow) = 1) then
+                                        navPropRow{0}[#"Attribute:Name"]        
+                                  else
+                                        error "SelectList.GetMtSelectListName.GetSelectListNavPropName:  expected 1 Com.Ingr.Core.V1.SelectList or Collection(Com.Ingr.Core.V1.SelectList), but found " & 
+                                                   Number.ToText(Table.RowCount(navPropRow))
+                in
+                    navPropName,
+
+            //entityTypeName = "Com.Ingr.Sppid.V3.Site",  //"Com.Ingr.Core.V1.PbsItem", //
+            //navPropName = "Plants", //"Parent", //
+            nspos = Text.PositionOf(entityTypeName, ".", Occurrence.Last),
+            namespaceName = Text.Start(entityTypeName, nspos),
+            entityName = Text.Range(entityTypeName, nspos+1),
+            navEntityType = GetNavEntityType(entityName, navigationPropertyName, namespaceName, schema),
+            selectListNameTmp = GetSelectListNavPropName(navEntityType, schema),
+            selectListName = Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetMtSelectListName: selectListName => " & selectListNameTmp, selectListNameTmp, false)
+        in
+            selectListName,
+
+    ConvertRawPathToTablePath = (mtpath as text, odidpath as text) as text => 
+        let
+            //Given multi-tenant path to select lists
+            //  mtpath = "https://brannvs2015.ingrnet.com/SampleService/Sppid/V3/Sites/Plants/SelectLists",
+            //And given ODataID path from OData metadata
+            //  odidpath = "https://brannvs2015.ingrnet.com/SampleService/Sppid/V3/Sites('Site%20A')/Plants('Plant%20A')/Pipes('302')/x/y/z",
+            //
+            //Merge the odata path with the multi-tenant path.
+            //  https://brannvs2015.ingrnet.com/SampleService/Sppid/V3/Sites('Site%20A')/Plants('Plant%20A')/SelectLists
+
+            opup = Uri.Parts(odidpath)[Path],
+            mtUriParts = Uri.Parts(mtpath),
+            mpup = mtUriParts[Path],
+            opsp = Text.Split(opup, "/"),
+            mpsp = Text.Split(mpup, "/"),
+            jp = Table.FromColumns({opsp,mpsp}, {"odpath", "mtpath"}),
+            fixfunc = (dt as any) =>
+                let
+                    odp = if dt[odpath] = null then "" else dt[odpath],
+                    mtp = if dt[mtpath] = null then "" else dt[mtpath],
+                    out = if Text.Length(mtp) = 0 then 
+                                ""
+                          else
+                                if odp = mtp then
+                                    "/" & odp
+                                else
+                                    if Text.StartsWith(odp, mtp) then
+                                        "/" & odp
+                                    else
+                                        "/" & mtp
+                in
+                    out,
+
+            cp = Table.AddColumn(jp, "fix", each fixfunc(_)),
+
+            fixpath = Text.Combine(Table.Column(cp, "fix")),
+
+            Uri.FromParts = (parts) =>
+            let
+                port = if (parts[Scheme] = "https" and parts[Port] = 443) or (parts[Scheme] = "http" and parts[Port] = 80) then "" else ":" & Text.From(parts[Port]),
+                div1 = if Record.FieldCount(parts[Query]) > 0 then "?" else "",
+                div2 = if Text.Length(parts[Fragment]) > 0 then "#" else "",
+                uri = Text.Combine({parts[Scheme], "://", parts[Host], port, parts[Path], div1, Uri.BuildQueryString(parts[Query]), div2, parts[Fragment]})
+            in
+                uri,
+
+            uriNoPath = Record.RemoveFields(mtUriParts, "Path"),
+            uriWPath = Record.AddField(uriNoPath, "Path", fixpath),
+
+            uriTmp = Uri.FromParts(uriWPath),
+            uri = Diagnostics.LogValue(TraceLevel.Information, "SelectList.ConvertRawPathToTablePath: uri => " & uriTmp, uriTmp, false)
+        in
+            uri,
+
+    GetSingleTenantPath = (serviceRoot as text) as text =>
+        let
+            Source = HexagonSmartApi.GetODataMetadata(serviceRoot, true),
+            DataServices = Source{0}[DataServices],
+            #"http://docs oasis-open org/odata/ns/edm" = DataServices{0}[#"http://docs.oasis-open.org/odata/ns/edm"],
+            Schema = #"http://docs oasis-open org/odata/ns/edm"{0}[Schema],
+            SchemaFixed = Table.TransformColumnTypes(Schema,{{"Attribute:Namespace", type text}}),
+            ecRow = Table.SelectRows(Schema, each [EntityContainer] <> null),
+            EntityContainer = ecRow{0}[EntityContainer],
+            EntityContainerFixed  = Table.TransformColumnTypes(EntityContainer,{{"Attribute:Name", type text}}),
+            EntitySet = EntityContainerFixed{0}[EntitySet],
+            EntitySetFixed = Table.TransformColumnTypes(EntitySet,{{"Attribute:Name", type text}, {"Attribute:EntityType", type text}}),
+            selectListTable = Table.SelectRows(EntitySetFixed, each [#"Attribute:EntityType"] = "Com.Ingr.Core.V1.SelectList"),
+            selectListName = if Table.RowCount(selectListTable) = 1 then
+                                selectListTable{0}[#"Attribute:Name"]
+                             else
+                                error error Error.Record("Error", "Single tenant entity container has more than one select list", ""),
+            selectListPathTmp = serviceRoot & "/" & selectListName,
+            selectListPath = Diagnostics.LogValue(TraceLevel.Information, "SelectList.GetSingleTenantPath: selectListPath => " & selectListPathTmp, selectListPathTmp, false)
+        in
+            selectListPath,
+
+    AddSelectListColumnsToTable = (selectListTarget as table, selectListColumnsAndIds as table, tableIndex as number, selectListResourcePath as text) as table =>
+        let
+            //This is a recursive function that progressively adds new select list columns to the target table for each column in the table with select list annotation
+            //Get the select list to apply for this select list column and index
+
+            //tmpresult = Table.FromList({"made it to AddSelectListColumnsToTable()"}),
+
+            //TODO - performance - what if multiple columns use the same select list?   Should cache and reuse, not fetch each time.
+
+            columnName = selectListColumnsAndIds{tableIndex}[Name],
+            selectListIdTmp = selectListColumnsAndIds{tableIndex}[#"Com.Ingr.Core.V1.SelectListId"],
+            selectListId = Diagnostics.LogValue(TraceLevel.Information, "SelectList.AddSelectListColumnsToTable: tableIndex, columnName, selectListId => " &
+                                                Number.ToText(tableIndex) & ", " & columnName & ", " & selectListIdTmp, selectListIdTmp, false),
+
+            //Select list record looks like:
+            //  Id : selectList Id  (the one we just selected)
+            //  ConcurrencyToken:  tokenid
+            //  Name : select list name
+            //  HierarchyName : h name
+            //  Items@odata.context : OData route to the item
+            //  Items : list of item records 
+            //          
+            //Item records:
+            //  Id : Id string that matches the table column of select list ids  E.g. "C"
+            //  ConcurrencyToken : tokenid
+            //  Value : numeric value E.g. "0"
+            //  Name : item name E.g.  "Type C"
+            //  Description : item description 
+
+            //Get select list items for this selectListId.  We don't need the actual select list record.
+            //URL format is
+            //  https://brannvs2015.ingrnet.com/SampleService/Sppid/V3/Sites('Site%20A')/Plants('Plant%20A')/SelectLists('InsulPurpose')/Items
+            //
+            //If the select list ID is not found then we'll get back a 404 not found.
+            itemsQueryTmp = selectListResourcePath & "('" & selectListId & "')/Items",
+            itemsQuery = Diagnostics.LogValue(TraceLevel.Information, "SelectList.AddSelectListColumnsToTable: itemsQuery => " & itemsQueryTmp, itemsQueryTmp, false),
+
+            //Items table is pagable so use the paging machine to get them all.
+            itemsTable = GetAllPagesByNextLink(itemsQuery),
+            
+            result = if Table.RowCount(itemsTable) > 0 then
+                        let
+                            //Performance fix
+                            //  If table column is numeric type and Items.Id is string then need to do type conversion for comparison.   
+                            //  Resolve this by adding IdNumeric to all the select list items, if appropriate
+                            targetSchema = Table.Schema(selectListTarget),
+                            columnKind = Table.SelectRows(targetSchema, each [Name] = columnName)[Kind]{0},
+                            itemsTableFixed = if (columnKind = "number") then
+                                                  let
+                                                      //need to transform Id to numeric type
+                                                      itemsTF = Table.TransformColumns(itemsTable, {"Id", Number.FromText})
+                                                  in
+                                                      itemsTF
+                                              else
+                                                  itemsTable,
+                            selectListColumnName = columnName & "SL",
+                            fixedTableAC = Table.AddColumn(selectListTarget, selectListColumnName, each FindSelectListName(_, columnName, itemsTableFixed)),
+                            colNamesList = Table.ColumnNames(selectListTarget),
+                            colPos = List.PositionOf(colNamesList, columnName),
+                            colNamesListSL = List.InsertRange(colNamesList, colPos+1, {selectListColumnName}),
+                            fixedTableRC = Table.ReorderColumns(fixedTableAC, colNamesListSL),
+                            fixedTable = AppendMetadata(selectListTarget, fixedTableRC),
+                            tableIndex = tableIndex + 1,
+                            outputTable = if (tableIndex < Table.RowCount(selectListColumnsAndIds)) then
+                                                //recurse on the next sel list column
+                                                @AddSelectListColumnsToTable(fixedTable, selectListColumnsAndIds, tableIndex, selectListResourcePath)
+                                          else
+                                                fixedTable
+                        in
+                            outputTable
+                     else
+                        error "Found no " & selectListId & " for " & columnName & " column in " & selectListResourcePath 
+        in
+            result,
+
+    FindSelectListName = (tableRow as record, columnName as text, selectListItems as table) as any =>
+        let
+            //selectListItems is a table with column format:
+            //  Id : Id string or noumber that matches the table column of select list ids  E.g. "C" or 12
+            //  ConcurrencyToken : tokenid
+            //  Value : numeric value E.g. "0"
+            //  Name : item name E.g.  "Type C"
+            //  Description : item description 
+
+            //get the column value from the row
+            columnValue = Record.Field(tableRow, columnName),
+            itemName = if (columnValue <> null) then
+                           let
+                               item = Table.SelectRows(selectListItems, each [Id] = columnValue),
+                               name = if Table.RowCount(item) = 1 then
+                                         item{0}[Name]
+                                      else
+                                         let
+                                             cv = Value.As(columnValue, Text.Type),
+                                             err = error "Did not find exactly one item for " & Text.From(columnValue) & ".  Found: " & Text.From(Table.RowCount(item)) & " items"
+                                         in
+                                             err
+                           in
+                               name
+                       else
+                           null  //should I return null or "" here?   if column val is null the sel list name should be null ?
+        in
+            itemName,
+
+    //  GetPage function will use Web.Contents to retrieve a single page of data from the OData filter, and converts the response into a table. 
+    //  It passes the response from Web.Contents to the GetNextLink function to extract the URL of the next page, 
+    //  and sets it on the meta record of the returned table (page of data).
+    GetPage = (selectListItemTarget as text) as table =>
+        let
+            response = Web.Contents(selectListItemTarget, 
+                                    [Headers = [#"Content-Type"="application/json", 
+                                                #"Accept" = "application/json;odata.metadata=minimal",
+                                                #"OData-MaxVersion" = "4.0"],
+                                    ManualStatusHandling = {400, 404, 500, 501}]),
+            responseMD = Value.Metadata(response),
+            jsonResponse = Json.Document(response),
+            responseBody = if (responseMD[Response.Status] <> 200) then 
+                                //Handle failures
+                                if (Record.HasFields(jsonResponse, {"error"})) then 
+                                    error Error.Record(jsonResponse[error][code], jsonResponse[error][message], jsonResponse)
+                                else
+                                    jsonResponse
+                            else
+                                jsonResponse,
+            nextLink = GetNextLink(responseBody),
+            //JSON records returned do not have matching name,value pairs.  Need to handle this case
+            colNames = 
+                let
+                    allColNames = List.Combine(List.Transform(responseBody[value], Record.FieldNames)),
+                    distColNames = List.Distinct(allColNames)
+                in
+                    distColNames,
+            data = Table.FromRecords(responseBody[value], colNames, MissingField.UseNull)
+        in
+            data meta [NextLink = nextLink],
+
+    // Read all pages of data.
+    // After every page, we check the "NextLink" record on the metadata of the previous request.
+    // Table.GenerateByPage will keep asking for more pages until we return null.
+    GetAllPagesByNextLink = (selectListItemTarget as text) as table =>
+        let
+            pageTable = Table.GenerateByPage((previous) => 
+                            let
+                                // if previous is null, then this is our first page of data
+                                nextLink = if (previous = null) then 
+                                                selectListItemTarget 
+                                           else 
+                                                Value.Metadata(previous)[NextLink]?,
+                                // if NextLink was set to null by the previous call, we know we have no more data
+                                page = if (nextLink <> null) then 
+                                            GetPage(nextLink) 
+                                       else 
+                                            null
+                            in
+                                page)
+        in
+            pageTable,
+
+    // In this implementation, 'response' will be the parsed body of the response after the call to Json.Document.
+    // We look for the '@odata.nextLink' field and simply return null if it doesn't exist.
+    GetNextLink = (response) as nullable text => Record.FieldOrDefault(response, "@odata.nextLink"),
+
+    // The getNextPage function takes a single argument and is expected to return a nullable table
+    Table.GenerateByPage = (getNextPage as function) as table =>
+        let        
+            listOfPages = List.Generate(
+                () => getNextPage(null),            // get the first page of data
+                (lastPage) => lastPage <> null,     // stop when the function returns null
+                (lastPage) => getNextPage(lastPage) // pass the previous page to the next function call
+            ),
+            // concatenate the pages together
+            tableOfPages = Table.FromList(listOfPages, Splitter.SplitByNothing(), {"Column1"}),
+            firstRow = tableOfPages{0}?
+        in
+            // if we didn't get back any pages of data, return an empty table
+            // otherwise set the table type based on the columns of the first page
+            if (firstRow = null) then
+                Table.FromRows({})
+            else        
+                Value.ReplaceType(Table.ExpandTableColumn(tableOfPages, "Column1", 
+                                                          Table.ColumnNames(firstRow[Column1])), Value.Type(firstRow[Column1]))
+
+in
+    [
+        GenerateNavTableSelectListFunction = GenerateNavTableSelectListFunction,
+        ApplySelectList = ApplySelectList
+    ]
+
+
+
+

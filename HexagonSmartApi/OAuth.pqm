@@ -1,0 +1,169 @@
+﻿//OAuth implementation
+//See: 
+//https://tools.ietf.org/html/rfc6749
+//http://openid.net/specs/openid-connect-core-1_0.html
+
+let
+    // OAuth configuration settings
+    client_id_tmp = Text.FromBinary(Extension.Contents("client_id")),  
+    client_id = if (Text.Length(Text.Trim(client_id_tmp)) > 0)  then client_id_tmp else error "Missing client ID in client_id file",
+    client_secret_tmp = Text.FromBinary(Extension.Contents("client_secret")),
+    client_secret = if (Text.Length(Text.Trim(client_secret_tmp)) > 0)  then client_secret_tmp else "",  //client secret is optional according to the oauth oidc specs.
+    auth_parameter_tmp = Text.FromBinary(Extension.Contents("auth_parameter")),
+    auth_parameter = if (Text.Length(Text.Trim(auth_parameter_tmp)) > 0)  then auth_parameter_tmp else "",
+    redirect_uri = "https://preview.powerbi.com/views/oauthredirect.html",
+    windowWidth = 500,
+    windowHeight = 700,
+
+    OAuth.StartLogin = (resourceUrl, state, display) =>
+    let
+        authServerInfo = GetAuthServerInfo(resourceUrl),
+        authorizeEndpoint = authServerInfo[AuthorizeEndpoint],
+        authorizeUri = authorizeEndpoint & "?" & Uri.BuildQueryString([
+            response_type = "code",
+            client_id = client_id,
+            scope = authServerInfo[Scopes],
+            redirect_uri = redirect_uri,
+            resource = authServerInfo[TokenAudience],
+            state = state]) & auth_parameter
+    in
+        [
+            LoginUri = authorizeUri,
+            CallbackUri = redirect_uri,
+            WindowHeight = windowHeight,
+            WindowWidth = windowWidth,
+            Context = [
+                TokenUri = authServerInfo[TokenEndpoint],
+                TokenAudience = authServerInfo[TokenAudience],
+                ResourceUrl = resourceUrl
+            ]
+        ],
+
+    OAuth.FinishLogin = (context, callbackUri, state) =>
+        let
+            parts = Uri.Parts(callbackUri)[Query],
+            result = if (Record.HasFields(parts, {"error", "error_description"})) then 
+                        error Error.Record(parts[error], parts[error_description], parts)
+                     else
+                        TokenMethod(parts[code], context)
+        in
+            result,
+
+    OAuth.Refresh = (resourceUrl, refresh_token) =>
+        let
+            authServerInfo = GetAuthServerInfo(resourceUrl),
+            tokenUrl = authServerInfo[TokenEndpoint],
+            tokenAudience = authServerInfo[TokenAudience],
+            refreshTokenResponse = try Json.Document(Web.Contents(tokenUrl, [
+                Content = Text.ToBinary(Uri.BuildQueryString([
+                    grant_type = "refresh_token",
+                    refresh_token = refresh_token,
+                    client_id = client_id,
+                    client_secret = client_secret,
+                    redirect_uri = redirect_uri,
+                    resource = tokenAudience])),
+                Headers = [
+                    #"Content-type" = "application/x-www-form-urlencoded",
+                    #"Accept" = "application/json"]]))
+            otherwise
+                error Error.Record("Error", Extension.LoadString("HexagonSmartApi.Feed.Error.RefreshAccessToken") & tokenUrl & ".","")
+        in
+            refreshTokenResponse,
+
+    OAuth.Logout = (clientApplication, resourceUrl, accessToken) =>
+        let
+            authServerInfo = GetAuthServerInfo(resourceUrl),
+            logoutResponse = authServerInfo[EndSessionEndpoint]
+        in
+            logoutResponse,
+
+
+    //Helper Functions
+    GetAuthServerInfo = (resourceUrl) =>
+        let
+            options = [ManualCredentials = true, ManualStatusHandling = {400, 401, 403, 404, 405, 406, 408, 500, 501, 502, 503}],
+            resourceUrlNoSpace = Text.TrimEnd(resourceUrl),
+            resUrlDescription = if Text.EndsWith(resourceUrlNoSpace, "/") then
+                                    resourceUrlNoSpace & "description"
+                                else
+                                    resourceUrlNoSpace & "/description",
+            descriptionDocument = Web.Contents(resUrlDescription, options),
+            descriptionJson = if Value.Metadata(descriptionDocument)[Response.Status] = 200 then
+                                  Json.Document(descriptionDocument)
+                              else
+                                  error Error.Record("Error",Extension.LoadString("HexagonSmartApi.Feed.Error.GetDescription") & resUrlDescription,""),
+            tokenIssuerUri = descriptionJson[TokenIssuerUri],
+            tokenAudience = descriptionJson[TokenAudience],
+            supportedScopes = descriptionJson[SupportedScopes],
+            scopesCombinerFunction = Combiner.CombineTextByDelimiter(" "),
+            apiScopes = scopesCombinerFunction(supportedScopes),
+            scopes = if Text.Contains(apiScopes, "offline_access") then apiScopes else apiScopes & " offline_access",  //SAM uses offline_access scope for refresh tokens
+            openIdConfigurationUrlStart = if Text.EndsWith(tokenIssuerUri, "/") then "" else "/",
+            openIdConfigurationUrl = tokenIssuerUri & openIdConfigurationUrlStart & ".well-known/openid-configuration",
+            openIdConfiguration = Web.Contents(openIdConfigurationUrl, options), //use anonymous credentials to get auth config document
+            openIdConfigurationJson = if Value.Metadata(openIdConfiguration)[Response.Status] = 200 then
+                                          Json.Document(openIdConfiguration)
+                                      else
+                                          error Error.Record("Error", Extension.LoadString("HexagonSmartApi.Feed.Error.GetOpenidConfiguration") & "[" & openIdConfigurationUrl & "]", ""),
+            stsScopes = scopesCombinerFunction(openIdConfigurationJson[scopes_supported]),
+            authorizeEndpoint = if Text.Contains(stsScopes, "offline_access") then
+                                    openIdConfigurationJson[authorization_endpoint]
+                                else
+                                    error Error.Record("Error", Extension.LoadString("HexagonSmartApi.Feed.Error.MissingOfflineAccessScope") & "[" & openIdConfigurationUrl & "]", ""),
+            tokenEndpoint = openIdConfigurationJson[token_endpoint],
+            endSessionEndpoint = try openIdConfigurationJson[end_session_endpoint] otherwise openIdConfigurationJson[ping_end_session_endpoint]  //handle PingIdentity special case
+        in
+            [
+                TokenIssuerUri = tokenIssuerUri,
+                TokenAudience = tokenAudience,
+                Scopes = scopes,
+                AuthorizeEndpoint = authorizeEndpoint,
+                TokenEndpoint = tokenEndpoint,
+                EndSessionEndpoint = endSessionEndpoint
+            ],
+
+    TokenMethod = (code, context) =>
+        let
+            tokenUrl = context[TokenUri],
+            tokenAudience = context[TokenAudience],
+            resourceUrl = context[ResourceUrl],
+            webResponse = Json.Document(Web.Contents(tokenUrl, [
+                                Content = Text.ToBinary(Uri.BuildQueryString([
+                                    grant_type = "authorization_code",
+                                    code = code,
+                                    client_id = client_id,
+                                    client_secret = client_secret,
+                                    redirect_uri = redirect_uri,
+                                    resource = tokenAudience])),
+                                Headers = [
+                                    #"Content-type" = "application/x-www-form-urlencoded",
+                                    #"Accept" = "application/json"],
+                                    ManualStatusHandling = {400}])),
+            tokenResponse = if Record.HasFields(webResponse, "access_token") then
+                                webResponse
+                            else
+                                let
+                                    errorResponse = webResponse,
+                                    errorCode = errorResponse[error],
+                                    errorDescription = if (Record.HasFields(errorResponse, "error_description")) then
+                                                            " - " & errorResponse[error_description]
+                                                       else
+                                                            "",
+                                    errorMessage = errorCode & errorDescription,
+                                    errorException = error Error.Record("Error", 
+                                                                            Extension.LoadString("HexagonSmartApi.Feed.Error.GetAccessToken") & 
+                                                                            tokenUrl & 
+                                                                            ".    OAuth token endpoint returned error: " & 
+                                                                            errorMessage)
+                                in
+                                    errorException,
+            tokenResponseWithResourceUrl = Record.AddField(tokenResponse, "resourceUrl", resourceUrl)
+        in
+            tokenResponseWithResourceUrl
+in
+    [
+        StartLogin = OAuth.StartLogin,
+        FinishLogin = OAuth.FinishLogin,
+        Refresh = OAuth.Refresh,
+        Logout = OAuth.Logout
+    ]

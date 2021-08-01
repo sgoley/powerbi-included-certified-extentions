@@ -1,0 +1,151 @@
+﻿//
+//Units of Measure support
+//
+
+let
+    EnableTraceOutput = false,
+    Diagnostics.LogValue = if (EnableTraceOutput) then 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => Diagnostics.Trace(traceLevel, message, value, false) 
+                           else 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => value,
+
+    ValidateUrlScheme = (url as text) as text => if (Uri.Parts(url)[Scheme] <> "https") then error "Url scheme must be HTTPS" else url,
+
+    uomServiceUrl_tmp = Text.FromBinary(Extension.Contents("uom_service")),  
+    uomServiceUrl = if (Text.Length(Text.Trim(uomServiceUrl_tmp)) > 0)  then uomServiceUrl_tmp else error "Missing UoM Service URL in uom_service file",
+
+    // Append metadata to the destination item from the source item.  This is not table specific
+    AppendMetadata = (source as table, destination as table) as table =>
+        let
+            // Retrieve all metadata from the source table type
+            sourceTypeMetadata = Value.Metadata(Value.Type(source)),
+
+            // Retrieve the type of the destination table and append the source table metadata to its own metadata
+            newDestinationType = Value.Type(destination) meta sourceTypeMetadata,
+
+            // Replace the type of the destination table with the new type containing metadata from both tables.
+            newDestination = Value.ReplaceType(destination, newDestinationType)
+        in
+            newDestination,
+
+    UoMReferenceData = 
+        let
+            Source = OData.Feed(uomServiceUrl, null, [ODataVersion = 4.0, Implementation="2.0"]),
+            UnitCategories_table = Source{[Name="UnitCategories",Signature="table"]}[Data],
+            removeCols = Table.RemoveColumns(UnitCategories_table,{"Description", "BaseUnit", "DefaultUnit"}),
+            expandUnits = Table.ExpandTableColumn(removeCols, "Units", {"Symbol", "Name"}, {"Units.Symbol", "Units.Name"}),
+            renameUnitCat = Table.RenameColumns(expandUnits,{{"Name", "UnitCategory"}})
+        in
+            renameUnitCat,
+
+    //Navigation table function built with hardcoded service root URL
+    GenerateNavTableUoMFunction = (serviceRoot as text) as function =>
+        let
+            //strip off any trailing slashes in service root.   Not currently handling more than one trailing slash
+            serviceRootNoSpace = Text.TrimEnd(serviceRoot),
+            serviceRootNoSlash = if Text.EndsWith(serviceRootNoSpace, "/") then 
+                                    Text.RemoveRange(serviceRootNoSpace, Text.Length(serviceRootNoSpace)-1)
+                                 else 
+                                    serviceRootNoSpace,
+
+            navTableFuncDef = "(unitsOfMeasureTarget as any, unitCategory as text, fromUnit as text, toUnit as text, precision as number) => " & 
+                                "HexagonSmartApi.ApplyUnitsOfMeasure(""" & serviceRootNoSlash & """, unitsOfMeasureTarget, unitCategory, fromUnit, toUnit, precision)",
+            navTableFunc = Expression.Evaluate(navTableFuncDef, #shared),
+            //add function documentation
+            navTableFuncTypeDefTmp = "type function " & 
+                                     "(unitsOfMeasureTarget as (type any meta [Documentation.FieldCaption = ""unitsOfMeasureTarget""]), " &
+                                      "unitCategory as (type text meta [Documentation.FieldCaption = ""unitCategory""]), " & 
+                                      "fromUnit as (type text meta [Documentation.FieldCaption = ""fromUnit""]), " & 
+                                      "toUnit as (type text meta [Documentation.FieldCaption = ""toUnit""]), " & 
+                                      "precision as (type number meta [Documentation.FieldCaption = ""precision""]) " &
+                                     ") " & 
+                                        "as function meta [" &
+                                        "Documentation.Name = ""Apply Units of Measure""," &
+                                        "Documentation.LongDescription = Extension.LoadString(""ApplyUnitsOfMeasure.Documentation.LongDescription"")]",
+            navTableFuncType = Diagnostics.LogValue(TraceLevel.Verbose, "navTableFuncTypeDef: " & navTableFuncTypeDefTmp, navTableFuncTypeDefTmp, false),
+            navTableFuncTypeWithDoc = Expression.Evaluate(navTableFuncType, #shared),
+            navTableFuncWithDoc = Value.ReplaceType(navTableFunc, navTableFuncTypeWithDoc)
+        in 
+            navTableFuncWithDoc,
+
+    //Take as input a table column, apply UoM conversion and output table column with converted value column
+    ApplyUnitsOfMeasure = (serviceRoot as text, unitsOfMeasureTarget as any, 
+                           unitCategory as text, fromUnit as text, toUnit as text, precision as number) as any => 
+        let
+            validServiceRoot = ValidateUrlScheme(serviceRoot),
+            //strip off any trailing slashes in service root.   Not currently handling more than one trailing slash
+            serviceRootNoSpace = Text.TrimEnd(validServiceRoot),
+            serviceRootNoSlash = if Text.EndsWith(serviceRootNoSpace, "/") then 
+                                    Text.RemoveRange(serviceRootNoSpace, Text.Length(serviceRootNoSpace)-1)
+                                 else 
+                                    serviceRootNoSpace,
+
+            uomTarget = if (Type.Is(Value.Type(unitsOfMeasureTarget), type table)) then
+                                    error "Input to Apply Units of Measure Function must be a text or numberic value.  Table input is not supported."
+                        else
+                            if (Type.Is(Value.Type(unitsOfMeasureTarget), type text)) then
+                                    Number.FromText(unitsOfMeasureTarget)
+                            else
+                                if (Type.Is(Value.Type(unitsOfMeasureTarget), type number)) then
+                                    unitsOfMeasureTarget
+                                else
+                                    error "Input to Apply Units of Measure Function must be a text or numberic value.  Please provide proper input.",
+
+            conversionFromTable = try GetConversionTable(unitCategory, fromUnit),
+            conversionToTable = try GetConversionTable(unitCategory, toUnit),
+
+            output = if conversionFromTable[HasError] = false and conversionToTable[HasError] = false then
+                        let
+                            //try logic above encases the result in a error record
+                            fromMult = Number.From(conversionFromTable[Value][Value]{1}{0}[Multiplier]),
+                            fromAddend = Number.From(conversionFromTable[Value][Value]{1}{0}[Addend]),
+                            toMult = Number.From(conversionToTable[Value][Value]{1}{0}[Multiplier]),
+                            toAddend = Number.From(conversionToTable[Value][Value]{1}{0}[Addend]),
+                            si = uomTarget * fromMult - fromAddend,
+                            output = si * toMult + toAddend,
+                            outputRound = Number.Round(output, precision, RoundingMode.Up)
+                        in
+                            outputRound
+                    else
+                        let
+                            conversionError = if conversionFromTable[HasError] then
+                                                error conversionFromTable[Error][Message]
+                                              else
+                                                error conversionToTable[Error][Message]
+                        in
+                            conversionError
+      in 
+            output, 
+
+    GetConversionTable = (unitCategory as text, unitSymbol as text) as table =>
+        let
+            path = "UnitCategories('" & unitCategory & "')/Units?$filter=Symbol eq '" & unitSymbol & "'",
+            options = [ManualStatusHandling = {400, 401, 403, 404, 405, 406, 408, 500, 501, 502, 503},
+                        RelativePath = path],
+            unitData = Web.Contents(uomServiceUrl, options),
+            responseStatusTmp = Value.Metadata(unitData)[Response.Status],
+            responseStatus = responseStatusTmp, 
+                                //Diagnostics.LogValue(TraceLevel.Information, 
+                                //"UoM.GetConversionTable: url => " & uomServiceUrl & ", path => " & path & 
+                                //", response status => " & Text.From(responseStatusTmp), responseStatusTmp, false),
+            unitDataFromService = if (responseStatus = 200) then
+                                     let
+                                         unitDataJson = Json.Document(unitData),
+                                         unitDataTableTmp = Record.ToTable(unitDataJson),
+                                         unitDataTable = if List.Count(unitDataTableTmp[Value]{1}) > 0 then
+                                                            unitDataTableTmp
+                                                         else
+                                                            error unitSymbol & " is not a valid units of measure symbol."
+                                     in
+                                         unitDataTable
+                                  else
+                                         error "Unable to access Units of Measure service: [" & uomServiceUrl & "].  Error code:" & Text.From(responseStatus)
+        in
+            unitDataFromService
+
+in
+    [
+        GenerateNavTableUoMFunction = GenerateNavTableUoMFunction,
+        ApplyUnitsOfMeasure = ApplyUnitsOfMeasure,
+        UoMReferenceData = UoMReferenceData
+    ]

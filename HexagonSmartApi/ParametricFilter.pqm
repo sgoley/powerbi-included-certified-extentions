@@ -1,0 +1,834 @@
+﻿//
+//Parametric filter support
+//
+
+let
+    EnableTraceOutput = false,
+    Diagnostics.LogValue = if (EnableTraceOutput) then 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => Diagnostics.Trace(traceLevel, message, value, false) 
+                           else 
+                                (traceLevel as number, message as anynonnull, value, optional delayed) => value,
+
+    ValidateUrlScheme = (url as text) as text => if (Uri.Parts(url)[Scheme] <> "https") then error "Url scheme must be HTTPS" else url,
+
+    //Send web request using URL and Path with JSON response
+    HexagonSmartApiWebRequest = (url as text, optional path as text, optional includeAnnotations as text, optional manualCredentials as logical) => 
+        let
+            hr1 = [#"OData-MaxVersion"="4.0"],
+            hr2 = if (Text.Length(includeAnnotations) > 0) then 
+                        Record.AddField(hr1, "Prefer", "odata.include-annotations=""" & includeAnnotations & """") 
+                  else 
+                        hr1,
+            wcOpt1 = [Headers=hr2],
+            wcOpt2 = if (path = null) then 
+                            wcOpt1 
+                     else 
+                            Record.AddField(wcOpt1, "RelativePath", path),
+            wcOpt3 = if (manualCredentials = true) then 
+                            Record.AddField(wcOpt2, "ManualCredentials", true) 
+                     else 
+                            wcOpt2,
+            Source = Json.Document(Web.Contents(url, wcOpt3))
+        in
+            Source,
+
+    //Navigation table function built with hardcoded service root URL
+    GenerateNavTableFilterFunction = (serviceRoot as text) as function =>
+        let
+            //strip off any trailing slashes in service root.   Not currently handling more than one trailing slash
+            serviceRootNoSpace = Text.TrimEnd(serviceRoot),
+            serviceRootNoSlash = if Text.EndsWith(serviceRootNoSpace, "/") then 
+                                    Text.RemoveRange(serviceRootNoSpace, Text.Length(serviceRootNoSpace)-1)
+                                 else 
+                                    serviceRootNoSpace,
+            navTableFuncDef = "(filterSource as any) => HexagonSmartApi.GenerateParametricFilterByFilterSourceType(""" & serviceRootNoSlash & """, filterSource)",
+            navTableFunc = Expression.Evaluate(navTableFuncDef, #shared),
+            //add function documentation
+            navTableFuncTypeDefTmp = "type function " & 
+                                     "(filterSource as (type any meta [Documentation.FieldCaption = ""filterSource""])) " & 
+                                        "as function meta [" &
+                                        "Documentation.Name = ""Create parametric filter function""," &
+                                        "Documentation.LongDescription = Extension.LoadString(""ParametricFilter.Documentation.LongDescription"")]",
+            navTableFuncType = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GenerateNavTableFilterFunction: navTableFuncTypeDefTmp => " & navTableFuncTypeDefTmp, 
+                                                  navTableFuncTypeDefTmp, false),
+            navTableFuncTypeWithDoc = Expression.Evaluate(navTableFuncType, #shared),
+            navTableFuncWithDoc = Value.ReplaceType(navTableFunc, navTableFuncTypeWithDoc)
+        in 
+            navTableFuncWithDoc,
+
+    //Function that generates parametric filter based on filter source type
+    //  if filter source is a record then generate the filter function for the record
+    //  if filter source is a table then generate a filter function as a new table column for each filter row
+    GenerateParametricFilterByFilterSourceType = (serviceRoot as text, inputFilterSource as any) as any => 
+        let
+            validServiceRoot = ValidateUrlScheme(serviceRoot),
+            //strip off any trailing slashes in service root.   Not currently handling more than one trailing slash
+            serviceRootNoSpace = Text.TrimEnd(validServiceRoot),
+            serviceRootNoSlash = if Text.EndsWith(serviceRootNoSpace, "/") then 
+                                    Text.RemoveRange(serviceRootNoSpace, Text.Length(serviceRootNoSpace)-1)
+                                 else 
+                                    serviceRootNoSpace,
+            filterSource = if (Type.Is(Value.Type(inputFilterSource), type record) = true) or (Type.Is(Value.Type(inputFilterSource), type table) = true) then
+                                inputFilterSource
+                           else
+                                error "Input to Create Parametric Filter Function must be a table or record.  Please provide a table or record as input.", 
+
+            result = if (Type.Is(Value.Type(filterSource), type record) = true) then
+                        GenerateParametricFilterFunction(serviceRootNoSlash, filterSource)
+                     else 
+                        if (Type.Is(Value.Type(filterSource), type table) = true) then
+                            //Apply the function to the table rows
+                            Table.AddColumn(filterSource, "ExecuteParametricFilter", each GenerateParametricFilterFunction(serviceRootNoSlash, _))
+                        else
+                            error Error.Record("Error", "Source is not a filter record or table type", "")
+        in 
+            result,
+
+    GenerateParametricFilterFunctionDef = (pfdef as record, includeParamDocumentation as logical) as text =>
+        let
+            //Determine function definition
+            //NOTE - Documentation.FieldDescription is broken in PBI.  For now, just use Field Caption.
+            supportedParams = pfdef[#"@ingr.parametricFilterDefinition"][SupportedParameters],
+            supParamNames = pfdef[FilterActionParameters],
+            funcPara1 = if supportedParams = null then 
+                            "("
+                        else
+                            if List.Count(supportedParams) = 0 then
+                                //no params
+                                "()"
+                            else
+                                "(",
+            funcPara2 = if (supportedParams = null or List.Contains(supportedParams, supParamNames[ObjectHierarchyName])) then
+                            //TODO - only support a single hierarchy name and resource ids even if parafilter support multiple. Do this because it is hard to pass complex collection of name/resid in PBI
+                            if (includeParamDocumentation) then
+                                let
+                                    oh1 = funcPara1 & "optional objectHierarchyName as (type text meta [Documentation.FieldCaption = ""Object Hierarchy Name""]),",
+                                    oh2 = oh1 & "optional objectHierarchyResourceIds as (type text meta [Documentation.FieldCaption = ""Object Hierarchy Resource Ids""]),"
+                                in
+                                    oh2
+                            else
+                                funcPara1 & "optional objectHierarchyName as text, optional objectHierarchyResourceIds as text,"
+                        else
+                            funcPara1,
+            funcPara3 = if (supportedParams = null or List.Contains(supportedParams, supParamNames[ObjectTypeName])) then
+                            if (includeParamDocumentation) then
+                                funcPara2 & "optional " & supParamNames[ObjectTypeName] & " as (type text meta [Documentation.FieldCaption = ""Object Types""]),"
+                            else
+                                funcPara2 & "optional " & supParamNames[ObjectTypeName] & " as text,"
+                        else
+                            funcPara2,
+            funcPara4 = if (supportedParams = null or List.Contains(supportedParams, supParamNames[QueryExpressionName])) then
+                            if (includeParamDocumentation) then
+                                funcPara3 & "optional " & supParamNames[QueryExpressionName] & " as (type text meta [Documentation.FieldCaption = ""Query Expression""]))"
+                            else
+                                funcPara3 & "optional " & supParamNames[QueryExpressionName] & " as text)"
+                        else
+                            funcPara3 & ")",
+            //clean up trailing comma
+            funcPara5 = Text.Replace(funcPara4, ",)", ")") & " as table",
+            funcPara6 = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GenerateParametricFilterFunctionDef: function def => " & funcPara5, funcPara5, false)
+        in
+            funcPara6,
+
+    GenerateParametricFilterFunctionParamDescription = (pfdef as record) as text =>
+        let
+            //Generate parameter description info to be appended to function LongDescription
+            supportedParams = pfdef[#"@ingr.parametricFilterDefinition"][SupportedParameters],
+            supParamNames = pfdef[FilterActionParameters],
+            paraFilterDef = pfdef[#"@ingr.parametricFilterDefinition"],
+            funcPara1 = "This function supports the following parameters:",
+            funcPara2 = if (supportedParams = null or List.Contains(supportedParams, supParamNames[ObjectHierarchyName])) then
+                                let
+                                    supObjHier = paraFilterDef[SupportedObjectHierarchies],
+                                    oh1 = funcPara1 & " Optional objectHierarchyName - A supported object hierarchy name." & 
+                                                                 " Supported values are """"" & Text.Combine(supObjHier, " , ") & """"".",
+                                    oh2 = oh1 & " Optional objectHierarchyResourceIds - An optional collection of resource identifiers. " & 
+                                                                        "If specified, each entry MUST be a valid canonical entity-id URL, either absolute or relative. Only " & 
+                                                                        "resources that belong to this object hierarchy are acceptable."
+                                in
+                                    oh2
+                            else
+                                funcPara1,
+            funcPara3 = if (supportedParams = null or List.Contains(supportedParams, supParamNames[ObjectTypeName])) then
+                            if (Record.HasFields(paraFilterDef, "SupportedObjectTypes")) then 
+                                let
+                                    supObjTypes = paraFilterDef[SupportedObjectTypes],
+                                    ot1 = funcPara2 & " Optional " & supParamNames[ObjectTypeName] & " - Qualified type names. " &
+                                                                    " Supported values are """"" & Text.Combine(supObjTypes, " , ") & """""."
+                                in
+                                    ot1
+                            else
+                                    funcPara2 & " Optional " & supParamNames[ObjectTypeName] & " - Qualified type names. Any valid type from the service metadata is supported."
+                        else
+                            funcPara2,
+            funcPara4 = if (supportedParams = null or List.Contains(supportedParams, supParamNames[QueryExpressionName])) then
+                            let
+                                supQueryOpt = paraFilterDef[SupportedQueryOptions],
+                                qo1 = funcPara3 & " Optional " & supParamNames[QueryExpressionName] & " - A collection of supported OData system query options. " &
+                                                            " Supported query options are """"" & Text.Combine(supQueryOpt, " , ") & """"".",
+                                qo2 = if (Record.HasFields(paraFilterDef, "SupportedFilterableProperties")) then
+                                            let
+                                                filterableProps = paraFilterDef[SupportedFilterableProperties],
+                                                supFiltProps = if (List.Count(filterableProps) > 0) then
+                                                                    let
+                                                                        fp = Text.Combine(List.Transform(filterableProps, each _[PropertyName]), ","),
+                                                                        fp1 = qo1 & " Supported filterable properties are """"" & fp & """""."
+                                                                    in
+                                                                        fp1
+                                                                else
+                                                                    qo1
+                                            in
+                                                supFiltProps
+                                      else
+                                            qo1
+                            in
+                                qo2
+                        else
+                            funcPara3,
+            funcPara5 = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GenerateParametricFilterFunctionParamDescription: description => " & funcPara4, funcPara4, false)
+        in
+            funcPara5,
+
+    GenerateParametricFilterFieldNamesRecord = (fieldNames as record) as text =>
+        let
+            fnames = Record.FieldNames(fieldNames),
+            fvalues = Record.FieldValues(fieldNames),
+            recordText = "Record.FromList({" & 
+                                            Text.Combine(List.Transform(fvalues, each """" & (_) & """"), ",") & "},{" & 
+                                            Text.Combine(List.Transform(fnames, each """" & (_) & """"), ",") &
+                                        "})",
+            outputRecordText = Diagnostics.LogValue(TraceLevel.Information, 
+                                    "ParaFilter.GenerateParametricFilterFieldNamesRecord: param name record => " & recordText, recordText, false)
+        in
+            outputRecordText,
+
+    GenerateParametricFilterFunctionSignature = (serviceRoot as text, filterTarget as text, pfdef as record) =>
+        let
+            //Determine function params
+            funcParams = Diagnostics.LogValue(TraceLevel.Information, 
+                                    "ParaFilter.GenerateParametricFilterFunctionSignature: begin", GenerateParametricFilterFunctionDef(pfdef, false), false),
+            supParams = pfdef[#"@ingr.parametricFilterDefinition"][SupportedParameters],
+            supParamNames = pfdef[FilterActionParameters],
+            func1 = " => let " & "filterOutput = HexagonSmartApi.ExecuteParametricFilterOnFilterUrl(""" & serviceRoot & """, """ & filterTarget & """, " &
+                                                                                                  GenerateParametricFilterFieldNamesRecord(supParamNames) &
+                                                                                                  ", ",
+            func2 = if (List.Contains(supParams, supParamNames[ObjectHierarchyName])) then
+                        //TODO - only support a single hierarchy name and resource ids even if parafilter support multiple. Do this because it is hard to pass complex collection of name/resid in PBI
+                        func1 & "objectHierarchyName, objectHierarchyResourceIds"   
+                    else
+                        func1 & "null, null",
+            func3 = if (List.Contains(supParams, supParamNames[ObjectTypeName])) then
+                        func2 & ", " & supParamNames[ObjectTypeName]
+                    else
+                        func2 & ", null",
+            func4 = if (List.Contains(supParams, supParamNames[QueryExpressionName])) then
+                        func3 & ", " &  supParamNames[QueryExpressionName] & ")"
+                    else
+                        func3 & ", null)",
+            pfunc = funcParams & func4 & " in filterOutput",
+            outputPfunc = Diagnostics.LogValue(TraceLevel.Information, 
+                                    "ParaFilter.GenerateParametricFilterFunctionSignature: signature => " & pfunc, pfunc, false)
+        in
+            outputPfunc,
+
+    //Generate documentation based on parametric filter definition
+    GenerateParametricFilterFunctionMetadataFuncType = (pfdef as record) =>
+        let
+            funcSig = GenerateParametricFilterFunctionDef(pfdef, true),
+            //Parameter Doc.FieldDescription doesn't work (https://community.powerbi.com/t5/Issues/Documentation-Description/idi-p/339171).  Work around this
+            //  by setting parameter description information in the function LongDescrption.  
+            funcParamDesc = GenerateParametricFilterFunctionParamDescription(pfdef),
+            colDefs = pfdef[#"@ingr.parametricFilterDefinition"][ColumnDefinitions],
+            funcTypeDefTmp = "type function " & funcSig & " meta [Documentation.Name = """ & pfdef[Name] & " - " & pfdef[Description] &  """, " &
+                                                                 "Documentation.LongDescription =  """ & funcParamDesc & """," & 
+                                                                 "Documentation.Examples = " &
+                                                                 "{" &
+                                                                    "[" &
+                                                                            "Description = ""Returns a table containing the results of the parametric filter execution."", " &
+                                                                            "Code = """ & pfdef[Name] & "(...)""," &
+                                                                            "Result = ""#table({" & Text.Combine(List.Transform(colDefs, each _[TypeName] & "." & _[PropertyName]), ",") & "},{...})""" &
+                                                                    "]" &
+                                                                 "}]",
+            funcTypeDef = Diagnostics.LogValue(TraceLevel.Information, "Parafilter.GenerateParametricFilterFunctionMetadata: funcTypeDef => " & funcTypeDefTmp, funcTypeDefTmp, false),
+            funcType = Expression.Evaluate(funcTypeDef, #shared)
+        in
+            funcType,
+
+    //Generate the actual filter function with inputs based on parametric filter supported inputs
+    //  Also generate documentation for the function based on parametric filter definition
+    GenerateParametricFilterFunction = (url as text, filterSource as any) =>
+        let
+            filterRecord = if (Type.Is(Value.Type(filterSource), type table) = true) then
+                                if (Table.RowCount(filterSource) > 1) then
+                                    error Error.Record("Error", "Multi row filter table not supported")
+                                else
+                                    filterSource{0}
+                            else
+                                if (Type.Is(Value.Type(filterSource), type record) = true) then
+                                    filterSource
+                                else
+                                    error Error.Record("Error", "Source is not a filter record type", ""),
+            pfdef = ParametricFilterDefinition(url, filterRecord),
+            actionName = if (Record.HasFields(pfdef, pfdef[#"FilterAction"])) then
+                            pfdef[#"FilterAction"]
+                        else
+                            if (Record.HasFields(pfdef, "#" & pfdef[#"FilterAction"])) then
+                                "#" & pfdef[#"FilterAction"]
+                            else
+                                error Error.Record("error", "unable to find filter action field name in pfdef"),
+            filterTarget = Record.Field(pfdef, actionName)[target],
+            //define the function 
+            filterFunctionDefTmp = GenerateParametricFilterFunctionSignature(url, filterTarget, pfdef),
+            filterFunctionDef = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GenerateParametricFilterFunction:  filterFunctionDef => " & filterFunctionDefTmp, 
+                                                    filterFunctionDefTmp, false),
+            filterTmp = Expression.Evaluate(filterFunctionDef, #shared),
+            filter = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GenerateParametricFilterFunction: evaluation executed", filterTmp, false),
+            filterFuncType = GenerateParametricFilterFunctionMetadataFuncType(pfdef),
+            filterWithMetadata = Value.ReplaceType(filter, filterFuncType)
+        in
+            filterWithMetadata,
+
+
+    //Filter action parameter names are determined by combination of filter instance annotations, annotations metadata (flattened), and hardwired info from the spec
+    GetFilterActionParameterNames = (url as text, filterActionType as text, filterActionBaseType as text) =>
+        let
+                result = HexagonSmartApi.GetODataMetadata(url, true),        
+                DataServices = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GetFilterActionParameterNames: got past HexagonSmartApi.GetODataMetadata", result{0}[DataServices], false),
+                edm = DataServices{0}[#"http://docs.oasis-open.org/odata/ns/edm"],
+                Schema = edm{0}[Schema],
+                filteredSchema = Table.SelectColumns(Schema,{"Action", "Attribute:Namespace"}),
+                expandedAction = Table.ExpandTableColumn(filteredSchema, "Action", 
+                                                         {"Parameter", "ReturnType", "Annotation", "Attribute:Name", "Attribute:IsBound"}, 
+                                                         {"ActionParameter", "ActionReturnType", "ActionAnnotation", "ActionAttributeName", "ActionAttributeIsBound"}),
+                expandedActionParam = Table.ExpandTableColumn(expandedAction, "ActionParameter", 
+                                                              {"Attribute:Name", "Attribute:Type", "Attribute:Nullable", "Annotation"}, 
+                                                              {"ActionParameterAttributeName", "ActionParameterAttributeType", "ActionParameterAttributeNullable", "Action.Parameter.Annotation"}),
+                fatTmp = Table.SelectRows(expandedActionParam, each [#"ActionParameterAttributeType"] = filterActionType),
+
+                fat = if (Table.RowCount(fatTmp) = 1) then
+                          fatTmp
+                      else
+                          if (filterActionBaseType = "") then
+                              error "ParaFilter.GetFilterActionParameterNames: expected 1 [" & filterActionType & "] in filter actions metadata but found => " & Number.ToText(Table.RowCount(fatTmp))
+                          else
+                              let
+                                  //use the filterActionBaseType
+                                  fatBaseTmp = Table.SelectRows(expandedActionParam, each [#"ActionParameterAttributeType"] = filterActionBaseType),
+                                  fatBase = if (Table.RowCount(fatBaseTmp) = 1) then
+                                                fatBaseTmp
+                                            else
+                                                 error "ParaFilter.GetFilterActionParameterNames: expected 1 [" & filterActionBaseType & "] in filter actions metadata but found => " & 
+                                                                Number.ToText(Table.RowCount(fatBaseTmp))
+                              in
+                                  fatBase,
+
+                fa = Table.SelectRows(expandedActionParam, each ([#"Attribute:Namespace"] = fat[#"Attribute:Namespace"]{0}) and 
+                                                                ([#"ActionAttributeName"] = fat[#"ActionAttributeName"]{0})),
+
+                expandedActionParamAnno = Table.ExpandTableColumn(fa, "Action.Parameter.Annotation", 
+                                               {"Attribute:Term", "Attribute:String", "Attribute:Bool"}, 
+                                               {"Action.Parameter.Annotation.Attribute:Term", "Action.Parameter.Annotation.Attribute:String", "Action.Parameter.Annotation.Attribute:Bool"}),
+
+                ohtable = Table.SelectRows(expandedActionParamAnno, 
+                                            each ([#"ActionParameterAttributeType"] = "Com.Ingr.Core.V1.ObjectHierarchy" or 
+                                                  [#"ActionParameterAttributeType"] = "Collection(Com.Ingr.Core.V1.ObjectHierarchy)")),
+                ohname = if (Table.RowCount(ohtable) > 0) then 
+                            ohtable{0}[#"ActionParameterAttributeName"] 
+                         else 
+                            "",
+                ohIsColl = if (Table.RowCount(ohtable) > 0) then
+                                    if (Text.Contains(ohtable{0}[#"ActionParameterAttributeType"], "Collection(")) then
+                                        "true"
+                                    else
+                                        "false"
+                           else
+                               "false",
+
+                ottable = Table.SelectRows(expandedActionParamAnno, each [#"Action.Parameter.Annotation.Attribute:Term"] = "Com.Ingr.Core.V1.IsTypeName"),
+                otname = if (Table.RowCount(ottable) > 0) then
+                            ottable{0}[#"ActionParameterAttributeName"] 
+                         else 
+                            "",
+                otIsColl = if (Table.RowCount(ottable) > 0) then
+                                    if (Text.Contains(ottable{0}[#"ActionParameterAttributeType"], "Collection(")) then
+                                        "true"
+                                    else
+                                        "false"
+                           else
+                               "false",
+
+                qetable = Table.SelectRows(expandedActionParamAnno, each [#"Action.Parameter.Annotation.Attribute:Term"] = "Com.Ingr.Core.V1.IsQueryExpression"),
+                qename = if (Table.RowCount(qetable) > 0) then 
+                            qetable{0}[#"ActionParameterAttributeName"] 
+                         else 
+                            "",
+                qeIsColl = if (Table.RowCount(qetable) > 0) then
+                                    if (Text.Contains(qetable{0}[#"ActionParameterAttributeType"], "Collection(")) then
+                                        "true"
+                                    else
+                                        "false"
+                           else
+                               "false",
+
+                paramNamesTmp = [ObjectHierarchyName = ohname, ObjectTypeName = otname, QueryExpressionName = qename, 
+                                 ObjectHierarchyIsColl = ohIsColl, ObjectTypeIsColl = otIsColl, QueryExpressionIsColl = qeIsColl],
+                paramNames = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GetFilterActionParameterNames: before return.", paramNamesTmp, false)
+        in
+                paramNames,
+
+//Find all filter actions from OData metadata
+        GetFilterActions = (url as text) as table => 
+        let
+            BuildFilterActions = (filterActionTypeNames as table, inputIndex as number, filterActions as table) as table => 
+            let
+                //build set of filter actions
+                index = Diagnostics.LogValue(TraceLevel.Information, 
+                                          "ParaFilter.GetFilterActions.BuildFilterActions: filterActionTypeNames rowcount => " & Text.From(Table.RowCount(filterActionTypeNames)) & 
+                                          " index => " & Text.From(inputIndex) & 
+                                          " filterActions rowcount => " & Text.From(Table.RowCount(filterActions)), 
+                                          inputIndex, false),  //processed them all
+
+                filterActionResults = if (index >= Table.RowCount(filterActionTypeNames)) then
+                                            Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GetFilterActions.BuildFilterActions: processed all filterActionTypeNames", filterActions, false)
+                                      else
+                                            let
+                                                namespace = filterActionTypeNames{index}[#"Attribute:Namespace"],   
+                                                filterActionTypeTmp =  namespace & "." & filterActionTypeNames{index}[#"EntityType.Attribute:Name"],
+                                                filterActionType = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GetFilterActions.BuildFilterActions: filterActionType => " & filterActionTypeTmp, filterActionTypeTmp, false),
+                                                //TODO - factor out get metadata outside of recursion path
+                                                result = HexagonSmartApi.GetODataMetadata(url, false),        
+                                                DataServices = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GetFilterActions.BuildFilterActions: got past HexagonSmartApi.GetODataMetadata", result{0}[DataServices], false),
+                                                edm = DataServices{0}[#"http://docs.oasis-open.org/odata/ns/edm"],
+                                                Schema = edm{0}[Schema],
+                                                actionSchema = Table.SelectColumns(Schema,{"Action"}),
+                                                expandedActionSchema = Table.ExpandTableColumn(actionSchema, "Action", 
+                                                                                            {"Parameter", "ReturnType", "Attribute:Name", "Attribute:IsBound"}, 
+                                                                                            {"ActionParameter", "ActionReturnType", "ActionAttributeName", "ActionAttributeIsBound"}),
+                                                expandedActionSchemaParam = Table.ExpandTableColumn(expandedActionSchema, "ActionParameter", 
+                                                                                                {"Attribute:Name", "Attribute:Type", "Attribute:Nullable"}, 
+                                                                                                {"ActionParameterAttributeName", "ActionParameterAttributeType", "ActionParameterAttributeNullable"}),
+                                                selectedFilterAction = Table.SelectRows(expandedActionSchemaParam, 
+                                                                                each ([#"ActionParameterAttributeName"] = "bindingParameter") and 
+                                                                                     ([#"ActionParameterAttributeType"] = filterActionType)),
+                                                //if the filterActionType is inherited from a filter action then it will not be found in Table.SelectRows.  Let the processing continue on and
+                                                //   it will get picked up in the BuildInheritedFilterActions processing                                                                                     
+                                                filterActionWithReturnType =  Table.ExpandTableColumn(selectedFilterAction, "ActionReturnType", {"Attribute:Type"}, {"ActionReturnTypeAttributeType"}),
+                                                filterActionWithNamespace = Table.AddColumn(filterActionWithReturnType, "Namespace", (row) => namespace),
+                                                filterActionWithActionBaseType = Table.AddColumn(filterActionWithNamespace, "ActionBaseType", (row) => null),  //used for inheritance cases
+                                                combinedFilterActions = if (Table.RowCount(filterActions) > 0) then
+                                                                            Table.Combine({filterActions, filterActionWithActionBaseType})
+                                                                        else
+                                                                            filterActionWithActionBaseType,
+                                                nextIndex = Diagnostics.LogValue(TraceLevel.Information, 
+                                                                              "ParaFilter.GetFilterActions.BuildFilterActions: before @BuildFilterActions recurse. combinedFilterActions rowcount => " & Text.From(Table.RowCount(combinedFilterActions)), 
+                                                                              index + 1, false),
+                                                allFilterActions = @BuildFilterActions(filterActionTypeNames, nextIndex, combinedFilterActions)
+                                            in
+                                                allFilterActions
+            in
+                filterActionResults,
+
+
+            BuildInheritedFilterActions = (filterActionTypeNames as table, inputIndex as number, filterActions as table) as table => 
+            let
+                //build set of filter actions where parametric filters are subclasses of parametric filters
+                index = Diagnostics.LogValue(TraceLevel.Information, 
+                                          "ParaFilter.GetFilterActions.BuildInheritedFilterActions: filterActionTypeNames rowcount => " & Text.From(Table.RowCount(filterActionTypeNames)) & 
+                                          " index => " & Text.From(inputIndex) & 
+                                          " filterActions rowcount => " & Text.From(Table.RowCount(filterActions)), 
+                                          inputIndex, false),  //processed them all
+
+                filterActionResults = if (index >= Table.RowCount(filterActionTypeNames)) then
+                                            Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.GetFilterActions.BuildInheritedFilterActions: processed all filterActionTypeNames", filterActions, false)
+                                      else
+                                            let
+                                                namespace = filterActionTypeNames{index}[#"Attribute:Namespace"],   
+                                                filterActionBaseType = filterActionTypeNames{index}[#"EntityType.Attribute:BaseType"],  
+                                                filterActionTypename =  filterActionTypeNames{index}[#"EntityType.Attribute:Name"],
+                                                filterActionTypeTmp = namespace & "." & filterActionTypename,
+                                                filterActionType = Diagnostics.LogValue(TraceLevel.Information, 
+                                                                                     "ParaFilter.GetFilterActions.BuildInheritedFilterActions: filterActionTypename => " & filterActionTypename & 
+                                                                                     " filter action namespace  => " & namespace & 
+                                                                                     " filter action baseType => " & filterActionBaseType, 
+                                                                                     filterActionTypeTmp, false),
+
+                                                //For the given filter action type, see if it is in the filter actions table.  If not, see if its base type is in the filter actions
+                                                //  table.  If yes, copy the base type action row and edit otherwise error
+                                                selectedFilterAction = Table.SelectRows(filterActions, each ([#"ActionParameterAttributeType"] = filterActionType)),
+                                                combinedFilterActions = if (Table.RowCount(selectedFilterAction) > 0) then
+                                                                            //found the filter action. Nothing to do here.
+                                                                            Diagnostics.LogValue(TraceLevel.Information, 
+                                                                                "ParaFilter.GetFilterActions.BuildInheritedFilterActions: filterAction table already contains filterActionType => " & filterActionType, filterActions, false)
+                                                                        else
+                                                                            let
+                                                                               //See if the filter action basetype is inthe filterActions table 
+                                                                               filterActionTypeParentTmp = Table.SelectRows(filterActions, each ([#"ActionParameterAttributeType"] = filterActionBaseType)),
+                                                                               filterActionTypeParent = Diagnostics.LogValue(TraceLevel.Information, 
+                                                                                                        "ParaFilter.GetFilterActions.BuildInheritedFilterActions: select rows filterActionBaseType => " & filterActionBaseType & 
+                                                                                                        ". Found => " & Text.From(Table.RowCount(filterActionTypeParentTmp)), filterActionTypeParentTmp, false),
+                                                                               addedFilterAction = if (Table.RowCount(filterActionTypeParent) = 1) then
+                                                                                                        let
+                                                                                                            //replace ActionParameterAttributeType parent type with filterActionType.
+                                                                                                            replaceActionType = Table.ReplaceValue(filterActionTypeParent, filterActionBaseType, filterActionType, Replacer.ReplaceText, {"ActionParameterAttributeType"}),
+                                                                                                            updateActionBaseType = Table.ReplaceValue(replaceActionType, null, filterActionBaseType, Replacer.ReplaceValue, {"ActionBaseType"}),
+
+                                                                                                            //now combine with filterActions
+                                                                                                            combinedTableTmp = Table.Combine({filterActions, updateActionBaseType}),
+                                                                                                            combinedTable = Diagnostics.LogValue(TraceLevel.Information, 
+                                                                                                                                    "ParaFilter.GetFilterActions.BuildInheritedFilterActions: combined filterAction table rowcount => " & 
+                                                                                                                                      Text.From(Table.RowCount(combinedTableTmp)), combinedTableTmp, false)
+                                                                                                        in
+                                                                                                            combinedTable
+                                                                                                   else
+                                                                                                        error "ParaFilter.GetFilterActions.BuildInheritedFilterActions: processing => " & filterActionType & 
+                                                                                                                 " expected one => " & filterActionBaseType & "basetype but found => " & Text.From(Table.RowCount(filterActionTypeParent))
+                                                                            in
+                                                                               addedFilterAction,
+                                                                            
+                                                nextIndex = Diagnostics.LogValue(TraceLevel.Information, 
+                                                                              "ParaFilter.GetFilterActions.BuildInheritedFilterActions: before @BuildInheritedFilterActions recurse. combinedFilterActions rowcount => " & Text.From(Table.RowCount(combinedFilterActions)), 
+                                                                              index + 1, false),
+                                                allFilterActions = @BuildInheritedFilterActions(filterActionTypeNames, nextIndex, combinedFilterActions)
+                                            in
+                                                allFilterActions
+            in
+                filterActionResults,
+
+            filterActionTypeNamesTmp = GetActionFilterTypeNames(url, "Com.Ingr.Core.V1.ParametricFilter", #table({},{})),
+            filterActionTypeNames = Diagnostics.LogValue(TraceLevel.Information, 
+                                                      "ParaFilter.GetFilterActions: filterActionTypeNames count => " & Number.ToText(Table.RowCount(filterActionTypeNamesTmp)), 
+                                                       filterActionTypeNamesTmp, false),
+            filterActionResults = BuildFilterActions(filterActionTypeNames, 0, #table({},{})),
+            filterActionResultsWithInherited = BuildInheritedFilterActions(filterActionTypeNames, 0, filterActionResults)
+        in
+            filterActionResultsWithInherited,
+
+
+//Find all filter names from OData metadata
+//  Fixed to support multiple filter types w inheritance
+    GetActionFilterTypeNames = (url as text, baseType as text, actionFilterTypeNames as table) as table => 
+        let
+            result = HexagonSmartApi.GetODataMetadata(url, false),
+            DataServices = result{0}[DataServices],
+            edm = DataServices{0}[#"http://docs.oasis-open.org/odata/ns/edm"],
+            Schema = edm{0}[Schema],
+            expandedEntityType = Table.ExpandTableColumn(Schema, "EntityType", 
+                                    {"Key", "Property", "Attribute:Name", "Attribute:Abstract", "Attribute:OpenType", "NavigationProperty", "Attribute:BaseType", "Attribute:HasStream"}, 
+                                    {"EntityType.Key", "EntityType.Property", "EntityType.Attribute:Name", "EntityType.Attribute:Abstract",
+                                     "EntityType.Attribute:OpenType", "EntityType.NavigationProperty", "EntityType.Attribute:BaseType", "EntityType.Attribute:HasStream"}),
+             paraFilterRowsTmp = Table.SelectRows(expandedEntityType, each ([#"EntityType.Attribute:BaseType"] = baseType)),
+             paraFilterRows = if (Table.RowCount(paraFilterRowsTmp) > 0) then
+                                    let
+                                        //Can have multiple para filters from the same base type
+                                        parafilterRowsFound = Diagnostics.LogValue(TraceLevel.Information, 
+                                                                        "ParaFilter.GetActionFilterTypeNames: Found paraFilters count => " & Number.ToText(Table.RowCount(paraFilterRowsTmp)) &
+                                                                                 " of baseType => " & baseType, paraFilterRowsTmp, false),
+
+                                        parafilterRowsFixed = Table.RemoveColumns(parafilterRowsFound,
+                                                                                {"ComplexType", "EntityType.Key", "EntityType.Property", "EntityType.Attribute:Abstract", 
+                                                                                "EntityType.Attribute:OpenType", "EntityType.NavigationProperty", "EntityType.Attribute:HasStream", 
+                                                                                "EnumType", "Action", "Function", "Term", "EntityContainer"}, MissingField.Ignore),
+
+                                        currentBaseType = parafilterRowsFixed{0}[#"Attribute:Namespace"] & "." & parafilterRowsFixed{0}[#"EntityType.Attribute:Name"],
+
+                                        //now recurse with the just found basetype
+                                        foundActionFilterTypeNames = if (Table.RowCount(actionFilterTypeNames) > 0) then
+                                                                            let
+                                                                                //add current typenames to the incoming table and recurse
+                                                                                combinedTypeNamesTable = Table.Combine({actionFilterTypeNames, parafilterRowsFixed}),
+                                                                                outputTypeNamesTable = @GetActionFilterTypeNames(url, currentBaseType, combinedTypeNamesTable)
+                                                                            in
+                                                                                outputTypeNamesTable
+                                                                     else
+                                                                            @GetActionFilterTypeNames(url, currentBaseType, parafilterRowsFixed)
+                                    in
+                                        foundActionFilterTypeNames
+                               else
+                                    actionFilterTypeNames
+        in
+            paraFilterRows,
+
+
+    //Get parametric filter definition (instance annotations) using OData metadata
+    ParametricFilterDefinition = (url as text, filterSourceTmp as any) => 
+        let
+            //check incoming type.  It must be a parametric filter record
+            filterSource = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ParametricFilterDefinition: at start", filterSourceTmp, false),
+            filterRecord = if (Type.Is(Value.Type(filterSource), type record) = true) then
+                                    filterSource
+                                else
+                                    error "ParaFilter.ParametricFilterDefinition: filterSource is not a filter record type",
+            md = Value.Metadata(filterRecord),
+            odataTypeTmp = md[#"@odata.type"],
+            odataType = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ParametricFilterDefinition: odataType => " & odataTypeTmp, odataTypeTmp, false),
+
+            filterActions = GetFilterActions(url),
+            filterAction = Table.SelectRows(filterActions,  each [#"ActionParameterAttributeType"] = odataType),
+            filterPath = if (Table.RowCount(filterAction) > 0) then
+                            if (Table.RowCount(filterAction) = 1) then
+                                //record is a filter
+                                md[#"@odata.readLink"]
+                            else
+                                //more than one with the same type
+                                error "ParaFilter.ParametricFilterDefinition: source contains duplicate filters."
+                         else
+                            //record is not a filter
+                            error "ParaFilter.ParametricFilterDefinition: source is not a filter",
+
+            //Next, get the ActionBaseType. It will be null for actual filter action otherwise it will be the action parent for this entity type.
+            actionBaseType = if (filterAction{0}[ActionBaseType] = null) then
+                                Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ParametricFilterDefinition: actionBaseType => null", "", false)
+                             else
+                                Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ParametricFilterDefinition: actionBaseType => " & filterAction{0}[ActionBaseType], 
+                                                  filterAction{0}[ActionBaseType], false),  
+
+
+            //Now get filter instance annotations
+            pathTmp = Text.End(filterPath, Text.Length(filterPath) - Text.Length(url)) & "?$format=application/json;odata.metadata=full",
+            path = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ParametricFilterDefinition: filter path => " & pathTmp, pathTmp, false),
+
+            filterInstAnnoTmp = HexagonSmartApiWebRequest(url, path, "*"),
+            filterInstAnno = Diagnostics.LogValue(TraceLevel.Information, 
+                              "ParaFilter.ParametricFilterDefinition: past HexagonSmartApiWebRequest. Returned record field count =>" & Text.From(Record.FieldCount(filterInstAnnoTmp)),
+                              filterInstAnnoTmp, false),
+
+            filterWithPath = Record.AddField(filterInstAnno, "FilterPath", filterPath),
+            filterWithServiceRoot = Record.AddField(filterWithPath, "ServiceRootUrl", url),
+            filterWithFQFilterNameTmp = Record.AddField(filterWithServiceRoot, "FilterAction", filterAction{0}[#"Namespace"] & "." & filterAction{0}[#"ActionAttributeName"]),
+
+            filterWithFQFilterName = Diagnostics.LogValue(TraceLevel.Information, 
+                              "ParaFilter.ParametricFilterDefinition: before GetFilterActionParameterNames() call", filterWithFQFilterNameTmp, false),
+            actionParamsTmp = GetFilterActionParameterNames(url, odataType, actionBaseType),
+            actionParams = Diagnostics.LogValue(TraceLevel.Information, 
+                              "ParaFilter.ParametricFilterDefinition: after GetFilterActionParameterNames() call", actionParamsTmp, false),
+
+            filterWithActionParamsTmp = Record.AddField(filterWithFQFilterName, "FilterActionParameters", actionParams),
+            filterWithActionParams = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ParametricFilterDefinition: got to the end", filterWithActionParamsTmp, false)
+        in
+            filterWithActionParams,
+
+    //Parametric filter taking a filter record as input
+    ExecuteParametricFilterOnFilterRecord = (url as text, filter as record,  
+                                                    optional objectHierarchyName as text, 
+                                                    optional objectHierarchyResourceIds as text, 
+                                                    optional objectTypes as text, 
+                                                    optional queryExpression as text) => 
+        let 
+            validUrl = ValidateUrlScheme(url),
+            pfdef = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ExecuteParametricFilterOnFilterRecord: begin", ParametricFilterDefinition(validUrl, filter), false),
+            serviceUrl = pfdef[#"ServiceRootUrl"],
+            actionName = if (Record.HasFields(pfdef, pfdef[#"FilterAction"])) then
+                            pfdef[#"FilterAction"]
+                         else
+                            if (Record.HasFields(pfdef, "#" & pfdef[#"FilterAction"])) then
+                                "#" & pfdef[#"FilterAction"]
+                            else
+                                error "ParaFilter.ExecuteParametricFilterOnFilterRecord: unable to find filter action field name in pfdef",
+            filterTarget = Record.Field(pfdef, actionName)[target],
+            resultsTmp = ExecuteParametricFilterOnFilterUrl(validUrl, filterTarget, pfdef[FilterActionParameters],
+                                    objectHierarchyName, objectHierarchyResourceIds, objectTypes, queryExpression),
+            results = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ExecuteParametricFilterOnFilterRecord: end", resultsTmp, false)
+        in 
+            results,
+
+    //Parametric filter taking a filter target URL as input
+    ExecuteParametricFilterOnFilterUrl = (url as text, filterTarget as text, parameterNames as record,
+                                                       optional objectHierarchyNameInput as text, 
+                                                       optional objectHierarchyResourceIdsInput as text, 
+                                                       optional objectTypesInput as text, 
+                                                       optional queryExpressionInput as text) => 
+        let 
+            validUrl = ValidateUrlScheme(url),
+
+            //parametric filter must be passed json with only valid inputs.   No "" or null for fields.
+            objectHierarchyName = if (objectHierarchyNameInput = null) then 
+                        "" 
+                  else 
+                        objectHierarchyNameInput,
+            objectHierarchyResourceIds = if (objectHierarchyResourceIdsInput = null) then 
+                        "" 
+                    else 
+                        objectHierarchyResourceIdsInput,  //TODO - support a list of resource ids
+            objectTypes = if (objectTypesInput = null) then 
+                        "" 
+                 else 
+                        objectTypesInput,  //TODO - support a list of object types
+            queryExpression = if (queryExpressionInput = null) then 
+                        "" 
+                 else 
+                        queryExpressionInput,
+            //TODO - support resource instances
+
+            //Build JSON
+            open = "{",
+
+            //process ObjectHierarchy
+            oh = if (Record.HasFields(parameterNames, "ObjectHierarchyName") and Text.Length(objectHierarchyName) > 0) then
+                    let
+                        t1 = open & " """ & Record.Field(parameterNames, "ObjectHierarchyName") & """ : ",
+                        t2 = if (Record.Field(parameterNames, "ObjectHierarchyIsColl") = "true") then
+                                    t1 & " [ "
+                             else
+                                    t1,
+                        t3 = t2 & " { ",
+                        //Name is required, ResourceIds is optional
+                        t4 = t3 & " ""Name"" : """ & objectHierarchyName & """ ",
+                        t5 = if (Text.Length(objectHierarchyResourceIds) > 0) then
+                                t4 & " , ""ResourceIds"" : [ """ & objectHierarchyResourceIds & """ ] "
+                             else
+                                t4,
+                        t6 = t5 & " } ",
+                        t7 = if (Record.Field(parameterNames, "ObjectHierarchyIsColl") = "true") then
+                                    t6 & " ] "
+                             else
+                                    t6,
+
+                        t8 = if ((Record.HasFields(parameterNames, "ObjectTypeName") and Text.Length(objectTypes) > 0) or 
+                                 (Record.HasFields(parameterNames, "QueryExpressionName") and Text.Length(queryExpression) > 0)) then
+                                t7 & " , "
+                             else
+                                t7
+                    in
+                        t8
+                 else
+                    open,
+
+            //process ObjectTypes
+            ot = if (Record.HasFields(parameterNames, "ObjectTypeName") and Text.Length(objectTypes) > 0) then
+                    let
+                        t1 = oh & " """ & Record.Field(parameterNames, "ObjectTypeName") & """ : ",
+                        t2 = if (Record.Field(parameterNames, "ObjectTypeIsColl") = "true") then
+                                    t1 & " [ "
+                             else
+                                    t1,
+                        t3 = t2 & " """ & objectTypes & """ ",
+                        t4 = if (Record.Field(parameterNames, "ObjectTypeIsColl") = "true") then
+                                    t3 & " ] "
+                             else
+                                    t3,
+
+                        t5 = if (Record.HasFields(parameterNames, "QueryExpressionName") and Text.Length(queryExpression) > 0) then
+                                t4 & " , "
+                             else
+                                t4
+
+                    in
+                        t5
+                 else
+                    oh,
+
+            //process QueryExpressions - parafilter spec does not indicate support for collection but adding it here just in case.
+            qe = if (Record.HasFields(parameterNames, "QueryExpressionName") and Text.Length(queryExpression) > 0) then
+                    let
+                        t1 = ot & " """ & Record.Field(parameterNames, "QueryExpressionName") & """ : ",
+                        t2 = if (Record.Field(parameterNames, "QueryExpressionIsColl") = "true") then
+                                    t1 & " [ "
+                             else
+                                    t1,
+                        t3 = t2 & " """ & queryExpression & """ ",
+                        t4 = if (Record.Field(parameterNames, "QueryExpressionIsColl") = "true") then
+                                    t3 & " ] "
+                             else
+                                    t3
+                    in
+                        t4
+                 else
+                    ot,
+
+            close = qe & " }",
+
+            body = Diagnostics.LogValue(TraceLevel.Information, 
+                                "ParaFilter.ExecuteParametricFilterOnFilterUrl: JSON body => " & close, Text.ToBinary(close), false),
+
+            resultsTmp = GetAllPagesByNextLink(filterTarget, body),
+            results = Diagnostics.LogValue(TraceLevel.Information, "ParaFilter.ExecuteParametricFilterOnFilterUrl: end", resultsTmp, false)
+        in 
+            results,
+
+
+    //  GetPage function will use Web.Contents to retrieve a single page of data from the OData filter, and converts the response into a table. 
+    //  It passes the response from Web.Contents to the GetNextLink function to extract the URL of the next page, 
+    //  and sets it on the meta record of the returned table (page of data).
+    GetPage = (filterTarget as text, body as binary) as table =>
+        let
+            response = Web.Contents(filterTarget, 
+                                    [Headers = [#"Content-Type"="application/json", 
+                                                #"Accept" = "application/json;odata.metadata=minimal",
+                                                #"OData-MaxVersion" = "4.0"],
+                                    Content = body,
+                                    ManualStatusHandling = {400, 500, 501}]),
+            responseMD = Value.Metadata(response),
+            jsonResponse = Json.Document(response),
+            responseBody = if (responseMD[Response.Status] <> 200) then 
+                                //Handle failures
+                                if (Record.HasFields(jsonResponse, {"error"})) then 
+                                    error Error.Record(jsonResponse[error][code], jsonResponse[error][message], jsonResponse)
+                                else
+                                    jsonResponse
+                            else
+                                jsonResponse,
+            nextLink = GetNextLink(responseBody),
+            //JSON records returned do not have matching name,value pairs.  Need to handle this case
+            colNames = 
+                let
+                    allColNames = List.Combine(List.Transform(responseBody[value], Record.FieldNames)),
+                    distColNames = List.Distinct(allColNames)
+                in
+                    distColNames,
+            data = Table.FromRecords(responseBody[value], colNames, MissingField.UseNull)
+        in
+            data meta [NextLink = nextLink],
+
+    // Read all pages of data.
+    // After every page, we check the "NextLink" record on the metadata of the previous request.
+    // Table.GenerateByPage will keep asking for more pages until we return null.
+    GetAllPagesByNextLink = (filterTarget as text, body as binary) as table =>
+        Table.GenerateByPage((previous) => 
+            let
+                // if previous is null, then this is our first page of data
+                nextLink = if (previous = null) then filterTarget else Value.Metadata(previous)[NextLink]?,
+                // if NextLink was set to null by the previous call, we know we have no more data
+                page = if (nextLink <> null) then GetPage(nextLink, body as binary) else null
+            in
+                page
+        ),
+
+    // In this implementation, 'response' will be the parsed body of the response after the call to Json.Document.
+    // We look for the '@odata.nextLink' field and simply return null if it doesn't exist.
+    GetNextLink = (response) as nullable text => Record.FieldOrDefault(response, "@odata.nextLink"),
+
+    // The getNextPage function takes a single argument and is expected to return a nullable table
+    Table.GenerateByPage = (getNextPage as function) as table =>
+        let        
+            listOfPages = List.Generate(
+                () => getNextPage(null),            // get the first page of data
+                (lastPage) => lastPage <> null,     // stop when the function returns null
+                (lastPage) => getNextPage(lastPage) // pass the previous page to the next function call
+            ),
+            // concatenate the pages together
+            tableOfPages = Table.FromList(listOfPages, Splitter.SplitByNothing(), {"Column1"}),
+            firstRow = tableOfPages{0}?
+        in
+            // if we didn't get back any pages of data, return an empty table
+            // otherwise set the table type based on the columns of the first page
+            if (firstRow = null) then
+                Table.FromRows({})
+            else        
+                Value.ReplaceType(
+                    Table.ExpandTableColumn(tableOfPages, "Column1", Table.ColumnNames(firstRow[Column1])),
+                    Value.Type(firstRow[Column1]))
+
+in
+    [
+        GenerateNavTableFilterFunction = GenerateNavTableFilterFunction,
+        GenerateParametricFilterByFilterSourceType = GenerateParametricFilterByFilterSourceType,
+        ExecuteParametricFilterOnFilterRecord = ExecuteParametricFilterOnFilterRecord,
+        ExecuteParametricFilterOnFilterUrl = ExecuteParametricFilterOnFilterUrl
+
+        //DEBUG  - remove before release
+        //GenerateParametricFilterFunctionDef = GenerateParametricFilterFunctionDef,
+        //ParametricFilterDefinition = ParametricFilterDefinition,
+        //GetFilterActions = GetFilterActions,
+        //GetFilterActionParameterNames = GetFilterActionParameterNames
+        //END DEBUG
+    ]

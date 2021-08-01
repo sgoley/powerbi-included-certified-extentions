@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ApplySelectList.Documentation.LongDescription" xml:space="preserve">
+    <value>Function to return a select list value given a select list target. The target is a table with column with select list attribute, or an individual table row or an individual record with select list attribute.</value>
+  </data>
+  <data name="ApplyUnitsOfMeasure.Documentation.LongDescription" xml:space="preserve">
+    <value>Function to return converted values given a one or more values to convert. The target is a column of unit values, or an individual value.</value>
+  </data>
+  <data name="HexagonSmartApi.Authentication.Label" xml:space="preserve">
+    <value>Hexagon PPM Smart® API Authentication</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Button.Description" xml:space="preserve">
+    <value>Import data from an Hexagon PPM Smart® API OData feed.</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Documentation.Examples" xml:space="preserve">
+    <value>Returns an OData service document in table form from a Hexagon PPM Smart® API OData feed.</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.EnsureServiceEnabled" xml:space="preserve">
+    <value>Ensure the Smart API service  is enabled in the Security Token Service.</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.GetAccessToken" xml:space="preserve">
+    <value>Failed to get access token from </value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.GetDescription" xml:space="preserve">
+    <value>Failed to get the service description document from </value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.GetOpenidConfiguration" xml:space="preserve">
+    <value>Failed to get authorization server configuration from </value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.Headers" xml:space="preserve">
+    <value>Invalid header text provided.  Ensure the header string provided is of the form: </value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.MissingOfflineAccessScope" xml:space="preserve">
+    <value>OpenID Connect configuration must support the offline_access scope required for refresh tokens.  Please enable refresh tokens on the Security Token Service. </value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Error.RefreshAccessToken" xml:space="preserve">
+    <value>Failed to refresh access token from </value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Function.Caption" xml:space="preserve">
+    <value>HexagonSmartApi.Feed</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Function.Description" xml:space="preserve">
+    <value>Enter the Hexagon PPM Smart® API OData service document URL</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Function.DisplayName" xml:space="preserve">
+    <value>Hexagon PPM Smart® API</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Function.LongDescription" xml:space="preserve">
+    <value>Returns a table from a Hexagon PPM Smart® API OData feed.</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Parameter.headers.FieldCaption" xml:space="preserve">
+    <value>Request headers</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Parameter.headers.SampleValues" xml:space="preserve">
+    <value>SampleHeader1=SampleValue1,  SampleHeader2=SampleValue2</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Parameter.odataFeedVersion.FieldCaption" xml:space="preserve">
+    <value>OData.Feed Version (defaults to 2.0)</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Parameter.url.FieldCaption" xml:space="preserve">
+    <value>OData service document URL</value>
+  </data>
+  <data name="HexagonSmartApi.Feed.Parameter.url.SampleValues" xml:space="preserve">
+    <value>https://api.sample.com/SampleService/V1</value>
+  </data>
+  <data name="ParametricFilter.Documentation.LongDescription" xml:space="preserve">
+    <value>Create a parametric filter function given a parametric filter source. The source can be a table of parametric filters, or an individual parametric filter row or an individual parametric filter record.</value>
+  </data>
+  <data name="TypecastFunc.Documentation.LongDescription" xml:space="preserve">
+    <value>Function to return a table representing an OData entity typecast from the target entity. The target is a table with column with select list attribute, or an individual table row or an individual record with select list attribute.</value>
+  </data>
+</root>

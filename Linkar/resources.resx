@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Connect to PICK Style / MultiValue Databases</value>
+  </data>
+  <data name="ButtonTitle" xml:space="preserve">
+    <value>Linkar PICK Style / MultiValue Databases</value>
+  </data>
+  <data name="DataSourceLabel" xml:space="preserve">
+    <value>Linkar PICK Style / MultiValue Databases</value>
+  </data>
+  <data name="DictClause" xml:space="preserve">
+    <value>Dict Clause</value>
+  </data>
+  <data name="DictClauseDesc" xml:space="preserve">
+    <value>All Linkar Schemas Properties that are visible, separated by spaces. Only the data will be brought</value>
+  </data>
+  <data name="EntryPoint" xml:space="preserve">
+    <value>EntryPoint Name</value>
+  </data>
+  <data name="EntryPointDesc" xml:space="preserve">
+    <value>Data account EntryPoint Name.</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>Table Name</value>
+  </data>
+  <data name="FileNameDesc" xml:space="preserve">
+    <value>Write the defined Table Name in Linkar Schemas. If you want to use a MV Table or SV Table you must use extended notation: TableName.MVTableName.SVTableName. For example to bring the group of Multivalues called MVItems we must write Orders.MVItems. Remember, all the Tables Names must be defined in Linkar Schemas.</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>EntryPoint Port</value>
+  </data>
+  <data name="PortDesc" xml:space="preserve">
+    <value>Write the EntryPoint TCP Port</value>
+  </data>
+  <data name="SelectClause" xml:space="preserve">
+    <value>Select Clause</value>
+  </data>
+  <data name="SelectClauseDesc" xml:space="preserve">
+    <value>Use the syntax as a SELECT on the database. You can use Property Names or File Dictionary Names.</value>
+  </data>
+  <data name="Server" xml:space="preserve">
+    <value>Linkar Host</value>
+  </data>
+  <data name="ServerDesc" xml:space="preserve">
+    <value>Linkar Server IP address or DNS</value>
+  </data>
+  <data name="SortClause" xml:space="preserve">
+    <value>Sort Clause</value>
+  </data>
+  <data name="SortClauseDesc" xml:space="preserve">
+    <value>Like SELECT in the database. You can use Property Names or File Dictionary Names.</value>
+  </data>
+  <data name="SQLMode" xml:space="preserve">
+    <value>Force SQL Mode</value>
+  </data>
+  <data name="SQLModeDesc" xml:space="preserve">
+    <value>If you activate this option data will come in SQL Mode. This mode adapts your data to the style of a SQL table</value>
+  </data>
+  <data name="CustomVars" xml:space="preserve">
+    <value>Custom Variables</value>
+  </data>
+  <data name="CustomVarsDesc" xml:space="preserve">
+    <value>You can write here what you need to perform custom controls</value>
+  </data>
+  <data name="FreeText" xml:space="preserve">
+    <value>Free Text</value>
+  </data>
+  <data name="FreeTextDesc" xml:space="preserve">
+    <value>Just to identify your session in Linkar Manager</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="LanguageDesc" xml:space="preserve">
+    <value>If you have different languages defined, write the language which you want to visualize the data</value>
+  </data>
+</root>

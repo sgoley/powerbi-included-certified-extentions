@@ -1,0 +1,50 @@
+﻿// Performs a token request against the CherwellAPI
+//
+// grantType:       Type of token request required - "authorization_code" or "refresh_token".
+// tokenField:      Based upon the nature of the request this allows the caller to specify the
+//                  actual name of the field containing the given code.
+// tokenValue:      This will be, depending on context the auth code or refresh token required by the 
+//                  oauth2 flow.
+// tokenEndpointUrl:Token endpoint url.
+// clientId:        Client identifier.
+// redirectUri:     Power BI OAuth redirect URI.
+(
+	grantType as text,
+	tokenField as text,
+	tokenValue as text,
+	tokenEndpointUrl as text,
+	clientId as text
+) as record =>
+    let
+        // request set up
+        requestUrl = tokenEndpointUrl,
+        requestBody = [
+            grant_type = grantType,
+            client_id = clientId,
+            redirect_uri = redirectUri,
+            auth_mode = "auto"
+        ],
+        requestBodyWithCode = Record.AddField(requestBody, tokenField, tokenValue),
+      
+        // request execution
+        response = Web.Contents(
+            requestUrl, 
+            [
+                Content = Text.ToBinary(Uri.BuildQueryString(requestBodyWithCode)),
+                Headers = [
+                    #"Content-type" = "application/x-www-form-urlencoded",
+                    #"Accept" = "application/json"
+                ],
+                ManualStatusHandling = {400}
+            ]
+        ),
+
+        // response handling
+        result = Json.Document(response)
+    in
+        if (Record.HasFields(result, {"error", "error_description"})) then 
+			error Error.Record(result[error], result[error_description], result)
+		else if (Record.HasFields(result, "error")) then 
+			error Error.Record(result[error], null, result)
+		else
+			result

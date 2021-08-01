@@ -1,0 +1,532 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "BotInsight API",
+    "description": "BotInsight Rest API",
+    "version": "1.0.0"
+  },
+  "basePath": "/v2/botinsight",
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "AccessToken": {
+      "type": "apiKey",
+      "description": "**X-Authorization: _token_**\n",
+      "name": "X-Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "AccessToken": []
+    }
+  ],
+  "paths": {
+    "/data/api/getaudittraildata": {
+      "get": {
+        "summary": "Get Audit Trail Data Detail",
+        "operationId": "Get Audit Trail Data Detail",
+        "description": "Get Audit Trail Data Detail",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "pageno",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Page No that user wants to retrieve the Bot Run Data"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Optional filed, default is set to 1000, user can set the data access limit"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "From Date (yyyy-mm-ddThh:mm:ss)"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "To Date (yyyy-mm-ddThh:mm:ss)"
+          }
+        ],
+        "tags": [
+          "Operations Data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Bot Business Data Retrieved"
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "407": {
+            "$ref": "#/responses/407"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "500": {
+            "$ref": "#/responses/500"
+          }
+        }
+      }
+    },
+    "/data/api/gettasklogdata": {
+      "get": {
+        "summary": "Get Task Log Data",
+        "description": "Get Bot Run Task Log Data",
+        "operationId": "Business Information",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "botname",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Name of the Bot that user want to retrieve the data"
+          },
+          {
+            "in": "query",
+            "name": "fromdate",
+            "description": "From Date (yyyy-mm-ddThh:mm:ss)",
+            "schema": {
+              "type": "string"
+            },
+            "example": "yyyy-mm-ddThh:mm:ss",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "todate",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "To Date (yyyy-mm-ddThh:mm:ss)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "The limit of the API response that user want to retrieve"
+          },
+          {
+            "name": "pageno",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Page No that want to look in"
+          }
+        ],
+        "tags": [
+          "Business Data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Bot Business Data Retrieved",
+            "schema": {
+              "$ref": "#/definitions/BusinessData"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "407": {
+            "$ref": "#/responses/407"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "500": {
+            "$ref": "#/responses/500"
+          }
+        }
+      }
+    },
+    "/data/api/gettaskvariableprofile": {
+      "get": {
+        "summary": "Get Bot Variable Profile",
+        "operationId": "Business Variable Profile",
+        "description": "Get Bot Variable Profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "botname",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Name of the Bot that user want to retrieve the data"
+          },
+          {
+            "name": "repositorypath",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Repository path of the bot"
+          }
+        ],
+        "tags": [
+          "Business Data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Bot Business Data Retrieved",
+            "schema": {
+              "$ref": "#/definitions/ProfileVariable"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "407": {
+            "$ref": "#/responses/407"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "500": {
+            "$ref": "#/responses/500"
+          }
+        }
+      }
+    },
+    "/data/api/getbotrundata": {
+      "get": {
+        "summary": "Get Bot Run Data Detail",
+        "operationId": "Get Bot Run Data Detail",
+        "description": "Get Bot Run Data Detail",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "pageno",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Page No that user wants to retrieve the Bot Run Data"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Optional filed, default is set to 1000, user can set the data access limit"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "From Date (yyyy-mm-ddThh:mm:ss)"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "To Date (yyyy-mm-ddThh:mm:ss)"
+          }
+        ],
+        "tags": [
+          "Operations Data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Bot Business Data Retrieved"
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "407": {
+            "$ref": "#/responses/407"
+          },
+          "409": {
+            "$ref": "#/responses/409"
+          },
+          "500": {
+            "$ref": "#/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BusinessData": {
+      "type": "object",
+      "required": [
+        "totalRecords",
+        "count",
+        "pageNo",
+        "botName",
+        "repositoryPath",
+        "taskLogDataList"
+      ],
+      "properties": {
+        "totalRecords": {
+          "type": "string",
+          "description": "Total Records avilable at Backend DB"
+        },
+        "count": {
+          "type": "string",
+          "description": "Number of Records that has been retrieved for this request"
+        },
+        "pageNo": {
+          "type": "string",
+          "description": "Page Number that user looked in"
+        },
+        "botName": {
+          "type": "string",
+          "description": "Name of the bot that user retrieved business data"
+        },
+        "repositoryPath": {
+          "type": "string",
+          "description": "Repository Path of the given bot"
+        },
+        "taskLogDataList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BusinessDataObject"
+          }
+        }
+      }
+    },
+    "BusinessDataObject": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "description": "Run Id of the Bot ran"
+        },
+        "transactionId": {
+          "type": "string",
+          "description": "Transaction Id of the Bot ran"
+        },
+        "dateLogged": {
+          "type": "string",
+          "description": "Date and Time that bot logged the data"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Variables"
+          }
+        }
+      }
+    },
+    "Variables": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "variable key"
+        },
+        "value": {
+          "type": "string",
+          "description": "variable value"
+        }
+      }
+    },
+    "ProfileVariable": {
+      "type": "object",
+      "properties": {
+        "botId": {
+          "type": "string",
+          "description": "Id of the bot"
+        },
+        "botName": {
+          "type": "string",
+          "description": "Name of the bot"
+        },
+        "totalRecords": {
+          "type": "string",
+          "description": "Total Records that is avialable in DB"
+        },
+        "standardDashboardName": {
+          "type": "string",
+          "description": "Standard Name of the Business Dashboard"
+        },
+        "profileVariables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProfileVariableObject"
+          }
+        }
+      }
+    },
+    "ProfileVariableObject": {
+      "type": "object",
+      "properties": {
+        "variableName": {
+          "type": "string",
+          "description": "Name of the profile variable"
+        },
+        "internalVariableName": {
+          "type": "string",
+          "description": "Internal Name of the profile variable"
+        },
+        "displayName": {
+          "type": "int",
+          "description": "Display Name of the profile variable"
+        },
+        "attributeType": {
+          "type": "string",
+          "description": "Attribute Type of the profile variable"
+        },
+        "sumOfValue": {
+          "type": "float",
+          "description": "Sum of the value"
+        },
+        "minimumValue": {
+          "type": "float",
+          "description": "Minimum value"
+        },
+        "maximumValue": {
+          "type": "float",
+          "description": "Maximum value"
+        },
+        "averageOfValues": {
+          "type": "float",
+          "description": "Average of values"
+        },
+        "totalDistinct": {
+          "type": "int",
+          "description": "Total number of distinct"
+        },
+        "totalNullRecords": {
+          "type": "int",
+          "description": "Total number of null records"
+        },
+        "enabled": {
+          "type": "string",
+          "description": "Is the variable enabled or not"
+        },
+        "addedState": {
+          "type": "string",
+          "description": "Added state"
+        }
+      }
+    },
+    "DeleteBusinessDataRequest": {
+      "type": "object",
+      "properties": {
+        "botName": {
+          "type": "string",
+          "description": "Name of the bot"
+        },
+        "repositoryPath": {
+          "type": "string",
+          "description": "Repository of the bot"
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment of the bot"
+        },
+        "fromDate": {
+          "type": "string",
+          "description": "From which date user want to delete"
+        },
+        "toDate": {
+          "type": "string",
+          "description": "Till which date user want to delete"
+        }
+      }
+    },
+    "DeleteBusinessDataResponse": {
+      "type": "object",
+      "properties": {
+        "botName": {
+          "type": "string",
+          "description": "Name of the bot"
+        },
+        "repositoryPath": {
+          "type": "string",
+          "description": "Repository of the bot"
+        },
+        "deleteCount": {
+          "type": "integer",
+          "description": "number rows that deleted from db"
+        }
+      }
+    },
+    "Error": {
+      "type": "string",
+      "description": "Message describing error"
+    }
+  },
+  "responses": {
+    "400": {
+      "description": "Bad Request"
+    },
+    "401": {
+      "description": "Unauthorized access"
+    },
+    "403": {
+      "description": "Access forbidden"
+    },
+    "404": {
+      "description": "Resource not found"
+    },
+    "407": {
+      "description": "Authentication Required"
+    },
+    "409": {
+      "description": "Conflict"
+    },
+    "500": {
+      "description": "Internal Server error"
+    }
+  }
+}

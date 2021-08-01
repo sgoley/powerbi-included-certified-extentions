@@ -1,0 +1,174 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a simple API",
+    "version": "1.0.0",
+    "title": "Simple Inventory API",
+    "contact": {
+      "email": "you@your-company.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "basePath": "/analytics/rest/api",
+  "tags": [
+    {
+      "name": "admins",
+      "description": "Secured Admin-only calls"
+    },
+    {
+      "name": "developers",
+      "description": "Operations available to regular developers"
+    }
+  ],
+  "paths": {
+    "/getaudittraildata": {
+      "get": {
+        "tags": [ "developers" ],
+        "summary": "searches inventory",
+        "description": "By passing in the appropriate options, you can search for\navailable inventory in the system\n",
+        "operationId": "Audit Data",
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "description": "from date",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "description": "to date",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of records to be fetched",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "search results matching criteria"
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    },
+    "/getbotrundata": {
+      "get": {
+        "tags": [ "developers" ],
+        "summary": "searches inventory",
+        "description": "By passing in the appropriate options, you can search for\navailable inventory in the system\n",
+        "operationId": "Bot Run Data",
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "description": "from date",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "description": "to date",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of records to be fetched",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "search results matching criteria"
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiTaskLogDataFilterResponse": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "$ref": "#/definitions/PageResponse"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiTaskLogData"
+          }
+        }
+      }
+    },
+    "ApiTaskLogData": {
+      "type": "object",
+      "properties": {
+        "machineName": {
+          "type": "string"
+        },
+        "runStatus": {
+          "enum": [
+            "InProgress",
+            "CompletedSuccessfully",
+            "Aborted",
+            "Failed",
+            "TimedOut"
+          ]
+        },
+        "userId": {
+          "type": "number"
+        },
+        "dateLogged": {
+          "type": "number"
+        },
+        "variables": {
+          "type": "string"
+        }
+      }
+    },
+    "PageResponse": {
+      "type": "object",
+      "description": "Pagination response",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "description": "Page starting index"
+        },
+        "total": {
+          "type": "integer",
+          "description": "Total number of items"
+        },
+        "totalFilter": {
+          "type": "integer",
+          "description": "Total number of items matching filter"
+        }
+      }
+    }
+  }
+}

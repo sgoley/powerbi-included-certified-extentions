@@ -1,0 +1,22 @@
+let
+    OAuthBaseUrl="https://bsso.blpprofessional.com",
+    RedirectUri="https://oauth.powerbi.com/views/oauthredirect.html",
+    ClientId="bi-integration-apps-prod",
+    ClientSecret="8abYhnuAOyD0pMmMLE7Eila7qdGwoWjwIeyVAZyP3PVDZsYoz8IvdX5UyZFD63h0",
+    BqlUrl = "https://graph.bloomberg.com/bi/v1",
+    PollRetryAttempts = 60,
+    PollDelay = 10,
+    IsBeta = true,
+    EnableTraceOutput = false
+in
+    [ 
+        OAuthBaseUrl = OAuthBaseUrl,
+        RedirectUri = RedirectUri,
+        ClientId = ClientId,
+        ClientSecret = ClientSecret,
+        BqlUrl = BqlUrl,
+        PollRetryAttempts = PollRetryAttempts,
+        PollDelay = PollDelay,
+        IsBeta = IsBeta,
+        EnableTraceOutput = EnableTraceOutput
+    ]

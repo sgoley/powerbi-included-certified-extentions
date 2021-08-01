@@ -1,0 +1,68 @@
+﻿
+let
+    Utils.IsolateAttribute = (r as list, attribute as text) =>
+        let
+            ret = List.Accumulate(r, {}, (state, current) =>
+                    List.Combine({state, {Record.Field(current, attribute)}})
+            )
+        in
+            ret,
+
+    Utils.ColumnRenamer = (renamer as list) =>
+        let
+            ret = List.Accumulate(renamer, {}, (state, current) =>
+                let
+                    column_title = if List.Count(List.Select(renamer, each _[title] = current[title])) = 1 then current[title] else current[title] & " - " & current[id]
+                in
+                    List.Combine({state, {{current[id], column_title}}})
+                )
+        in
+            ret,
+
+    Utils.CleanHTMLTags = (HTML as text) as text =>
+        let
+            Source = 
+                if HTML = null then
+                    ""
+                else
+                    Text.From(HTML),
+            SplitAny = Text.SplitAny(Source,"<>"),
+            ListAlternate = List.Alternate(SplitAny,1,1,1),
+            ListSelect = List.Select(ListAlternate, each _<>""),
+            TextCombine = Text.Combine(ListSelect, "")
+        in
+            TextCombine,
+
+    Utils.TrimText = (src as text) as text =>
+		 if Text.Length(src) > 512 then
+            Text.Range(src, 0, 512-3) & "..."
+         else
+            src,
+
+    // combine two text with " - ", and limit their length within 250 each, 
+    // since table title length cannot be over 512 in Power BI when loading data. 
+    Utils.CombineText = (text1 as text, text2 as text) as text =>
+        let 
+            lenText1 = Text.Length(text1),
+            lenText2 = Text.Length(text2),
+            part1 = 
+                if lenText1 > 250 then
+                    Text.Range(text1, 0, 250) & "..."
+                else
+                    text1,
+            part2 = 
+                if lenText2 > 250 then
+                    Text.Range(text2, 0, 250) & "..."
+                else
+                    text2
+        in 
+            Text.Combine({part1, part2}, " - ")
+
+in
+    [ 
+        IsolateAttribute = Utils.IsolateAttribute,
+        ColumnRenamer = Utils.ColumnRenamer,
+        CleanHTMLTags = Utils.CleanHTMLTags,
+        CombineText = Utils.CombineText,
+		TrimText = Utils.TrimText
+    ]

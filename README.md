@@ -3,13 +3,25 @@ PowerBI's included certified M connector extensions - sourced from the default w
 
 Includes the full M or PQ sdk file for the following connector resources:
 
+* Acterys
+* Actian
+* Amazon Athena
+* Anaplan
 * Asana
+* AssembleViews
 * AtScale
+* AutomationAnywhere
+* AutomyDataAnalytics
 * AzureCostManagement
 * BI360
 * BIConnector
+* BQECore
+* BQL / Bloomberg
+* Cherwell
 * Cognite
+* CommonDataService
 * CustomerInsights
+* Databricks
 * Denodo
 * Dremio
 * Emigo
@@ -35,13 +47,16 @@ Includes the full M or PQ sdk file for the following connector resources:
 * QubolePresto
 * QuickBase
 * Roamler
+* SDMX
 * ShortcutsBI
 * SiteImprove
+* SumTotal
 * SurveyMonkey
 * TeamDesk.PowerBI.DataConnector
 * Tenforce
 * TIBCO
 * TimeSeriesInsights
+* Usercube
 * Vena
 * VesselInsight
 * WebtrendsAnalytics

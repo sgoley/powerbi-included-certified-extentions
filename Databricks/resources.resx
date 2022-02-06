@@ -147,6 +147,12 @@
   <data name="DataSourceName" xml:space="preserve">
     <value>Azure Databricks</value>
   </data>
+  <data name="EnableExperimentalFlagsHelp" xml:space="preserve">
+    <value>For Databricks SQL or Databricks Runtime 8.3 and later, this enables faster processing of large DirectQuery reports, as well as improved performance of large imports.</value>
+  </data>
+  <data name="EnableExperimentalFlagsLabel" xml:space="preserve">
+    <value>Fast Evaluation</value>
+  </data>
   <data name="ErrorAadInvalidDomain" xml:space="preserve">
     <value>AAD is not supported for domain: #{0}.</value>
     <comment>#{0}: Domain</comment>
@@ -177,6 +183,12 @@
   </data>
   <data name="ErrorOdbcCouldNotConnect" xml:space="preserve">
     <value>Could not connect to server. Please double check your ODBC configuration. </value>
+  </data>
+  <data name="ExperimentalFlagsDisabledLabel" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ExperimentalFlagsEnabledLabel" xml:space="preserve">
+    <value>Enabled (default)</value>
   </data>
   <data name="HttpPathHelp" xml:space="preserve">
     <value>The HTTP path of the cluster.</value>

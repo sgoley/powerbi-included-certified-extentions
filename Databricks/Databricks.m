@@ -1,4 +1,4 @@
-[Version="1.0.5"]
+[Version="1.1.1"]
 section Databricks;
 
 TrustedAadDomains = {".azuredatabricks.net", ".databricks.azure.cn", ".databricks.azure.us"};
@@ -7,33 +7,72 @@ TrustedAadDomains = {".azuredatabricks.net", ".databricks.azure.cn", ".databrick
 Config_SqlConformance = 8;
 
 [DataSource.Kind="Databricks", Publish="Databricks.Publish"]
-shared Databricks.Contents = Value.ReplaceType(DatabricksImpl, DatabricksType);
+shared Databricks.Catalogs = Value.ReplaceType(DatabricksCatalogsImpl, DatabricksType);
+
+[DataSource.Kind="Databricks"]
+shared Databricks.Contents = Value.ReplaceType(DatabricksLegacyImpl, DatabricksType);
 
 // Wrapper function to provide additional UI customization.
-DatabricksType = type function (
-        host as (type text meta [
-            Documentation.FieldCaption = Extension.LoadString("ServerHostNameLabel"),
-            Documentation.FieldDescription = Extension.LoadString("ServerHostNameHelp"),
-            Documentation.SampleValues = { "example.azuredatabricks.net" }
-        ]),
-        httpPath as (type text meta [
-            Documentation.FieldCaption = Extension.LoadString("HttpPathLabel"),
-            Documentation.FieldDescription = Extension.LoadString("HttpPathHelp"),
-            Documentation.SampleValues = { "sql/protocolv1/o/1814582234607533/7508-187377-agent704" }
-        ]),
-        optional options as (type nullable [
-            optional Database = (type text meta [
-                Documentation.FieldCaption = Extension.LoadString("DatabaseLabel"),
-                Documentation.FieldDescription = Extension.LoadString("DatabaseHelp")
+DatabricksType = let
+        ExperimentalFlags.Disabled = "disabled" meta [
+            Documentation.Name = "ExperimentalFlags.Disabled",
+            Documentation.Caption = Extension.LoadString("ExperimentalFlagsDisabledLabel")
+        ],
+        ExperimentalFlags.Enabled = null meta [
+            Documentation.Name = "ExperimentalFlags.Enabled",
+            Documentation.Caption = Extension.LoadString("ExperimentalFlagsEnabledLabel")
+        ]
+    in
+        type function (
+            host as (type text meta [
+                Documentation.FieldCaption = Extension.LoadString("ServerHostNameLabel"),
+                Documentation.FieldDescription = Extension.LoadString("ServerHostNameHelp"),
+                Documentation.SampleValues = { "example.azuredatabricks.net" }
+            ]),
+            httpPath as (type text meta [
+                Documentation.FieldCaption = Extension.LoadString("HttpPathLabel"),
+                Documentation.FieldDescription = Extension.LoadString("HttpPathHelp"),
+                Documentation.SampleValues = { "sql/protocolv1/o/1814582234607533/7508-187377-agent704" }
+            ]),
+            optional options as (type nullable [
+                optional Database = (type text meta [
+                    Documentation.FieldCaption = Extension.LoadString("DatabaseLabel"),
+                    Documentation.FieldDescription = Extension.LoadString("DatabaseHelp")
+                ]),
+                optional EnableExperimentalFlagsV1_1_0 = (type text meta [
+                    Documentation.FieldCaption = Extension.LoadString("EnableExperimentalFlagsLabel"),
+                    Documentation.FieldDescription = Extension.LoadString("EnableExperimentalFlagsHelp"),
+                    Documentation.AllowedValues = { ExperimentalFlags.Enabled, ExperimentalFlags.Disabled }
+                ])
+            ] meta [
+                Documentation.FieldCaption = Extension.LoadString("AdvancedOptionsLabel")
             ])
-        ] meta [
-            Documentation.FieldCaption = Extension.LoadString("AdvancedOptionsLabel")
-        ])
-    ) as table meta [
-        Documentation.Name = Extension.LoadString("DataSourceName")
-    ];
+        ) as table meta [
+            Documentation.Name = Extension.LoadString("DataSourceName")
+        ];
 
-DatabricksImpl = (host as text, httpPath as text, optional options as record) as table =>
+DatabricksCatalogsImpl = (host as text, httpPath as text, optional options as record) as table =>
+    let
+        optionsRecord = if options = null then [] else options,
+        defaultOptions = [
+            UseNativeQuery = "2",
+            EnableMultipleCatalogsSupport = "1"
+        ],
+        catalogs = DatabricksDataSource(host, httpPath, defaultOptions & optionsRecord),
+        catalogsWithRenamedSpark = RenameSparkCatalog(catalogs)
+    in
+        catalogsWithRenamedSpark;
+
+DatabricksLegacyImpl = (host as text, httpPath as text, optional options as record) as table =>
+    let
+        optionsRecord = if options = null then [] else options,
+        defaultOptions = [
+            EnableMultipleCatalogsSupport = "0"
+        ]
+    in
+        DatabricksDataSource(host, httpPath, defaultOptions & optionsRecord);
+
+DatabricksDataSource = (host as text, httpPath as text, options as record) as table =>
     let
         Credential = Extension.CurrentCredential(),
         AuthenticationMode = Credential[AuthenticationKind],
@@ -55,7 +94,7 @@ DatabricksImpl = (host as text, httpPath as text, optional options as record) as
                 [
                     // Although AuthMech=11 happens to work, this is not intended behavior and
                     // any resulting error messages cannot be processed by the driver.
-                    // Token authentication should be done via UID="token";PWD=<token> 
+                    // Token authentication should be done via UID="token";PWD=<token>
                     // for proper authentication failure handling.
                     AuthMech = 3,
                     UID = "token",
@@ -91,6 +130,8 @@ DatabricksImpl = (host as text, httpPath as text, optional options as record) as
             RowsFetchedPerBlock = 200000,
             LCaseSspKeyName = 0,
             ApplySSPWithQueries = 0,
+            DefaultStringColumnLength=65535,
+            DecimalColumnScale = 10,
             UseUnicodeSqlCharacterTypes = 1,
             SSP_spark.sql.thriftserver.metadata.table.singleschema = Logical.ToText(HasSchema)
         ] & OptionOdbcFields,
@@ -106,22 +147,86 @@ DatabricksImpl = (host as text, httpPath as text, optional options as record) as
             SupportsOdbcTimeLiterals = true,
             SupportsOdbcTimestampLiterals = true
         ],
-        
+
+        SqlApiBindCol_Default = false,
+
         SQLGetFunctions = [
             // Disable using parameters in the queries that get generated.
             // We enable numeric and string literals which should enable
             // literals for all constants.
             SQL_API_SQLBINDPARAMETER = false,
-            SQL_API_SQLBINDCOL = if ValidatedOptions[SQL_API_SQLBINDCOL]? <> null then ValidatedOptions[SQL_API_SQLBINDCOL] else false
+            SQL_API_SQLBINDCOL = if ValidatedOptions[SQL_API_SQLBINDCOL]? <> null then 
+                    ValidatedOptions[SQL_API_SQLBINDCOL] 
+                else 
+                    SqlApiBindCol_Default
         ],
+
+        SQLStringFunctions = ODBC[Flags]({
+            // These are currently disabled but supported by the backend. To be directly enabled in driver in future"
+            // ODBC[SQL_FN_STR][SQL_FN_STR_BIT_LENGTH],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_CHAR_LENGTH],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_CHARACTER_LENGTH],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_OCTET_LENGTH],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_POSITION],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_REPLACE],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_SPACE],
+
+            ODBC[SQL_FN_STR][SQL_FN_STR_ASCII],
+            ODBC[SQL_FN_STR][SQL_FN_STR_CHAR],
+            ODBC[SQL_FN_STR][SQL_FN_STR_CONCAT],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_DIFFERENCE],  Not supported
+            // ODBC[SQL_FN_STR][SQL_FN_STR_INSERT], Not supported
+            ODBC[SQL_FN_STR][SQL_FN_STR_LCASE],
+            ODBC[SQL_FN_STR][SQL_FN_STR_LEFT],
+            ODBC[SQL_FN_STR][SQL_FN_STR_LENGTH],
+            ODBC[SQL_FN_STR][SQL_FN_STR_LOCATE],
+            // ODBC[SQL_FN_STR][SQL_FN_STR_LOCATE_2], LOCATE is supported
+            ODBC[SQL_FN_STR][SQL_FN_STR_LTRIM],
+            ODBC[SQL_FN_STR][SQL_FN_STR_REPEAT],
+            ODBC[SQL_FN_STR][SQL_FN_STR_RIGHT],
+            ODBC[SQL_FN_STR][SQL_FN_STR_RTRIM],
+            ODBC[SQL_FN_STR][SQL_FN_STR_SOUNDEX],
+            ODBC[SQL_FN_STR][SQL_FN_STR_SUBSTRING],
+            ODBC[SQL_FN_STR][SQL_FN_STR_UCASE]
+        }),
+
+        SQLNumericFunctions = ODBC[Flags]({
+            // These are currently disabled but supported by the backend. To be directly enabled in driver in future"
+            // ODBC[SQL_FN_NUM][SQL_FN_NUM_COT]
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_ABS],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_ACOS],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_ASIN],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_ATAN],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_ATAN2],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_CEILING],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_COS],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_DEGREES],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_EXP],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_FLOOR],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_LOG],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_LOG10],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_MOD],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_PI],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_POWER],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_RADIANS],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_RAND],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_ROUND],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_SIGN],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_SIN],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_SQRT],
+            ODBC[SQL_FN_NUM][SQL_FN_NUM_TAN]
+           // ODBC[SQL_FN_NUM][SQL_FN_NUM_TRUNCATE], not supported
+        }),
 
         SQLGetInfo = DefaultConfig[SQLGetInfo] & [
             SQL_SQL92_PREDICATES = ODBC[SQL_SP][All],
-            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All]
+            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All],
+            SQL_NUMERIC_FUNCTIONS = SQLNumericFunctions,
+            SQL_STRING_FUNCTIONS = SQLStringFunctions
         ],
 
-       // Fix for data type mismatch.
-       SQLColumns = (catalogName, schemaName, tableName, columnName, source) =>
+        // Fix for data type mismatch.
+        SQLColumns = (catalogName, schemaName, tableName, columnName, source) =>
             let
                 OdbcSqlTypeName.VARCHAR = "varchar",
                 OdbcSqlTypeName.CHAR = "char",
@@ -159,6 +264,9 @@ DatabricksImpl = (host as text, httpPath as text, optional options as record) as
             // The Databricks driver is shipped with Power BI
             UseEmbeddedDriver = true,
 
+            // Tells Power BI that it can't quietly drop the connection
+            CancelQueryExplicitly = true,
+
             // Handlers for ODBC driver capabilities.
             SqlCapabilities = SqlCapabilities,
             SQLColumns = SQLColumns,
@@ -186,6 +294,25 @@ DatabricksImpl = (host as text, httpPath as text, optional options as record) as
 in
     WithSchema;
 
+RenameSparkCatalog = (catalogs as table) as table =>
+    let
+        // For DBR 8 and earlier clusters, the driver retains the legacy 'SPARK' catalog.
+        // In DBR 9 and later, the name of the Hive Metastore catalog is 'hive_metastore'.
+        // To provide forward compatibility, we rename 'SPARK' to 'hive_metastore'.
+        defaultHiveMetastoreCatalog = "hive_metastore",
+        isSparkCatalog = Table.RowCount(catalogs) = 1 and catalogs{[Name = "SPARK"]} <> null,
+        renamedSparkCatalog = catalogs{[Name = "SPARK"]} & [Name = defaultHiveMetastoreCatalog],
+        renamedSparkTable = Table.FromRecords({ renamedSparkCatalog }),
+        navTableType = Value.Type(catalogs),
+        renamedSparkNavTable = Value.ReplaceType(renamedSparkTable, navTableType),
+
+        catalogsWithRenamedSpark = if isSparkCatalog then
+                renamedSparkNavTable
+            else
+                catalogs
+    in
+        catalogsWithRenamedSpark;
+
 AdvancedOptionsValidators = let
         EmptyTextToNull = (schema as text) => if schema = "" then
                 null
@@ -205,23 +332,51 @@ AdvancedOptionsValidators = let
         #table(
             {"Key", "Type", "Validator", "ToOdbcFields"},
             {
+
+                // ODBC connection string overrides
                 {"BatchSize", type number, PositiveInteger, RenameField("RowsFetchedPerBlock")},
                 {"Database", type text, EmptyTextToNull,  RenameField("Schema")},
+                {"Catalog", type text, EmptyTextToNull,  RenameField("Catalog")},
                 {"EnableArrow", type text, IdentityFn,  RenameField("EnableArrow")},
                 {"EnableQueryResultDownload", type text, IdentityFn, RenameField("EnableQueryResultDownload") },
                 {"EnableQueryResultLZ4Compression", type text, IdentityFn, RenameField("EnableQueryResultLZ4Compression")},
+                {"EnableMultipleCatalogsSupport", type text, IdentityFn, RenameField("EnableMultipleCatalogsSupport") },
                 {"MaxNumResultFileDownloadThreads", type text, IdentityFn, RenameField("MaxNumResultFileDownloadThreads")},
                 {"MaxConsecutiveResultFileDownloadRetries", type text, IdentityFn, RenameField("MaxConsecutiveResultFileDownloadRetries")},
+                {"MaxBytesPerFetchRequest", type text, IdentityFn, RenameField("MaxBytesPerFetchRequest")},
+                {"EnableFetchHeartbeat", type text, IdentityFn, RenameField("EnableFetchHeartbeat")},
+                {"FetchHeartbeatInterval", type text, IdentityFn, RenameField("FetchHeartbeatInterval")},
                 {"RowsFetchedPerBlock", type text, IdentityFn, RenameField("RowsFetchedPerBlock")},
+                {"DefaultStringColumnLength", type text, IdentityFn, RenameField("DefaultStringColumnLength")},
+                {"DecimalColumnScale", type text, IdentityFn, RenameField("DecimalColumnScale")},
                 {"UseNativeQuery", type text, IdentityFn, RenameField("UseNativeQuery")},
-                {"SSP_spark.thriftserver.catalog.default", type text, IdentityFn, RenameField("SSP_spark.thriftserver.catalog.default")},
+                {"SSP_spark.databricks.sql.initial.catalog.namespace", type text, IdentityFn, RenameField("SSP_spark.databricks.sql.initial.catalog.namespace")},
+                {"SSP_databricks.catalog", type text, IdentityFn, RenameField("SSP_databricks.catalog")},
                 {"SSP_spark.thriftserver.cloudfetch.enabled", type text, IdentityFn, RenameField("SSP_spark.thriftserver.cloudfetch.enabled")},
-                {"SSP_spark.thriftserver.cloudStoreBasedRowSet.enabled", type text, IdentityFn, RenameField("SSP_spark.thriftserver.cloudStoreBasedRowSet.enabled")},
 
                 // non-connectionstring fields
-                {"SQL_API_SQLBINDCOL", type logical, IdentityFn, null}
+                {"SQL_API_SQLBINDCOL", type logical, IdentityFn, null},
+                // Versioned for forward compatibility with new experimental features
+                {"EnableExperimentalFlagsV1_1_0", type text, (val as text) => val = "disabled", null}
+
             }
         );
+
+ExpandExperimentalFlags = (options as record) as record =>
+    let
+        flagDefinitions = #table(
+            {"Key", "ExpandedFlags"},
+            {
+                {"EnableExperimentalFlagsV1_1_0", [UseNativeQuery = "0", SQL_API_SQLBINDCOL = false] }
+            }
+        ),
+
+        enabledFlagsList = Table.TransformRows(flagDefinitions, each if Record.FieldOrDefault(options, [Key], false) then [ExpandedFlags] else []),
+        enabledFlags = List.Accumulate(enabledFlagsList, [], (accum, flags) => accum & flags)
+    in
+        // flags should not override explicit settings
+        enabledFlags & options;
+
 
 ValidateAdvancedOptions = (optional options as record) as record =>
     let
@@ -245,10 +400,12 @@ ValidateAdvancedOptions = (optional options as record) as record =>
         validatedWithNulls = Record.TransformFields(knownFields, fieldToValidatorMap, MissingField.Ignore),
 
         nonNullKeys = List.Select(Record.FieldNames(validatedWithNulls), each Record.Field(validatedWithNulls, _) <> null),
-        validatedOptions = Record.SelectFields(validatedWithNulls, nonNullKeys)
+        validatedOptions = Record.SelectFields(validatedWithNulls, nonNullKeys),
+
+        validatedOptionsExpanded = ExpandExperimentalFlags(validatedOptions)
     in
         if options <> null then
-            validatedOptions
+            validatedOptionsExpanded
         else
             [];
 
@@ -257,11 +414,11 @@ OdbcFieldsFromOptions = (options as record) as record =>
     let
         noOdbcField = Table.Column(Table.SelectRows(AdvancedOptionsValidators, each [ToOdbcFields] = null), "Key"),
         filteredOptions = Record.RemoveFields(options, noOdbcField, MissingField.Ignore),
-        
+
         fieldToOdbcFieldsMap = Record.Combine(List.Transform(Table.ToRecords(AdvancedOptionsValidators), (v) => Record.AddField([], v[Key], v[ToOdbcFields]))),
         fieldLists = List.Transform(Record.FieldNames(filteredOptions), (v) => Record.Field(fieldToOdbcFieldsMap, v)(Record.Field(filteredOptions, v))),
         mappedFields = Record.Combine(fieldLists)
-        
+
     in
         mappedFields;
 
@@ -275,7 +432,7 @@ OnOdbcError = (errorRecord as record) =>
         OdbcError = errorRecord[Detail][OdbcErrors]{0},
         OdbcErrorMessage = OdbcError[Message],
         OdbcErrorCode = OdbcError[NativeError],
-        OdbcErrorSqlState = OdbcError[SqlState],
+        OdbcErrorSqlState = OdbcError[SQLState],
 
         IsOdbcError = errorRecord[Detail]? <> null and errorRecord[Detail][OdbcErrors]? <> null,
 
@@ -293,7 +450,10 @@ OnOdbcError = (errorRecord as record) =>
         // Workaround, requires fix from Simba's side. Error 14 is a generic Thrift error.
         InvalidTokenError = IsThriftError and OdbcErrorCode = 14 and Text.Contains(OdbcErrorMessage, "Unauthorized/Forbidden"),
 
-        HasCredentialError = IsThriftError and OdbcErrorCode = 0 and OdbcErrorCode <> 7 and OdbcErrorCode <> 14,
+        IsSQLStateInvalidCredential = OdbcErrorSqlState = "28000",
+
+        HasCredentialError = IsSQLStateInvalidCredential or
+            (IsThriftError and OdbcErrorCode <> 7 and OdbcErrorCode <> 14),
 
         // Required credential settings missing
         MissingCredentialsError = OdbcErrorCode = 11570,
@@ -415,6 +575,25 @@ Databricks = [
         Key = [
             KeyLabel = Extension.LoadString("PersonalAccessTokenLabel"),
             Label = Extension.LoadString("PersonalAccessTokenLabel")
+        ]
+    ],
+
+    DSRHandlers = [
+        // {"protocol":"databricks-sql","address":{"host":"hostAddress","path":"sql/path"}}
+        #"databricks-sql" = [
+            GetDSR = (host, httpPath, optional options) =>
+            {
+                [protocol = "databricks-sql", address = [host = host, path = httpPath ]],
+                if options = null then [] else options
+            },
+
+            GetFormula = (dsr, optional options) =>
+            if options = null then
+                () => Databricks.Catalogs(dsr[address][host], dsr[address][path])
+            else
+                () => Databricks.Catalogs(dsr[address][host], dsr[address][path], options),
+
+            GetFriendlyName = (dsr) => "Databricks"
         ]
     ],
 

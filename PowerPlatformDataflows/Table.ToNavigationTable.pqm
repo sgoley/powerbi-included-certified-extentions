@@ -5,11 +5,21 @@
     dataColumn as text,
     itemKindColumn as text,
     itemNameColumn as text,
-    isLeafColumn as text
+    isLeafColumn as text,
+    optional tagsColumn as text
 ) as table =>
     let
         tableType = Value.Type(table),
-        newTableType = Type.AddTableKey(tableType, keyColumns, true) meta 
+        tableKeys = {[Columns=keyColumns, Primary=true]},
+        newTableType = if tagsColumn <> null then Type.ReplaceTableKeys(tableType, tableKeys) meta 
+        [
+            NavigationTable.NameColumn = nameColumn, 
+            NavigationTable.DataColumn = dataColumn,
+            NavigationTable.TagsColumn = tagsColumn,
+            NavigationTable.ItemKindColumn = itemKindColumn, 
+            Preview.DelayColumn = itemNameColumn, 
+            NavigationTable.IsLeafColumn = isLeafColumn
+        ] else Type.ReplaceTableKeys(tableType, tableKeys) meta 
         [
             NavigationTable.NameColumn = nameColumn, 
             NavigationTable.DataColumn = dataColumn,

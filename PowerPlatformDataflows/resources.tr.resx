@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Bir Power Platform veri akışından veri aktar</value>
+    <value>Bir veri akışından içeri veri aktarın</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Power Platform veri akışları</value>
+    <value>Veri akışları</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Bir Power Platform veri akışından veri aktar</value>
+    <value>Bir veri akışından içeri veri aktarın</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>Erişiminiz olan tüm Power Platform veri akışlarına bağlanın ve kullanmak istediğiniz varlıkları seçin</value>
+    <value>Erişiminiz olan tüm veri akışlarına bağlanın ve kullanmak istediğiniz varlıkları seçin</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Power Platform veri akışları</value>
+    <value>Veri akışları</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Bir Power Platform veri akışından veri aktar</value>
+    <value>Bir veri akışından içeri veri aktarın</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>Ortamlar</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>Çalışma alanları</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>Ortam bulma yanıtında hata bulundu</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>'#{0}' geçerli seçenekler değil. Geçerli seçenekler: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Bu işlev, '#{1}' değerine sahip '#{0}' seçeneğini desteklemiyor.</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

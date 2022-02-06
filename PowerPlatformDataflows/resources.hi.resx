@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Power Platform डेटा प्रवाह से डेटा आयात करें</value>
+    <value>किसी डेटा प्रवाह से डेटा आयात करें</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Power Platform डेटा प्रवाह</value>
+    <value>डेटा प्रवाह</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Power Platform डेटा प्रवाह से डेटा आयात करें</value>
+    <value>किसी डेटा प्रवाह से डेटा आयात करें</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>उन सभी Power Platform डेटा प्रवाह से कनेक्ट करें जिन तक आपने पहुँच प्राप्त की है और उन निकायों को चुनें जिनका आप उपयोग करना चाहते हैं</value>
+    <value>अपनी पहुँच वाले सभी डेटा प्रवाहों से कनेक्ट करें, और उन निकायों को चुनें, जिनका आप उपयोग करना चाहते हैं.</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Power Platform डेटा प्रवाह</value>
+    <value>डेटा प्रवाह</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Power Platform डेटा प्रवाह से डेटा आयात करें</value>
+    <value>किसी डेटा प्रवाह से डेटा आयात करें</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>परिवेश</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>कार्यस्थान</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>परिवेश खोज प्रतिसाद में त्रुटि मिली</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>'#{0}' मान्य विकल्प नहीं है. मान्य विकल्प हैं: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>यह फ़ंक्शन मान वाले '#{1}' वाले '#{0}' विकल्प का समर्थन नहीं करता है.</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>นำเข้าข้อมูลจากกระแสข้อมูล Power Platform</value>
+    <value>นําเข้าข้อมูลจากกระแสข้อมูล</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>กระแสข้อมูล Power Platform</value>
+    <value>กระแสข้อมูล</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>นำเข้าข้อมูลจากกระแสข้อมูล Power Platform</value>
+    <value>นําเข้าข้อมูลจากกระแสข้อมูล</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>เชื่อมต่อไปยังกระแสข้อมูล Power Platform ทั้งหมดที่คุณมีการเข้าถึง และเลือกเอนทิตีที่คุณต้องการใช้</value>
+    <value>เชื่อมต่อกับกระแสข้อมูลทั้งหมดที่คุณมีการเข้าถึง และเลือกเอนทิตีที่คุณต้องการใช้</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>กระแสข้อมูล Power Platform</value>
+    <value>กระแสข้อมูล</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>นำเข้าข้อมูลจากกระแสข้อมูล Power Platform</value>
+    <value>นําเข้าข้อมูลจากกระแสข้อมูล</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>สภาพแวดล้อม</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>พื้นที่ทำงาน</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>พบข้อผิดพลาดในการตอบสนองการค้นพบสภาพแวดล้อม</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>'#{0}' ไม่ใช่ตัวเลือกที่ถูกต้อง ตัวเลือกที่ถูกต้องคือ: “#{1}”</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>ฟังก์ชันนี้ไม่สนับสนุนตัวเลือก “#{0}” ที่มีค่า “#{1}”</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

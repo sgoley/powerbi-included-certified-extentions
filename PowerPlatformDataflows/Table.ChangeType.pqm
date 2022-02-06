@@ -121,18 +121,21 @@
         in
             transformMap,
 
-    GetTransformByType = (_type as type, optional culture as nullable text) as function =>
-                if (Type.Is(_type, type number)) then (v) => if (v = null) then null else Number.From(v, culture)
-        else if (Type.Is(_type, type text)) then (v) => if (v = null) then null else Text.From(v, culture)
-        else if (Type.Is(_type, type date)) then (v) => if (v = null) then null else Date.From(v, culture)
-        else if (Type.Is(_type, type datetime)) then (v) => if (v = null) then null else DateTime.From(v, culture)
-        else if (Type.Is(_type, type duration)) then (v) => if (v = null) then null else Duration.From(v, culture)
-        else if (Type.Is(_type, type datetimezone)) then (v) => if (v = null) then null else DateTimeZone.From(v, culture)
-        else if (Type.Is(_type, type logical)) then (v) => if (v = null) then null else Logical.From(v, culture)
-        else if (Type.Is(_type, type time)) then (v) => if (v = null) then null else Time.From(v, culture)
-        else if (Type.Is(_type, type record)) then (t) => if (t <> null) then @Record.ChangeType(t, _type, culture) else t
-        else if (Type.Is(_type, type table)) then (t) => if (t <> null) then @Table.ChangeType(t, _type, culture) else t
-        else if (Type.Is(_type, type list)) then (t) => if (t <> null) then @List.ChangeType(t, _type, culture) else t
-        else (t) => t
+    GetTransformByType = (type_in as type, optional culture as nullable text) as function =>
+        let
+            _type = Type.NonNullable(type_in)
+        in
+            if (Type.Is(_type, type number)) then (v) => if (v = null) then null else Number.From(v, culture)
+            else if (Type.Is(_type, type text)) then (v) => if (v = null) then null else Text.From(v, culture)
+            else if (Type.Is(_type, type date)) then (v) => if (v = null) then null else Date.From(v, culture)
+            else if (Type.Is(_type, type datetime)) then (v) => if (v = null) then null else DateTime.From(v, culture)
+            else if (Type.Is(_type, type duration)) then (v) => if (v = null) then null else Duration.From(v)
+            else if (Type.Is(_type, type datetimezone)) then (v) => if (v = null) then null else DateTimeZone.From(v, culture)
+            else if (Type.Is(_type, type logical)) then (v) => if (v = null) then null else Logical.From(v)
+            else if (Type.Is(_type, type time)) then (v) => if (v = null) then null else Time.From(v, culture)
+            else if (Type.Is(_type, type record)) then (t) => if (t <> null) then @Record.ChangeType(t, _type, culture) else t
+            else if (Type.Is(_type, type table)) then (t) => if (t <> null) then @Table.ChangeType(t, _type, culture) else t
+            else if (Type.Is(_type, type list)) then (t) => if (t <> null) then @List.ChangeType(t, _type, culture) else t
+            else (t) => t
 in
     Table.ChangeType

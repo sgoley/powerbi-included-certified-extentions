@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Importēt datus no Power Platform datplūsmas</value>
+    <value>Importēt datus no datplūsmas</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Power Platform datplūsmas</value>
+    <value>Datplūsmas</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Importēt datus no Power Platform datplūsmas</value>
+    <value>Importēt datus no datplūsmas</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>Izveidojiet savienojumu ar visām Power Platform datplūsmām, kam varat piekļūt, un izvēlieties izmantojamās entītijas</value>
+    <value>Izveidojiet savienojumu ar visām datplūsmām, kurām jums ir atļauts piekļūt, un izvēlieties izmantojamās entītijas</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Power Platform datplūsmas</value>
+    <value>Datplūsmas</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Importēt datus no Power Platform datplūsmas</value>
+    <value>Importēt datus no datplūsmas</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>Vides</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>Darbvietas</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>Vides noteikšanas atbildē tika atrasta kļūda</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>“#{0}” nav derīgas opcijas. Derīgas opcijas ir: “#{1}”</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Šī funkcija neatbalsta opciju “#{0}” ar vērtību “#{1}”.</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

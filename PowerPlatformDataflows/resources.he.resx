@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>יבא נתונים מתזרים נתונים של Power Platform</value>
+    <value>ייבא נתונים מזרימת נתונים</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>תזרימי נתונים של Power Platform</value>
+    <value>תזרימי נתונים</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>יבא נתונים מתזרים נתונים של Power Platform</value>
+    <value>ייבא נתונים מזרימת נתונים</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>התחבר לכל תזרימי הנתונים של Power Platform שאליהם יש לך גישה, ובחר את הישויות שבהן ברצונך להשתמש</value>
+    <value>התחבר לכל זרימות הנתונים שאליהן יש לך גישה ובחר את הישויות שבהן ברצונך להשתמש</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>תזרימי נתונים של Power Platform</value>
+    <value>תזרימי נתונים</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>יבא נתונים מתזרים נתונים של Power Platform</value>
+    <value>ייבא נתונים מזרימת נתונים</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>סביבות</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>סביבות עבודה</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>נמצאה שגיאה בתגובה לגילוי סביבה</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>'#{0}' אינן אפשרויות חוקיות. האפשרויות החוקיות הן: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>פונקציה זו אינה תומכת באפשרות '#{0}' עם הערך '#{1}'.</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

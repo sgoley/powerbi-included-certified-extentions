@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Power Platform деректер ағынынан деректерді импорттау</value>
+    <value>Деректерді деректер ағынынан импорттау</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Power Platform дерек ағындары</value>
+    <value>Деректер ағындары</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Power Platform деректер ағынынан деректерді импорттау</value>
+    <value>Деректерді деректер ағынынан импорттау</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>Өзіңізде кіру рұқсаты барп барлық Power Platform дерек ағындарына жалғану және пайдаланғыңыз келетін нысандарды таңдау</value>
+    <value>Қатынасыңыз бар барлық деректер ағындарына қосылу және пайдаланғыңыз келетін нысандарды таңдау</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Power Platform дерек ағындары</value>
+    <value>Деректер ағындары</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Power Platform деректер ағынынан деректерді импорттау</value>
+    <value>Деректерді деректер ағынынан импорттау</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>Орталар</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>Жұмыс кеңістіктері</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>Ортаны анықтау жауабында қате табылды</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>«#{0}» жарамды параметрлер емес. Жарамды параметрлер: «#{1}»</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Бұл функция '#{0}' мәні бар '#{1}' параметрін қолдамайды.</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

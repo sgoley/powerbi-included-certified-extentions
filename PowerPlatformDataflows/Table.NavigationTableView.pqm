@@ -1,0 +1,63 @@
+(
+    baseTable as function,
+    keyColumns as list,
+    dataCtor as function,
+    descriptor as record
+) as table =>
+    let
+        transformDescriptor = (key, value) =>
+            let
+                map = [
+                    Name = "NavigationTable.NameColumn",
+                    Data = "NavigationTable.DataColumn",
+                    Tags = "NavigationTable.TagsColumn",
+                    ItemKind = "NavigationTable.ItemKindColumn",
+                    ItemName = "Preview.DelayColumn",
+                    IsLeaf = "NavigationTable.IsLeafColumn"
+                ]
+            in
+                if value is list
+                    then [Name=value{0}, Ctor=value{1}, MetadataName = Record.FieldOrDefault(map, key)]
+                    else [Name=key, Ctor=value, MetadataName = Record.FieldOrDefault(map, key)],
+        fields = List.Combine({
+            List.Transform(keyColumns, (key) => [Name=key, Ctor=(row) => Record.Field(row, key), MetadataName=null]),
+            if Record.HasFields(descriptor, {"Data"}) then {} else {transformDescriptor("Data", dataCtor)},
+            Table.TransformRows(Record.ToTable(descriptor), each transformDescriptor([Name], [Value]))
+        }),
+        metadata = List.Accumulate(fields, [], (m, d) => let n = d[MetadataName] in if n = null then m else Record.AddField(m, n, d[Name])),
+        tableKeys = List.Transform(fields, each [Name]),
+        tableValues = List.Transform(fields, each [Ctor]),
+        tableType = Type.ReplaceTableKeys(
+            Value.Type(#table(tableKeys, {})),
+            {[Columns=keyColumns, Primary=true]}
+        ) meta metadata,
+        reduceAnd = (ast) => if ast[Kind] = "Binary" and ast[Operator] = "And" then List.Combine({@reduceAnd(ast[Left]), @reduceAnd(ast[Right])}) else {ast},
+        matchFieldAccess = (ast) => if ast[Kind] = "FieldAccess" and ast[Expression] = RowExpression.Row then ast[MemberName] else ...,
+        matchConstant = (ast) => if ast[Kind] = "Constant" then ast[Value] else ...,
+        matchIndex = (ast) => if ast[Kind] = "Binary" and ast[Operator] = "Equals"
+            then
+                if ast[Left][Kind] = "FieldAccess"
+                    then Record.AddField([], matchFieldAccess(ast[Left]), matchConstant(ast[Right]))
+                    else Record.AddField([], matchFieldAccess(ast[Right]), matchConstant(ast[Left]))
+            else ...,
+        lazyRecord = (recordCtor, keys, baseRecord) =>
+            let record = recordCtor() in List.Accumulate(keys, [], (r, f) => Record.AddField(r, f, () => (Record.FieldOrDefault(baseRecord, f, null) ?? Record.Field(record, f)), true)),
+        getIndex = (selector, keys) => Record.SelectFields(Record.Combine(List.Transform(reduceAnd(RowExpression.From(selector)), matchIndex)), keys)
+    in
+        Table.View(null, [
+            GetType = () => tableType,
+            GetRows = () => #table(tableType, List.Transform(Table.ToRecords(baseTable()), (row) => List.Transform(tableValues, (ctor) => ctor(row)))),
+            OnSelectRows = (selector) =>
+                let
+                    index = try getIndex(selector, keyColumns) otherwise [],
+                    default = Table.SelectRows(GetRows(), selector)
+                in
+                    if Record.FieldCount(index) <> List.Count(keyColumns) then default
+                    else Table.FromRecords({
+                        index & lazyRecord(
+                            () => Table.First(default),
+                            List.Skip(tableKeys, Record.FieldCount(index)),
+                            Record.AddField([], "Data", () => Function.Invoke(dataCtor, Record.ToList(index)), true))
+                        },
+                        tableType)
+        ])

@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Импортиране на данни от поток от данни на Power Platform</value>
+    <value>Импортиране на данни от поток от данни</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Потоци от данни на Power Platform</value>
+    <value>Потоци от данни</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Импортиране на данни от поток от данни на Power Platform</value>
+    <value>Импортиране на данни от поток от данни</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>Свържете се с всички потоци от данни на Power Platform, до които имате достъп, и изберете обектите, които искате да използвате</value>
+    <value>Свържете се с всички потоци от данни, до които имате достъп, и изберете обектите, които искате да използвате</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Потоци от данни на Power Platform</value>
+    <value>Потоци от данни</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Импортиране на данни от поток от данни на Power Platform</value>
+    <value>Импортиране на данни от поток от данни</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>Среди</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>Работни области</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>Открита е грешка в отговора за откриване на среда</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>"#{0}" не са валидни опции. Валидните опции са: "#{1}"</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Тази функция не поддържа опцията "#{0}" със стойност "#{1}".</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

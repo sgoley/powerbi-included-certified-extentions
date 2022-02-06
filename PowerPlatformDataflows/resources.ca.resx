@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Permet importar les dades d'un flux de dades del Power Platform.</value>
+    <value>Importeu dades des d’un flux de dades</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Fluxos de dades del Power Platform</value>
+    <value>Fluxos de dades</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Permet importar les dades d'un flux de dades del Power Platform.</value>
+    <value>Importeu dades des d’un flux de dades</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>Connecteu-vos a tots els fluxos de dades del Power Platform a què tingueu accés i trieu les entitats que vulgueu fer servir.</value>
+    <value>Connecteu-vos a tots els fluxos de dades als què teniu accés i trieu les entitats que vulgueu fer servir</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Fluxos de dades del Power Platform</value>
+    <value>Fluxos de dades</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Permet importar les dades d'un flux de dades del Power Platform.</value>
+    <value>Importeu dades des d’un flux de dades</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>Entorns</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>Àrees de treball</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>S'ha produït un error en la resposta de detecció de l'entorn.</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>"#{0}" no són opcions vàlides. Les opcions vàlides són les següents: "#{1}"</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Aquesta funció no admet l'opció "#{0}" amb el valor "#{1}".</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

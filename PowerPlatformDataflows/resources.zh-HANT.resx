@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>從 Power Platform 資料流程匯入資料</value>
+    <value>從資料流程匯入資料。</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Power Platform 資料流程</value>
+    <value>資料流程</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>從 Power Platform 資料流程匯入資料</value>
+    <value>從資料流程匯入資料。</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>連線至您有權存取的所有 Power Platform 資料流程，並選擇您要使用的實體</value>
+    <value>連線到您有權存取的所有資料流程，以及選擇您要使用的實體。</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Power Platform 資料流程</value>
+    <value>資料流程</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>從 Power Platform 資料流程匯入資料</value>
+    <value>從資料流程匯入資料。</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>環境</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>工作區</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>在環境探索回應中發現錯誤</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>#{0} 並非有效的選項。有效的選項為: #{1}</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>這個函式不支援值為「#{1}」的選項「#{0}」。</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

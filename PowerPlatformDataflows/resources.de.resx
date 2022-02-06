@@ -118,27 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Hiermit importieren Sie Daten aus einem Power Platform-Dataflow.</value>
+    <value>Importieren von Daten aus einem Dataflow</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Power Platform-Dataflows</value>
+    <value>Dataflows</value>
   </data>
   <data name="dataflows.caption" xml:space="preserve">
-    <value>Hiermit importieren Sie Daten aus einem Power Platform-Dataflow.</value>
+    <value>Importieren von Daten aus einem Dataflow</value>
   </data>
   <data name="dataflows.longDescription" xml:space="preserve">
-    <value>Stellen Sie eine Verbindung mit allen Power Platform-Dataflows her, auf die Sie zugreifen können, und wählen Sie die Entitäten aus, die Sie verwenden möchten.</value>
+    <value>Stellen Sie eine Verbindung mit allen Dataflows her, auf die Sie zugreifen können, und wählen Sie die Entitäten, die Sie verwenden möchten</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Power Platform-Dataflows</value>
+    <value>Dataflows</value>
   </data>
   <data name="dataflows.description" xml:space="preserve">
-    <value>Hiermit importieren Sie Daten aus einem Power Platform-Dataflow.</value>
+    <value>Importieren von Daten aus einem Dataflow</value>
   </data>
   <data name="Environments" xml:space="preserve">
     <value>Umgebungen</value>
   </data>
   <data name="Workspaces" xml:space="preserve">
     <value>Arbeitsbereiche</value>
+  </data>
+  <data name="EnvironmentError" xml:space="preserve">
+    <value>Fehler in Antwort der Umgebungsermittlung.</value>
+  </data>
+  <data name="InvalidOptionsKey" xml:space="preserve">
+    <value>"#{0}" sind keine gültigen Optionen. Gültige Optionen: "#{1}"</value>
+  </data>
+  <data name="InvalidOptionsValue" xml:space="preserve">
+    <value>Diese Funktion bietet keine Unterstützung für die Option "#{0}" mit dem Wert "#{1}".</value>
+  </data>
+  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+    <value>_StreamingData_Hot</value>
+  </data>
+  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+    <value>_ArchivedData_Cold</value>
   </data>
 </root>

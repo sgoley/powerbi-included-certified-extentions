@@ -1,5 +1,5 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.0"]
+[Version = "2.0.0"]
 section SumTotal;
 
 //Constants
@@ -19,40 +19,6 @@ DefaultRequestHeaders = [
 //main invokation
 [DataSource.Kind="SumTotal", Publish="SumTotal.Publish"]
 shared SumTotal.ODataFeed = Value.ReplaceType(SumTotalNavTable, SumTotalType);
-
-//OData Entities
-RootEntities = {
-    "Activity",
-    "ActivityDomain",
-    "ActivityLabel",
-    "ActivityLink",
-    "ActivityLocation",
-    "ActivityMetadata",
-    "ContentType",
-    "DomainFacility",
-    "EmployeeOptional1",
-    "EmployeeOptional2",
-    "EmployeeOptional3",
-    "EvaluationAnswer",
-    "EvaluationQuestion",
-    "Facility",
-    "Instructor",
-    "Job",
-    "Location",
-    "Manager",
-    "MediaType",
-    "Organization",
-    "Person",
-    "PersonJob",
-    "PersonOrganization",
-    "Registration",
-    "Role",
-    "RolePermission",
-    "Transcript",
-    "UserLogin",
-    "UserLoginHistory",
-    "UserRequiredActivity"
-};
 
 SumTotalType = type function (
     url as (Uri.Type meta [
@@ -75,20 +41,9 @@ SumTotalNavTable = (url as text) as table =>
         urlParts = if Text.Contains(url, "?") then Text.Split(url,"?") else null,
         apiURL =  if Text.Contains(url, "?") then urlParts{0} else url,
         rowVersionPart =  if Text.Contains(url, "?") then urlParts{1}  else null,
-        entitiesAsTable = Table.FromList(RootEntities, Splitter.SplitByNothing()),
-        rename = Table.RenameColumns(entitiesAsTable, {{"Column1", "Name"}}),
-        // Add Data as a calculated column,
-        tranformedUrl = Uri.Combine(apiURL,"/odata/api/"),
-        withData = Table.AddColumn(rename, "Data", each SumTotal.Feed(Text.Combine({tranformedUrl, [Name], "?", rowVersionPart})), type table),
-        // Add ItemKind and ItemName as fixed text values
-        withItemKind = Table.AddColumn(withData, "ItemKind", each "Table", type text),
-        withItemName = Table.AddColumn(withItemKind, "ItemName", each "Table", type text),
-        // Indicate that the node should not be expandable
-        withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each true, type logical),
-        // Generate the nav table
-        navTable = Table.ToNavigationTable(withIsLeaf, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+        odataEntities = OData.Feed(Uri.Combine(apiURL,"/odata/api/"), null, [ Implementation = "2.0" ])
     in
-        navTable;
+        odataEntities;
 
 SumTotal.Feed = (url as text) as table => GetAllPagesByNextLink(url);
 
@@ -123,28 +78,6 @@ GetNextLink = (response) as nullable text => Record.FieldOrDefault(response, "@o
 //
 // Common functions
 //
-Table.ToNavigationTable = (
-    table as table,
-    keyColumns as list,
-    nameColumn as text,
-    dataColumn as text,
-    itemKindColumn as text,
-    itemNameColumn as text,
-    isLeafColumn as text
-) as table =>
-    let
-        tableType = Value.Type(table),
-        newTableType = Type.AddTableKey(tableType, keyColumns, true) meta 
-        [
-            NavigationTable.NameColumn = nameColumn, 
-            NavigationTable.DataColumn = dataColumn,
-            NavigationTable.ItemKindColumn = itemKindColumn, 
-            Preview.DelayColumn = itemNameColumn, 
-            NavigationTable.IsLeafColumn = isLeafColumn
-        ],
-        navigationTable = Value.ReplaceType(table, newTableType)
-    in
-        navigationTable;
 
 // The getNextPage function takes a single argument and is expected to return a nullable table
 Table.GenerateByPage = (getNextPage as function) as table =>
@@ -192,7 +125,8 @@ StartLogin = (resourceUrl, state, display) =>
             state = state,
             response_type = "code",
             scope= "odataapis offline_access",
-            redirect_uri = hardRedirect])
+            redirect_uri = hardRedirect,
+            broker_bypassfederation =  if (Text.Contains(Text.Lower(resourceUrl), "bypassfederation=1") or Text.Contains(Text.Lower(resourceUrl), "bypassfederation=true")) then "1" else "0"])
     in
         [
             LoginUri = AuthorizeUrl,
@@ -239,9 +173,9 @@ Refresh = (resourceUrl, refresh_token) => TokenMethod("refresh_token", refresh_t
 
 // Data Source UI publishing description
 SumTotal.Publish = [
-    Beta = true,
+    Beta = false,
     Category = "Other",
-    ButtonText = { "SumTotal", "SumTotal BI Connector" },
+    ButtonText = { "SumTotal", "SumTotal Connector" },
     LearnMoreUrl = "https://marketplace.sumtotalsystems.com/Home/ODataAPI",
     SourceImage = SumTotal.Icons,
     SourceTypeImage = SumTotal.Icons

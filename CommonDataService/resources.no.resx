@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Domenet for #{0} støttes ikke av Dataverse-koblingen.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Innlasting av data fra indirekte tabell med miljøer støttes ikke.</value>
+  </data>
 </root>

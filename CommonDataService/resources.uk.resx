@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>З’єднувач Dataverse не підтримує домен для "#{0}".</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Завантаження даних із таблиць середовищ із непрямим посиланням не підтримується.</value>
+  </data>
 </root>

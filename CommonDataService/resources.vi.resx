@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Trình kết nối Dataverse không hỗ trợ miền cho '#{0}'.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Đang tải dữ liệu từ bảng gián tiếp của môi trường không được hỗ trợ.</value>
+  </data>
 </root>

@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Domänen för #{0} stöds inte av Dataverse-anslutningsprogrammet.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Att läsa in data från indirekta miljötabeller stöds inte.</value>
+  </data>
 </root>

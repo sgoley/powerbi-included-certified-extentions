@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>„Dataverse“ jungtis nepalaiko „#{0}“ domeno.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Duomenų įkėlimas iš netiesioginės aplinkų lentelės nepalaikomas.</value>
+  </data>
 </root>

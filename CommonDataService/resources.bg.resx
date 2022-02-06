@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Домейнът за „#{0}“ не се поддържа от конектора на Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Зареждането на данни от непряка таблица на среди не се поддържа.</value>
+  </data>
 </root>

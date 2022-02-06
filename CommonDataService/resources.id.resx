@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Domain untuk '#{0}' tidak didukung oleh konektor Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Memuat data dari tabel lingkungan yang tidak langsung tidak didukung.</value>
+  </data>
 </root>

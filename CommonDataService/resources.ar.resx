@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>مجال '#{0}' لا يدعمه موصل Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>تحميل البيانات من جدول بيئات غير مباشر غير مدعم.</value>
+  </data>
 </root>

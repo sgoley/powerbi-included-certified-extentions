@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>'#{0}' के लिए डोमेन Dataverse कनेक्टर द्वारा समर्थित नहीं है.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>परिवेश की अप्रत्यक्ष तालिका से डेटा लोड करना समर्थित नहीं है.</value>
+  </data>
 </root>

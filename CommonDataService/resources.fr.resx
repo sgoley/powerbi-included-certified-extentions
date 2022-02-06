@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Le domaine pour « #{0} » n’est pas pris en charge par le connecteur Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Le chargement de données à partir d’une table indirecte d’environnements n’est pas pris en charge.</value>
+  </data>
 </root>

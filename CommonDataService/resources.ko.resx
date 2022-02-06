@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Dataverse 커넥터에서는 '#{0}'에 대한 도메인이 지원되지 않습니다.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>간접 환경 테이블에서 데이터를 로드하는 것은 지원되지 않습니다.</value>
+  </data>
 </root>

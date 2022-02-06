@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>'#{0}' のドメインは、Dataverse コネクタではサポートされていません。</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>環境の間接テーブルからデータを読み込むことはサポートされていません。</value>
+  </data>
 </root>

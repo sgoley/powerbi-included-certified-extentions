@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>מחבר ה- Dataverse אינו תומך בתחום של '#{0}'.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>טעינת נתונים מטבלה עקיפה של סביבות אינה נתמכת.</value>
+  </data>
 </root>

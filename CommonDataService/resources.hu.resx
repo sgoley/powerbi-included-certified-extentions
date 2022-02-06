@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>A Dataverse-összekötő nem támogatja a(z) #{0} tartományt.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Az adatok közvetett környezettáblából való betöltése nem támogatott.</value>
+  </data>
 </root>

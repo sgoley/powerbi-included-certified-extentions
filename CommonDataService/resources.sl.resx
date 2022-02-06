@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Priključek storitve Dataverse ne podpira domene za »#{0}«.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Nalaganje podatkov iz posredne tabele okolij ni podprto.</value>
+  </data>
 </root>

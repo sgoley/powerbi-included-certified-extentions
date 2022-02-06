@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>O domínio para "#{0}" não é suportado pelo conector do Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>O carregamento de dados a partir de uma tabela indireta de ambientes não é suportado.</value>
+  </data>
 </root>

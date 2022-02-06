@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Konektor Dataverse nepodporuje doménu pre #{0}.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Načítanie údajov z nepriamej tabuľky prostredí nie je podporované.</value>
+  </data>
 </root>

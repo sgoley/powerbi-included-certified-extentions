@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Domain untuk '#{0}' tidak disokong oleh penyambung Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Memuatkan data daripada jadual tidak langsung bagi persekitaran adalah tidak disokong.</value>
+  </data>
 </root>

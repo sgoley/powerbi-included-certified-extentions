@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>O dominio de "#{0}" non é compatible co conector de Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Non se admite a carga de datos da táboa indirecta de contornos.</value>
+  </data>
 </root>

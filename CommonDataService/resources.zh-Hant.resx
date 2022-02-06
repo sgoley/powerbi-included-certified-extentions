@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Dataverse 連接器不支援 '#{0}' 的網域。</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>不支援從環境的間接資料表載入資料。</value>
+  </data>
 </root>

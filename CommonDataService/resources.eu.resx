@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Dataverse konektoreak ez du onartzen "#{0}" domeinua.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Ezin da zeharkako taulatik datuak kargatu.</value>
+  </data>
 </root>

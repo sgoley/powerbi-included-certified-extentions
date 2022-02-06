@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Die Domäne für "#{0}" wird vom Dataverse-Connector nicht unterstützt.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Das Laden von Daten aus indirekten Umgebungstabellen wird nicht unterstützt.</value>
+  </data>
 </root>

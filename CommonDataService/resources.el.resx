@@ -135,4 +135,7 @@
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Ο τομέας για το "#{0}" δεν υποστηρίζεται από τη σύνδεση Dataverse.</value>
   </data>
+  <data name="LoadDataError" xml:space="preserve">
+    <value>Η φόρτωση δεδομένων από έμμεσο πίνακα περιβάλλοντων δεν υποστηρίζεται.</value>
+  </data>
 </root>

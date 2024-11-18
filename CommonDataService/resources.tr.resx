@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>SQL uç noktası üzerinden Dataverse'e bağlanın</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Ortam etki alanı</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Ortam etki alanı</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Bağlanmak için bir Dataverse ortamı belirtin. Bu alan isteğe bağlıdır ve belirtilmedikçe, oturum açmış kullanıcı tarafından kullanılabilecek tüm Dataverse ortamları "Verileri seçin" ekranında görüntülenir</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Dataverse örneğinize bağlanın (Dynamics 365 ve PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>'#{0}' etki alanı, Dataverse bağlayıcısı tarafından desteklenmiyor.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Dolaylı ortam tablosundan veri yükleme desteklenmiyor.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>'#{0}' geçerli seçenekler değil. Geçerli seçenekler: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Bu işlev, '#{1}' değerine sahip '#{0}' seçeneğini desteklemiyor.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>'#{0}' sunucu adı biçimi geçerli değil. Lütfen sunucu adından "https://" gibi düzeni kaldırın.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>İlişki sütunlarını ekle</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Seçenekler</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Dataverse örneğinize bağlanmak için seçenekleri belirtin</value>
   </data>
 </root>

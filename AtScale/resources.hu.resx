@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,19 +118,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>AtScale-kockák</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>Importálás/DirectQuery-kockaadatok az AtScale-ből.</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>AtScale-kockák</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>Importálás/DirectQuery-kockaadatok egy AtScale-ből.</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
 Visszaadja a(z) &lt;code&gt;server&lt;/code&gt; kiszolgálón található AtScale-kockaadatokat. Az &lt;code&gt;options&lt;/code&gt; választhat rekordparaméter megadásával vezérelhetők a következő beállítások:
 &lt;ul&gt;
@@ -140,34 +141,34 @@ Visszaadja a(z) &lt;code&gt;server&lt;/code&gt; kiszolgálón található AtScal
 &lt;/ul&gt;
 A rekordparaméter a következőképpen adható meg: [option1 = value1, option2 = value2...].</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>Egy AtScale-kockában listázza a kockaadatokat.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>Kiszolgáló</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>Adja meg a AtScale-kiszolgáló URL-címét</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
     <value>Beállítások</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>Adja meg az AtScale-kiszolgálóhoz való csatlakozás beállításait</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>Érvénytelen kiszolgálónév van megadva. A kiszolgáló nevét http(s)://contoso.atscale.com:10502/xmla/... formátumban kell megadni, de a portszám megadása nem kötelező.</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>A(z) #{0} nem érvényes AtScale-beállítás. Az érvényes beállítások a következők: #{1}</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>Ez az AtScale-függvény nem támogatja a(z) #{1} értékkel rendelkező #{0} beállítást</value>
   </data>
 </root>

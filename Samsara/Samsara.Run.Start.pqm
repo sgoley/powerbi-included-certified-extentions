@@ -1,0 +1,41 @@
+/**
+ * Start a new data retrieval run with the server. The server will vend
+ * parameter overrides, check that the client is up to date, and enforce
+ * that the customer is allowed to use our data.
+ *
+ * @param AccessToken Some token we can use to authenticate with our backend.
+ * @param Region Either "US" or "EU", chosen by the customer.
+ * @param Version This client's version.
+ * @param Extension.ImportContext A record that has a function to import other files.
+ * @returns Any override state provided by our backend.
+ * @raises An access error if the customer doesn't have access to this feature. 
+ * @raises An upgrade error if this version is no longer supported.
+ */
+(AccessToken as text, Region as text, Version as text, Extension.ImportContext as record) => 
+    let
+        Extension.LoadFunction = Extension.ImportContext[Extension.LoadFunction],
+        Samsara.Configuration.Defaults = Extension.LoadFunction(Extension.ImportContext, "Samsara.Configuration.Defaults.pqm"),
+        Samsara.Client.StartSession = Extension.LoadFunction(Extension.ImportContext, "Samsara.Client.StartRun.pqm"),
+        Samsara.Metrics.ReportError = Extension.LoadFunction(Extension.ImportContext, "Samsara.Metrics.ReportError.pqm"),
+        DateTimeZone.FromSamsaraFormat = Extension.LoadFunction(Extension.ImportContext, "DateTimeZone.FromSamsaraFormat.pqm"),
+
+        RunState.Default = Record.Combine({
+            Samsara.Configuration.Defaults(AccessToken, Region, Version),
+            Extension.ImportContext 
+        }),
+        RunState.Dynamic = 
+            try Samsara.Client.StartSession(RunState.Default)
+            catch (e) => error Samsara.Metrics.ReportError(
+                RunState.Default,
+                e,
+                { "component:start_run" }
+            ),
+        RunState.Dynamic.Parsed = Record.TransformFields(
+            RunState.Dynamic,
+            {
+                { "LatestEndTime", DateTimeZone.FromSamsaraFormat }
+            },
+            MissingField.Ignore
+        )
+    in
+        Record.Combine({ RunState.Default, RunState.Dynamic.Parsed })

@@ -1,0 +1,54 @@
+﻿(authSettings) => 
+    let
+        TokenMethod = (code, grant_type) =>
+            let
+                codeParameter = if (grant_type = "authorization_code") then [ code = code ] else [ refresh_token = code ],
+                Query = codeParameter & [
+                        client_id = authSettings[client_id],
+                        client_secret = authSettings[client_secret],
+                        code = code,
+                        grant_type = grant_type,
+                        redirect_uri = authSettings[redirect_uri]
+                    ],
+                Response = Web.Contents(authSettings[auth_uri] & "/00000000-0000-0000-0000-000000000000/connect/token", [
+                    Content = Text.ToBinary(Uri.BuildQueryString(Query)),
+                    Headers=[#"Content-type" = "application/x-www-form-urlencoded",#"Accept" = "application/json"]]),
+                Parts = Json.Document(Response)
+            in
+                Parts,
+                // // check for error in response
+                // if (Parts[error]? <> null) then 
+                //     error Error.Record(Parts[error], Parts[message]?)
+                // else
+                //     Parts,
+        OAuth = [
+            StartLogin = (resourceUrl, state, display) =>
+                let
+                    AuthorizeUrl = authSettings[auth_uri] & "/inwink/connect/authorize?" & Uri.BuildQueryString([
+                        client_id = authSettings[client_id],
+                        scope = "openid offline_access",
+                        state = state,
+                        response_type = "code",
+                        redirect_uri = authSettings[redirect_uri]
+                    ])
+                in
+                    [
+                        LoginUri = AuthorizeUrl,
+                        CallbackUri = authSettings[redirect_uri],
+                        WindowHeight = 1000,
+                        WindowWidth = 1200,
+                        Context = null
+                    ],
+            FinishLogin = (context, callbackUri, state) =>
+                let
+                    Parts = Uri.Parts(callbackUri)[Query]
+                in
+                    TokenMethod(Parts[code], "authorization_code"),
+            Refresh = (resourceUrl, refresh_token) => 
+                let 
+                    token = refresh_token
+                in
+                    TokenMethod(token, "refresh_token"),
+            Label = "connect to inwink"
+        ]
+    in [OAuth = OAuth]

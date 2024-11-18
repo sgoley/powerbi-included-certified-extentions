@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>進階選項</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>彙總資料</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>資料細微性</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>選取要載入原始查詢結果的資料列層級資料，或選取 [彙總資料] 將查詢推入資料庫並取得彙總結果。為獲得最佳結果，請只有在選擇匯入資料連線模式時，才選取資料列層級資料。</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>資料列層級資料</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>組織帳戶</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>連線到工作場所分析資料</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>連接到 Viva Insights 資料</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>工作場所分析</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>線上服務</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>工作場所分析</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>資料表名稱</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>連線到工作場所分析資料</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>如果進階深入解析查詢輸出一個以上的資料表，請指定要連線的資料表。</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>連接到 Viva Insights 資料</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>指定查詢名稱或識別碼來連接到查詢結果時，目前不支援彙總的資料細微性。選取資料列層級資料細微性以連接到查詢結果。</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>目前只有連線到查詢結果時，才支援資料列層級資料細微性。選取彙總資料細微性以連接到一般人員計量集合，或指定查詢名稱或識別碼。</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>在驗證期間有未預期的 WWW-Authenticate 標頭格式或值。</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>在驗證期間有未預期的伺服器回應。</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>此資料來源不支援資料列層級資料細微性。改為選取彙總的資料細微性。</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>針對分割區中每位要評量的員工，傳回具有可見屬性及每週計量的資料表。</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>查詢識別碼</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>若要在工作場所分析中尋找此項，方法是開啟 [查詢結果]、複製要使用的查詢連結，然後擷取 URL 中顯示的最後 32 個數字識別碼 (GUID)。</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>在進階深入解析應用程式中，移至 [分析] &gt; [查詢結果]，尋找您的查詢，然後選取 [連結] 以取得查詢識別碼。</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>查詢名稱</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>輸入查詢名稱，且與在工作場所分析 [查詢結果] 索引標籤中找到的名稱完全相符</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>輸入進階深入解析應用程式中 [分析] &gt; [查詢結果] 頁面上的查詢名稱。</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>從工作場所分析匯入每週計量與屬性資料。</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contoso 的人員計量</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>結構描述類型</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>選取 [樞紐] 以將組織屬性載入為個別資料行，或選取 [取消樞紐] 將組織屬性載入為索引鍵值組，例如屬性名稱 = 組織、屬性值 = 財務。</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>樞紐</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>已取消樞紐</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>分割區識別碼</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>若要在工作場所分析中尋找此項，方法是開啟使用者設定檔並選取 [我的資訊]</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>在進階深入解析應用程式中，移至 [分析] &gt; [查詢結果]，尋找您的查詢，然後選取 [連結] 以取得分割區識別碼。</value>
   </data>
 </root>

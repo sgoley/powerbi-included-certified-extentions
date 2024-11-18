@@ -1,0 +1,59 @@
+(Context as record, TableType as text) =>
+    let
+        Samsara.Client.Depage = Context[Extension.LoadFunction](Context, "Samsara.Client.Depage.pqm"),
+        Samsara.Client.Headers = Context[Extension.LoadFunction](Context, "Samsara.Client.Headers.pqm"),
+        DateTimeZone.FromSamsaraFormat = Context[Extension.LoadFunction](Context, "DateTimeZone.FromSamsaraFormat.pqm"),
+
+        ParseColumn = (ColumnProperties as record) =>
+            let
+                Function.Identity = (value as any) => value,
+                
+                ColumnType.Int = "int",
+                ColumnType.Float = "float",
+                ColumnType.DateTime = "datetime",
+                ColumnType.Boolean = "bool",
+
+                ColumnType.Raw = ColumnProperties[#"type"], // Quoted identifier to avoid the type keyword 
+
+                ColumnType.Modeled = if ColumnType.Raw = ColumnType.Int then type nullable number 
+                    else if ColumnType.Raw = ColumnType.Float then type nullable number 
+                    else if ColumnType.Raw = ColumnType.DateTime then type nullable datetimezone 
+                    else if ColumnType.Raw = ColumnType.Boolean then type nullable logical 
+                    else type nullable text,
+
+                ColumnType.Cast = if ColumnType.Raw = ColumnType.Int then Function.Identity
+                    else if ColumnType.Raw = ColumnType.Float then Function.Identity
+                    else if ColumnType.Raw = ColumnType.DateTime then DateTimeZone.FromSamsaraFormat
+                    else if ColumnType.Raw = ColumnType.Boolean then Function.Identity 
+                    else Text.From
+            in
+                [
+                    Type = ColumnType.Modeled,
+                    Cast = ColumnType.Cast
+                ],
+
+        ParseTable = (TableProperties as record) =>
+            let
+                Samsara.Model.TableProperties = Context[Extension.LoadFunction](Context, "Samsara.Model.TableProperties.pqm"),
+                Columns = TableProperties[columns],
+                Table = [
+                    TableId = TableProperties[tableId],
+                    DisplayName = TableProperties[tableName],
+                    TableType = TableType,
+                    Columns = Record.FromList(
+                        List.Transform(Columns, ParseColumn), // Record values (Column types)
+                        List.Transform(Columns, each [name])  // Record keys (column names)
+                    )
+                ]
+            in
+                Value.ReplaceType(Table, Samsara.Model.TableProperties),
+        
+        Request = [
+            Url = Context[BaseUrl] & "/tables",
+            Headers = Samsara.Client.Headers(Context),
+            Query = [ tableType = TableType ]
+        ],
+        Data = Samsara.Client.Depage(Context, Request),
+        Tables = List.Transform(Data, ParseTable)
+    in
+        Tables 

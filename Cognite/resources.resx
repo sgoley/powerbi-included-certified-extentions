@@ -132,10 +132,31 @@
   <data name="DataSourceLabel" xml:space="preserve">
     <value>Cognite Data Fusion</value>
   </data>
+  <data name="Environment" xml:space="preserve">
+    <value>This is the URL used to reach the API. If the project is deployed on the default multi-tenant installation (most are), then leave blank. If the project is deployed on a separate custom cluster, then set the URL to point at the API server for that cluster. If unsure, leave blank. You can set a specific API version by appending e.g `/v1` to the URL. Shorthand notations are also supported, e.g. 'api/v1' uses the default 'api' endpoint and v1 of the API.</value>
+  </data>
   <data name="ProjectDescription" xml:space="preserve">
     <value>The CDF project to connect to</value>
   </data>
   <data name="ProjectName" xml:space="preserve">
     <value>Project Name</value>
+  </data>
+  <data name="TimeseriesAggregate" xml:space="preserve">
+    <value>TimeseriesAggregate</value>
+  </data>
+  <data name="TimeseriesAggregateDescription" xml:space="preserve">
+    <value>Aggregate data-points from multiple time-series</value>
+  </data>
+  <data name="TimeseriesAggregateEndDescription" xml:space="preserve">
+    <value>End date and time to aggregate to as string in ISO-8601 format</value>
+  </data>
+  <data name="TimeseriesAggregateGranularityDescription" xml:space="preserve">
+    <value>Valid time units are 'day' or 'd', 'hour' or 'h', 'minute' or 'm' and 'second' or 's'. For example, '2h' means that each time range should be 2 hours wide, '3m' means 3 minutes, and so on.</value>
+  </data>
+  <data name="TimeseriesAggregateStartDescription" xml:space="preserve">
+    <value>Start date and time to aggregate from as string in ISO-8601 format</value>
+  </data>
+  <data name="TimeseriesAggregateTagsDescription" xml:space="preserve">
+    <value>Comma separated string with time-series names or id's</value>
   </data>
 </root>

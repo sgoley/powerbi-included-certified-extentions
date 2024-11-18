@@ -1,0 +1,20 @@
+﻿let
+    OAuthBaseUrl="https://bsso.blpprofessional.com",
+    RedirectUri="https://oauth.powerbi.com/views/oauthredirect.html",
+    ClientId="bi-integration-apps-paginated-connector",
+    BqlUrl = "https://graph.bloomberg.com/bi/user",
+    PollRetryAttempts = 180,
+    PollDelay = 10,
+    IsBeta = false,
+    EnableTraceOutput = false
+in
+    [
+        OAuthBaseUrl = OAuthBaseUrl,
+        RedirectUri = RedirectUri,
+        ClientId = ClientId,
+        BqlUrl = BqlUrl,
+        PollRetryAttempts = PollRetryAttempts,
+        PollDelay = PollDelay,
+        IsBeta = IsBeta,
+        EnableTraceOutput = EnableTraceOutput
+    ]

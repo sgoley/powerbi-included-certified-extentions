@@ -1,4 +1,4 @@
-﻿[Version = "1.0.1"]
+﻿[Version = "1.1.1"]
 section IRIS;
 
 Config_SqlConformance = ODBC[SQL_SC][SQL_SC_SQL92_FULL];
@@ -10,7 +10,7 @@ EnableTraceOutput = false;
 
 Config_DriverName = "InterSystems IRIS ODBC35";
 
-[DataSource.Kind="IRIS", Publish="IRIS.Publish"]
+[DataSource.Kind="IRIS"]
 shared IRIS.Database = Value.ReplaceType(IRISImpl, IRISType);
 
 IRIS = [
@@ -62,8 +62,7 @@ IRISType = type function (
     ) 
     as table meta [
         Documentation.Name = "InterSystems IRIS",
-        Documentation.LongDescription = "InterSystems IRIS",
-        Documentation.Icon = Extension.Contents("Iris_PowerBI_Connector32.png")
+        Documentation.LongDescription = "InterSystems IRIS"
     ];
 
 IRISImpl = (host as text, port as number, namespace as text, optional ssl as text, optional logs as text) as table =>
@@ -177,22 +176,6 @@ IRISImpl = (host as text, port as number, namespace as text, optional ssl as tex
         Database = Table.ToNavigationTable(DatabaseItems, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
     in
         Database;
-
-// Data Source UI publishing description
-IRIS.Publish = [
-    Category = "Database",
-    Beta = true,
-    SupportsDirectQuery = true,
-    ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
-    LearnMoreUrl = Extension.LoadString("URLLearnMore"),
-    SourceImage = IRIS.Icons,
-    SourceTypeImage = IRIS.Icons
-];
-
-IRIS.Icons = [
-    Icon16 = { Extension.Contents("Iris_PowerBI_Connector16.png"), Extension.Contents("Iris_PowerBI_Connector20.png"), Extension.Contents("Iris_PowerBI_Connector24.png"), Extension.Contents("Iris_PowerBI_Connector32.png") },
-    Icon32 = { Extension.Contents("Iris_PowerBI_Connector32.png"), Extension.Contents("Iris_PowerBI_Connector40.png"), Extension.Contents("Iris_PowerBI_Connector48.png"), Extension.Contents("Iris_PowerBI_Connector64.png") }
-];
 
 // build settings based on configuration variables
 BuildOdbcConfig = () as record =>

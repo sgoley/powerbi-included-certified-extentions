@@ -1,0 +1,18 @@
+let 
+    // Define connector icons.
+    Samsara.Icons = [
+        Icon16 = { 
+            Extension.Contents("64.jpg"),
+            Extension.Contents("64.jpg"),
+            Extension.Contents("64.jpg"),
+            Extension.Contents("64.jpg")
+        },
+        Icon32 = { 
+            Extension.Contents("64.jpg"),
+            Extension.Contents("64.jpg"),
+            Extension.Contents("64.jpg"),
+            Extension.Contents("64.jpg")
+        }
+    ]
+in 
+    Samsara.Icons

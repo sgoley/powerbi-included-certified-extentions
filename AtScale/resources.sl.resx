@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,19 +118,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>Kocke AtScale</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>Uvozi/uporabi DirectQuery za podatke kocke iz storitve AtScale.</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>Kocke AtScale</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>Podatki kocke za uvoz/DirectQuery iz storitve AtScale.</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
 Vrne podatke kocke iz storitve AtScale v strežniku &lt;code&gt;server&lt;/code&gt;. Navedete lahko izbirni parameter zapisa &lt;code&gt;options&lt;/code&gt;, s katerim nadzorujete te možnosti:
 &lt;ul&gt;
@@ -140,34 +141,34 @@ Vrne podatke kocke iz storitve AtScale v strežniku &lt;code&gt;server&lt;/code&
 &lt;/ul&gt;
 Parameter zapisa je naveden kot [možnost1 = vrednost1, možnost2 = vrednost2 ...].</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>Prikaže podatke kocke v kocki storitve AtScale.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>Strežnik</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>Navedite URL strežnika za AtScale</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
     <value>Možnosti</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>Določite možnosti za povezavo s strežnikom AtScale</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>Navedeno je bilo neveljavno ime strežnika. Ime strežnika mora biti v obliki zapisa »http(s)://contoso.atscale.com:10502/xmla/...«, kjer je številka vrat izbirna.</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>»#{0}« ni veljavna možnost za funkcijo AtSCale. Veljavne možnosti so: »#{1}«</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>Ta funkcija AtScale ne podpira možnosti poizvedbe »#{0}« z vrednostjo »#{1}«</value>
   </data>
 </root>

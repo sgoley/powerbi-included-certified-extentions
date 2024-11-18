@@ -1,0 +1,91 @@
+let
+    jsonFileName = "ExactOnlinePremium.config.json",
+    configJson = Json.Document(Text.FromBinary(Extension.Contents(jsonFileName))),
+    oauthData = configJson[oauth],
+
+    oauth_client_id     = "{{CLIENTID}}",
+    oauth_client_secret = "{{CLIENTSECRET}}",
+    oauth_auth_url      = oauthData[auth_url],
+    oauth_token_url     = oauthData[token_url],
+    oauth_redirect_uri  = oauthData[redirect_uri],
+    oauth_windowWidth   = oauthData[window][width],
+    oauth_windowHeight  = oauthData[window][height],
+
+    Base64UrlEncodeNoPadding = (hash as binary) as text =>
+        let
+            base64Encoded    = Binary.ToText(hash, BinaryEncoding.Base64),
+            base64UrlEncoded = Text.Replace(Text.Replace(base64Encoded, "+", "-"), "/", "_"),
+            withoutPadding   = Text.TrimEnd(base64UrlEncoded, "=")
+        in 
+            withoutPadding,
+
+    Sha256Hash = (inputText as text) =>
+        let
+            asciiText  = Text.ToBinary(inputText, TextEncoding.Ascii),
+            hashBinary = Crypto.CreateHash(CryptoAlgorithm.SHA256, asciiText)
+        in
+            hashBinary,
+
+    OAuth.StartLogin = (resourceUrl, state, display) =>
+        let
+            codeVerifier = Text.Replace(Text.NewGuid() & Text.NewGuid(), "-", ""),
+            AuthorizeUrl = oauth_auth_url & "?" & Uri.BuildQueryString([
+                culture               = Replacer.ReplaceText(Culture.Current,"_","-"),
+                client_id             = oauth_client_id,
+                response_type         = "code",
+                redirect_uri          = oauth_redirect_uri,
+                code_challenge_method = "S256",
+                code_challenge        = Base64UrlEncodeNoPadding(Sha256Hash(codeVerifier)),
+                state                 = state
+                ])
+        in
+            [
+                LoginUri     = AuthorizeUrl,
+                CallbackUri  = oauth_redirect_uri,
+                WindowHeight = oauth_windowHeight,
+                WindowWidth  = oauth_windowWidth,
+                Context      = codeVerifier
+            ],
+
+    OAuth.FinishLogin = (context, callbackUri, state) =>
+        let
+            parts = Uri.Parts(callbackUri)[Query],
+            result = if (Record.HasFields(parts, {"error", "error_description"})) then 
+                        error Error.Record(parts[error], parts[error_description], parts)
+                     else
+                        OAuth.TokenMethod("authorization_code", parts[code], context)
+        in
+            result,
+
+    OAuth.Refresh = (resourceUrl, refresh_token) => OAuth.TokenMethod("refresh_token", refresh_token),
+
+    OAuth.TokenMethod = (grantType, code, optional verifier) =>
+         let
+            codeVerifier = if (verifier <> null) then [code_verifier = verifier] else [],
+            codeParameter = if (grantType = "authorization_code") then [ code = code ]
+                            else if (grantType = "refresh_token") then [ refresh_token = code ]
+                            else [],
+            query = codeVerifier & codeParameter & [
+                redirect_uri  = oauth_redirect_uri,
+                grant_type    = grantType,
+                client_id     = oauth_client_id,
+                client_secret = oauth_client_secret
+            ],
+            Response = Web.Contents(oauth_token_url, [
+                Content = Text.ToBinary(Uri.BuildQueryString(query)),
+                Headers = [
+                    #"Content-type" = "application/x-www-form-urlencoded",
+                    #"Accept"       = "application/json"
+                ],
+                ManualStatusHandling = {302,400,401,403}
+            ]),
+            Parts = Json.Document(Response)
+        in
+            Parts
+in
+    [
+        StartLogin  = OAuth.StartLogin,
+        FinishLogin = OAuth.FinishLogin,
+        Refresh     = OAuth.Refresh,
+        TokenMethod = OAuth.TokenMethod
+    ]

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,31 +118,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Connect to Microsoft Teams Personal Analytics</value>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Connecteu-vos a l'anàlisi personal del Microsoft Teams.</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Microsoft Teams Personal Analytics</value>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Anàlisi personal del Microsoft Teams</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Microsoft Teams Personal Analytics</value>
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
+    <value>Anàlisi personal del Microsoft Teams</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
-    <value>&lt;p&gt;The Teams Analytics connector enables you to get insights into your usage of Teams. Data is available for both your personal activity in Teams as well as the activity in Teams you are a member of.&lt;/p&gt;
-&lt;p&gt;Data is available for prior 90 days. &lt;/p&gt;
-&lt;p&gt; For details of the types of data available, please refer to the following help documentation: &lt;/p&gt;
+  <data name="LongDescription" errorCode="004" xml:space="preserve">
+    <value>&lt;p&gt;El connector d'anàlisis del Teams us permet obtenir conclusions sobre l'ús que feu del Teams. Disposeu de dades tant de la vostra activitat al Teams com de la dels equips del Teams dels quals sou membre.&lt;/p&gt;
+&lt;p&gt;Les dades disponibles corresponen als últims 90 dies. &lt;/p&gt;
+&lt;p&gt;Per obtenir detalls dels tipus de dades disponibles, consulteu la documentació d'ajuda següent: &lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;b&gt;Teams Usage:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/teams-usage-report&lt;/li&gt;
-&lt;li&gt;&lt;b&gt;Teams User Activity:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Ús del Teams:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/teams-usage-report&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Activitat dels usuaris del Teams:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
 &lt;/ul&gt;</value>
   </data>
-  <data name="TeamsActivityLabel" xml:space="preserve">
-    <value>Teams usage</value>
+  <data name="TeamsActivityLabel" errorCode="005" xml:space="preserve">
+    <value>Ús del Teams</value>
   </data>
-  <data name="TeamsSummaryActivityLabel" xml:space="preserve">
-    <value>Teams usage summary</value>
+  <data name="TeamsSummaryActivityLabel" errorCode="006" xml:space="preserve">
+    <value>Resum d'ús del Teams</value>
   </data>
-  <data name="UserActivityLabel" xml:space="preserve">
-    <value>Teams user activity</value>
+  <data name="UserActivityLabel" errorCode="007" xml:space="preserve">
+    <value>Activitat de l'usuari del Teams</value>
   </data>
 </root>

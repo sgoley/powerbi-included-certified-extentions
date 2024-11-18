@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,40 +118,67 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="AzureTimeSeriesInsights.ButtonTitle" errorCode="001" xml:space="preserve">
+    <value>Azure Time Series Insights</value>
+  </data>
+  <data name="AzureTimeSeriesInsights.ResourceLabel" errorCode="002" xml:space="preserve">
+    <value>Login into Azure Time Series Insights.</value>
+  </data>
+  <data name="AzureTsiConnector" errorCode="003" xml:space="preserve">
+    <value>AzureTimeSeriesInsightsConnector</value>
+  </data>
+  <data name="ButtonHelp" errorCode="004" xml:space="preserve">
     <value>Connect to Azure Time Series Insights</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Azure Time Series Insights</value>
+  <data name="Contents" errorCode="005" xml:space="preserve">
+    <value>Time Series Insights</value>
   </data>
-  <data name="Contents" xml:space="preserve">
-    <value>Time Series Insights Preview</value>
-  </data>
-  <data name="CustomQuery" xml:space="preserve">
+  <data name="CustomQuery" errorCode="006" xml:space="preserve">
     <value>Create custom query</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="007" xml:space="preserve">
     <value>Azure Time Series Insights</value>
   </data>
-  <data name="FuncType.JsonPayload.Caption" xml:space="preserve">
+  <data name="Errors.InvalidEnvironmentFqdn" errorCode="008" xml:space="preserve">
+    <value>Invalid "environmentFqdn". The value cannot be null, empty or whitespace.</value>
+  </data>
+  <data name="Errors.InvalidJsonPayload" errorCode="009" xml:space="preserve">
+    <value>Invalid JSON payload. The value cannot be null, empty or whitespace.</value>
+  </data>
+  <data name="Errors.WwwAuthenticateNotFound" errorCode="010" xml:space="preserve">
+    <value>"WWW-Authenticate was not found in response headers."</value>
+  </data>
+  <data name="FuncType.JsonPayload.Caption" errorCode="011" xml:space="preserve">
     <value>PowerBI Parameters</value>
   </data>
-  <data name="FuncType.JsonPayload.Description" xml:space="preserve">
+  <data name="FuncType.JsonPayload.Description" errorCode="012" xml:space="preserve">
     <value>Enter parameters copied from Time Series Insights Explorer</value>
   </data>
-  <data name="FuncType.JsonPayload.Sample" xml:space="preserve">
-    <value>{"environmentFqdn":"12a34b56-1a2b-3c4d-5e6f-78g912h3ij45.env.timeseries.azure.com", "queries": [{"aggregateSeries": ...}]}</value>
+  <data name="FuncType.JsonPayload.Sample" errorCode="013" xml:space="preserve">
+    <value>{"storeType":"WarmStore","isSearchSpanRelative":true,"clientDataType":"RDX_20200713_Q","environmentFqdn":"12a34b56-1a2b-3c4d-5e6f-78g912h3ij45.env.timeseries.azure.com", "queries": [{"aggregateSeries": ...}]}</value>
   </data>
-  <data name="IncorrectApiErrorMessage" xml:space="preserve">
+  <data name="IncorrectApiErrorMessage" errorCode="014" xml:space="preserve">
     <value>Incorrect API. Supported APIs are getEvents, getSeries and aggregateSeries.</value>
   </data>
-  <data name="ResourceLabel" xml:space="preserve">
-    <value>Login into Azure Time Series Insights Preview.</value>
+  <data name="InvalidQueryPayloadVersion" errorCode="015" xml:space="preserve">
+    <value>Invalid "clientDataType" version. Supported versions are "RDX_20200713_Q" and "RDX_20181120_Q".</value>
   </data>
-  <data name="TimeSeriesInsightsConnector.QueryRecord.Caption" xml:space="preserve">
+  <data name="InvalidStoreType" errorCode="016" xml:space="preserve">
+    <value>Invalid "storeType". Supported store types are "WarmStore" and "ColdStore".</value>
+  </data>
+  <data name="InvalidUrl" errorCode="017" xml:space="preserve">
+    <value>Url scheme must be HTTPS or the host("environmentFqdn") must be valid.</value>
+  </data>
+  <data name="TimeSeriesInsights.ButtonTitle" errorCode="018" xml:space="preserve">
+    <value>Azure Time Series Insights (LEGACY connector)</value>
+  </data>
+  <data name="TimeSeriesInsights.ResourceLabel" errorCode="019" xml:space="preserve">
+    <value>Login into Azure Time Series Insights (LEGACY connector).</value>
+  </data>
+  <data name="TimeSeriesInsightsConnector.QueryRecord.Caption" errorCode="020" xml:space="preserve">
     <value>Custom Query</value>
   </data>
-  <data name="TsiConnector" xml:space="preserve">
+  <data name="TsiConnector" errorCode="021" xml:space="preserve">
     <value>TimeSeriesInsightsConnector</value>
   </data>
 </root>

@@ -1,22 +1,19 @@
 ﻿///**** The Azure Cost Management connector allows PowerBI users to create flexible reports and get actionable insights into their Azure
 ///**** billing and usage data ***/
-[Version = "1.0.7"]
-
+[Version = "1.0.41"]
 section AzureCostManagement;
 
 /// Note: constants declarations starts here
-baseUri = "https://management.azure.com/";
-resourceUri = "https://management.core.windows.net/";
 redirectUri = "https://preview.powerbi.com/views/oauthredirect.html";
-authorizationUri = "https://login.windows.net/";
 authorization_extension = "common/oauth2/authorize";
-tenantDiscoveryUri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/";
 discoverTenantsUri = "/providers/Microsoft.Consumption/tenants?api-Version=2018-10-01";
 providerBillingAccount = "providers/Microsoft.Billing/billingAccounts/";
 /// client Id for first party AAD. This ID we are using for PowerBI authentication flow.
 client_id = "a672d62c-fc7b-4e81-a576-e60dc46e951d";
 /// Note: this is a default billingAccountId for lower environment. This code will get deleted in Prod.
 defaultBillingAccountId = "00000000-0000-0000-0000-000000000000";
+billingAccountIndex = 3;
+billingProfileIndex = 5;
 reportStatusPullingInterval = #duration(0, 0, 0, 1);
 apiCallTimeout = #duration(0, 0, 5, 0);
 defaultMonthNumber = "3";
@@ -33,17 +30,63 @@ postReport_normalized = true;
 billingRpTransactionsApiVersion = "2019-10-01-preview";
 supportedAPIVersion = "2019-05-01";
 latestApiVersion = "2019-10-01";
+novApiVersion = "2019-11-01";
+budgetApiVersion = "2021-10-01";
+priceSheetApiVersion = "2022-06-01";
 
 /// Note: to get client type
 client_type =  "PowerBIConnector2.0";
-///Note: billing scope
-billingScope = "billingProfile";
+///Note: billing profile scope
+billingProfileScope = "billingProfile";
+///Note: billing account scope
+billingAccountScope = "billingAccount";
 ///Note: enrollment number scope
 enrollmentScope = "enrollment";
 ///Note: application type legacy
 appTypeLegacy = "legacy";
 ///Note: application type modern
 appTypeModern = "modern";
+/// GTM Pricesheet api (apiVersion=2022-04-01 onwards) needs a new extra RP scope information in the url and this is a helper for it
+costmanagementProviderUriPart = "/providers/Microsoft.CostManagement";
+
+
+//baseUri = "https://management.azure.com/";
+GetBaseUri=() as text =>
+    let
+       baseUri = Uri.Combine(Environment.FeatureSwitch("AzureResourceManagerUri", "https://management.azure.com/"), "/")
+    in
+       baseUri;
+
+/// billingAccountUri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/"
+GetBillingAccountUri = () as text =>
+    let
+        billingAccountUri = GetBaseUri() & contentPackApiPrefix & providerBillingAccount
+    in
+        billingAccountUri;
+
+//tenantDiscoveryUri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/";
+GetTenantDiscoveryUri=() as text =>
+    let
+        tenantDiscoveryUri = Uri.Combine(Environment.FeatureSwitch("AzureResourceManagerUri", "https://management.azure.com/"), "/"),
+        endpointUri = Uri.Combine(tenantDiscoveryUri, "providers/Microsoft.Billing/billingAccounts/")
+    in
+        endpointUri;
+
+//resourceUri = "https://management.core.windows.net/";
+GetResourceUri= () as text =>
+    let
+        resourceUri = Uri.Combine(Environment.FeatureSwitch("AzureResourceManagerAadResource", "https://management.core.windows.net/"), "/")
+    in
+        resourceUri;
+
+//authorizationUri = "https://login.windows.net/";
+GetAuthorizationUri= () as text =>
+    let
+        authorizationUri = Uri.Combine(Environment.FeatureSwitch("AzureActiveDirectoryUri", "https://login.microsoftonline.com/"), "/"),
+        endpointUri =   Uri.Combine(authorizationUri, authorization_extension)
+    in
+        endpointUri;
+
 
 [DataSource.Kind = "AzureCostManagement"]
 shared AzureCostManagement.Contents = Value.ReplaceType(AzureCostManagement.ContentsInternal, AzureCostManagement.ContentsType);
@@ -67,6 +110,7 @@ AzureCostManagement.Icons = [
 
 /// Note: Request header containing appType value as "legacy"
 legacyRequestHeader = [
+    #"x-ms-client-request-id" = GetClientActivityId(),
     #"Content-Type" = "application/json; charset=utf-8",
     FromExtension = "true",
     ClientType = client_type,
@@ -77,6 +121,7 @@ legacyRequestHeader = [
 
 /// Note: Request header containing appType value as "modern"
 modernRequestHeader = [
+    #"x-ms-client-request-id" = GetClientActivityId(),
     #"Content-Type" = "application/json; charset=utf-8",
     FromExtension = "true",
     ClientType = client_type,
@@ -99,12 +144,12 @@ AzureCostManagement = [
             if (List.Count(split) <> 2)
                 then error "Unexpected data source path value."
             else
-                { "AzureCostManagement.Contents", scope, scopeValue, 1, [apiType = "budgets", connectionType = "Test"] },
+                { "AzureCostManagement.Tables", scope, scopeValue, 1, [apiType = "balancesummary", connectionType = "Test"] },
 
     Authentication = [
         Aad = [
-            AuthorizationUri = authorizationUri & authorization_extension,
-            Resource = resourceUri,
+            AuthorizationUri = GetAuthorizationUri(),
+            Resource = GetResourceUri(),
             DefaultClientApplication = [
                 ClientId = client_id,
                 ClientSecret = "",
@@ -120,16 +165,17 @@ GetWebContents = (url as text, optional apptype as text, optional isRetry as log
         (datasource) => if (datasource[DataSource.Kind] = "AzureBlobs") then [ AuthenticationKind = "Anonymous" ] else Extension.CurrentCredential(),
         () =>
         let
+            // Manual Status handling error codes should match the result condition so that delayed retry can happen on the mentioned error codes.
             waitForResult = Value.WaitFor(
                 (iteration) =>
             let
                 header = if apptype = appTypeLegacy then legacyRequestHeader else modernRequestHeader,
-                response = Web.Contents(url, [IsRetry = if isRetry = null then false else isRetry, Timeout = apiCallTimeout, Content = contentParameter, Headers = header, ManualStatusHandling = {401, 404, 403, 500}]),
+                response = Web.Contents(url, [IsRetry = (isRetry = true or iteration > 0), Timeout = apiCallTimeout, Content = contentParameter, Headers = header, ManualStatusHandling = {500, 502, 503, 504}]),
                 status = Value.Metadata(response)[Response.Status],
-                result = if status = 500 or status = 502 or status = 503 then null else response
+                result = if status = 500 or status = 502 or status = 503 or status = 504 then null else response
             in
                 result,
-                (iteration) => #duration(0, 0, 0, (2 * iteration)), 5)
+                (iteration) => #duration(0, 0, (2 * iteration), 0), 2)
         in
             waitForResult
  );
@@ -155,7 +201,7 @@ AzureCostManagement.ContentsInternal = (scope as text, scopeValue as text, numbe
 /// Note: For content pack scenario by GTM scope
 ContentsInternalOnGTMScope = (billingProfileId as text, apiVersion as text, lookBackPeriod as number, dateParameters as record, apiType as text, optional parameters as record) =>
     let
-        scope = billingScope,
+        scope = billingProfileScope,
         requiredFieldMsg = if(billingProfileId = null) then "Required Field: " & Extension.LoadString("BillingProfileIdRequired") else "",
         connectionType = if parameters <> null and Record.HasFields(parameters, "connectionType") then parameters[connectionType] else "Prod",
 
@@ -164,7 +210,7 @@ ContentsInternalOnGTMScope = (billingProfileId as text, apiVersion as text, look
         billingAccountId = try tenantObj[billingAccountId] otherwise null,
         errorMsgTenants = if(billingAccountId = null or billingAccountId = "") then "Billing AccountId Discover : " & Extension.LoadString("TenantDiscoveryFailure") & contentPackApiPrefix & billingProfileId else "",
 
-        Diagnostics.LogValue = ("billingProfileId: "&billingProfileId &  "apiVersion: "&apiVersion &"billingAccountId: " & billingAccountId & "ConnectionType: " & connectionType),
+        Diagnostics.LogValue = ("billingProfileId: " & billingProfileId &  "apiVersion: "&apiVersion &"billingAccountId: " & billingAccountId & "ConnectionType: " & connectionType),
 
         errorMsg = requiredFieldMsg & contentPackApiPrefix & errorMsgTenants,
 
@@ -186,7 +232,7 @@ ContentsInternalOnGTMScope = (billingProfileId as text, apiVersion as text, look
 
                      else if apiType = "billingevents" then GetEvents(billingAccountId, apiVersion, dateParameters, billingProfileId)
                      else if apiType = "creditlots" then GetLots(billingAccountId, apiVersion, billingProfileId)
-                     else if apiType = "charges" then GetCharges(billingAccountId, apiVersion, dateParameters)
+                     else if apiType = "charges" then GetCharges(billingAccountId, billingProfileId, apiVersion, dateParameters)
 
                      else error Extension.LoadString("UnknownAPIType")
             in
@@ -224,51 +270,135 @@ ContentsInternalOnEnrollmentScope = (enrollmentNumber as text, apiVersion as tex
 /// Note: For Desktop scenario
 AzureCostManagement.TablesInternal = (scope as text, scopeValue as text, numberOfMonths as number, optional parameters as record) =>
     let
-        billingProfileId = if scope = "Billing Profile Id" then Text.From(scopeValue) else "",
+        billingProfileId = if scope = "Billing Profile Id" or scope = "Manually Input Scope" then Text.From(scopeValue) else "",
         enrollmentNumber = if scope = "Enrollment Number" then Text.From(scopeValue) else "",
+        customScope = if scope = "Manually Input Scope" then true else false,
         apiVersion = if parameters <> null and Record.HasFields(parameters, "apiVersion") then parameters[apiVersion] else "",
-        lookBackPeriod = if parameters <> null and Record.HasFields(parameters, "lookBackPeriod") then parameters[lookBackPeriod] else 30,
-        dateParameters = GetDateParameters(parameters, numberOfMonths),
+        lookBackPeriod =  if parameters <> null and Record.HasFields(parameters, "lookBackPeriod") then parameters[lookBackPeriod] else 30,
+        startDate = if parameters <> null and Record.HasFields(parameters, "startDate") then parameters[startDate] else "",
+        endDate = if parameters <> null and Record.HasFields(parameters, "endDate") then parameters[endDate] else "",
+        startDateParameter = if startDate = "" or startDate = null then "" else startDate, // To handle start date if customer passes empty or null
+        endDateParameter = if endDate = "" or endDate = null then "" else endDate,         //  To handle start date if customer passes empty or null
+        validateDateInputs = if numberOfMonths > 0 and (startDateParameter <> "" or   endDateParameter <> "") then error(Extension.LoadString("InvalidDateAndMonthParametrs"))
+                             else if numberOfMonths = 0 and (startDateParameter = "" or endDateParameter = "") then error(Extension.LoadString("EmptyDateParametrs"))
+                             else "ValidDates",
+        dateParameters = if validateDateInputs <>"ValidDates" then ""
+                         else if numberOfMonths=0 then GetDatesFromParameters(startDate,endDate)
+                         else GetDateParameters(parameters, numberOfMonths),
         apiType = if parameters <> null and Record.HasFields(parameters, "apiType") then parameters[apiType] else "Charges",
 
-        result = if billingProfileId <> "" then
-                    TablesInternalOnGTMScope(billingProfileId, apiVersion, lookBackPeriod, dateParameters, apiType, parameters)
+        result = if validateDateInputs<>"ValidDates" then validateDateInputs
+                 else if customScope or billingProfileId <> ""  then
+                    TablesInternalOnGTMScope(billingProfileId, customScope, apiVersion, lookBackPeriod, dateParameters, apiType, parameters)
                  else
                     TablesInternalOnEnrollmentScope(enrollmentNumber, apiVersion, lookBackPeriod, dateParameters, apiType, parameters)
     in
+       result;
+
+
+// Pass the PowerBI service ActivityId to correlate the requests in the CIPEvents
+GetClientActivityId = () =>
+    let
+        activityId = Diagnostics.ActivityId()
+    in
+        if (activityId <> null) then activityId else Text.NewGuid();
+
+
+CheckIsValidBillingScopeIdentifier = (scopeIdentifier as text) =>
+    let
+        pattern = "/" & providerBillingAccount,
+        isValid =
+            if Text.StartsWith(scopeIdentifier, pattern) then
+                let
+                    end = Text.AfterDelimiter(scopeIdentifier, "/", billingAccountIndex),
+                    delimiterIndex = 0,
+                    isValidBillingAccountOrBillingProfile =
+                        if not Text.Contains(end, "/") or  Text.BetweenDelimiters(end, "/", "/", delimiterIndex, delimiterIndex) = "billingProfiles" then
+                            true
+                        else
+                            false
+                in
+                    isValidBillingAccountOrBillingProfile
+            else
+                false
+    in isValid;
+
+/// Note: To parse the billing account from the scope identifier
+GetBillingAccountForBABPScope = (scopeIdentifier as text) =>
+    // str = /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}
+    let
+        billingAccountSubstring = Text.AfterDelimiter(scopeIdentifier, "/", billingAccountIndex),
+        result = if Text.Contains(billingAccountSubstring, "billingProfiles") then Text.BeforeDelimiter(billingAccountSubstring, "/") else billingAccountSubstring
+    in
         result;
 
-TablesInternalOnGTMScope = (billingProfileId as text, apiVersion as text, lookBackPeriod as number, dateParameters as record, apiType as text, optional parameters as record) =>
+/// Note: To parse the billing profile from the scope identifier
+GetBillingProfileForBABPScope = (scopeIdentifier as text) =>
+    let
+        result = Text.AfterDelimiter(scopeIdentifier, "/", billingProfileIndex)
+    in
+        result;
+
+TablesInternalOnGTMScope = (billingScopeIdentifier as text, isCustomScope as logical, apiVersion as text, lookBackPeriod as number, dateParameters as record, apiType as text, optional parameters as record) =>
 let
-        scope = billingScope,
-        requiredFieldMsg = if(billingProfileId = null) then "Required Field: " & Extension.LoadString("BillingProfileIdRequired") else "",
+        requiredFieldMsg = if(billingScopeIdentifier = null) then "Required Field: " & Extension.LoadString("BillingProfileIdRequired") else "",
+        scope = if (Text.Contains(billingScopeIdentifier, "billingProfiles") or isCustomScope = false) then billingProfileScope else billingAccountScope,
         connectionType = if parameters <> null and Record.HasFields(parameters, "connectionType") then parameters[connectionType] else "Prod",
 
         ///Note: to get tenant and billing profile.
-        tenantObj = GetInfoByProfileId(billingProfileId),
-        billingAccountId = try tenantObj[billingAccountId] otherwise null,
-        billingAccountWithOrgId = try tenantObj[billingAccountId] & ":" & tenantObj[organizationId] otherwise null,
+        ///We are enabling backwards compatibility for the user to allow flexibility in being able to pass in either the billingprofile id or the scope identifier.
+        ///We are also planning to support more scopes in the future
+        billingAccountWithOrgId =
+            if(isCustomScope) then
+                let
+                    billingAccountWithOrgId =
+                        if CheckIsValidBillingScopeIdentifier(billingScopeIdentifier)
+                            then GetBillingAccountForBABPScope(billingScopeIdentifier)
+                        else
+                            error Error.Record("Invalid scope identifier entered. A valid scope identifier takes the form '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}'. Scope entered: " & billingScopeIdentifier)
+                in
+                    billingAccountWithOrgId
+            else
+                let
+                    tenantObj = GetInfoByProfileId(billingScopeIdentifier),
+                    billingAccountWithOrgId = try tenantObj[billingAccountId] & ":" & tenantObj[organizationId] otherwise null
+                in
+                    billingAccountWithOrgId,
 
-        errorMsgTenants = if(billingAccountId = null or billingAccountId = "") then "Billing AccountId Discover : " & Extension.LoadString("TenantDiscoveryFailure") & contentPackApiPrefix & billingProfileId else "",
+        billingProfileid = if(isCustomScope) then
+                                let
+                                    result =
+                                        if Text.Contains(billingScopeIdentifier, "billingProfiles") then
+                                            GetBillingProfileForBABPScope(billingScopeIdentifier)
+                                        else "" /// Note: to leave the billing profile blank when the scope entered is for the billing account
+                                in
+                                    result
+                           else billingScopeIdentifier,
+
+        ///Note: billingAccountId is for ANR's team as they are using an older version of the api
+        billingAccountId = Text.BeforeDelimiter(billingAccountWithOrgId, ":"),
+
+        errorMsgTenants = if(billingAccountWithOrgId = null or billingAccountWithOrgId = "") then "Billing AccountId Discover : " & Extension.LoadString("TenantDiscoveryFailure") & contentPackApiPrefix & billingScopeIdentifier & "BP: " & billingAccountWithOrgId else "",
 
         errorMsg = requiredFieldMsg & contentPackApiPrefix & errorMsgTenants,
 
         navTableSource = #table(
             {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"},
             {
-                {"Budgets", "budgets", GetBudgets(billingAccountWithOrgId, apiVersion, scope, connectionType, billingProfileId), "Table", "Table", true},
-                {"Pricesheets", "pricesheets", GetPriceSheet(billingAccountId, apiVersion, scope, dateParameters, billingProfileId), "Table", "Table", true},
-                {"Usage details","usagedetails", GetUsageDetails(billingAccountId, apiVersion, scope, dateParameters, billingProfileId, false), "Table", "Table", true},
-                {"Usage details amortized","usagedetailsamortized", GetUsageDetails(billingAccountId, apiVersion, scope, dateParameters, billingProfileId, true), "Table", "Table", true},
-                {"RI charges", "richarges", GetRICharges(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileId), "Table", "Table", true},
-                {"RI recommendations (single)", "rirecommendationssingle", GetRecommendationsSingle(billingAccountId, apiVersion, lookBackPeriod, scope, billingProfileId), "Table", "Table", true},
-                {"RI recommendations (shared)", "rirecommendationsshared", GetRecommendationsShared(billingAccountId, apiVersion, lookBackPeriod, scope, billingProfileId), "Table", "Table", true},
-                {"RI usage details","riusagedetails", GetRIUsage(billingAccountId, apiVersion, scope, dateParameters, billingProfileId), "Table", "Table", true},
-                {"RI usage summary","riusagesummary", GetRIUsageSummary(billingAccountId, apiVersion, scope, dateParameters, billingProfileId), "Table", "Table", true},
-                {"Balance summary","balancesummary", GetCredits(billingAccountId, apiVersion, scope, billingProfileId), "Table", "Table", true},
-                {"Billing events", "billingevents", GetEvents(billingAccountId, apiVersion, dateParameters, billingProfileId), "Table", "Table", true},
-                {"Credit lots", "creditlots", GetLots(billingAccountId, apiVersion, billingProfileId), "Table", "Table", true},
-                {"Charges", "charges", GetCharges(billingAccountId, apiVersion, dateParameters), "Table", "Table", true}
+                {"Budgets", "budgets", GetBudgets(billingAccountWithOrgId, apiVersion, scope, connectionType, billingProfileid), "Table", "Table", true},
+                {"Pricesheets", "pricesheets", GetPriceSheet(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid), "Table", "Table", true},
+                {"Usage details","usagedetails", GetUsageDetails(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid, false), "Table", "Table", true},
+                {"Usage details amortized","usagedetailsamortized", GetUsageDetails(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid, true), "Table", "Table", true},
+                {"RI charges", "richarges", GetRICharges(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid), "Table", "Table", true},
+                {"RI transactions", "ritransactions", GetRITransactions(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid), "Table", "Table", true},
+                {"RI recommendations (single)", "rirecommendationssingle", GetRecommendationsSingle(billingAccountWithOrgId, apiVersion, lookBackPeriod, scope, billingProfileid), "Table", "Table", true},
+                {"RI recommendations (shared)", "rirecommendationsshared", GetRecommendationsShared(billingAccountWithOrgId, apiVersion, lookBackPeriod, scope, billingProfileid), "Table", "Table", true},
+                {"RI usage details","riusagedetails", GetRIUsage(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid), "Table", "Table", true},
+                {"RI usage summary","riusagesummary", GetRIUsageSummary(billingAccountWithOrgId, apiVersion, scope, dateParameters, billingProfileid), "Table", "Table", true},
+                {"Balance summary","balancesummary", GetCredits(billingAccountWithOrgId, apiVersion, scope, billingProfileid), "Table", "Table", true},
+                {"Billing events", "billingevents", GetEvents(billingAccountWithOrgId, apiVersion, dateParameters, billingProfileid), "Table", "Table", true},
+                {"Credit lots", "creditlots", GetLots(billingAccountWithOrgId, apiVersion, billingProfileid), "Table", "Table", true},
+                {"Charges", "charges", GetCharges(billingAccountWithOrgId, billingProfileid, apiVersion, dateParameters), "Table", "Table", true}
             }),
 
         result = if (errorMsg <> "") then errorMsg else (Table.ToNavigationTable(navTableSource, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"))
@@ -289,6 +419,7 @@ let
                 {"Usage details","usagedetails", GetUsageDetails(enrollmentNumber, apiVersion, scope, dateParameters,"", false), "Table", "Table", true},
                 {"Usage details amortized", "usagedetailsamortized", GetUsageDetails(enrollmentNumber, apiVersion, scope, dateParameters, "", true), "Table", "Table", true},
                 {"RI charges", "richarges", GetRICharges(enrollmentNumber, apiVersion, scope, dateParameters), "Table", "Table", true},
+                {"RI transactions", "ritransactions", GetRITransactions(enrollmentNumber, apiVersion, scope, dateParameters), "Table", "Table", true},
                 {"RI recommendations (single)", "rirecommendationssingle", GetRecommendationsSingle(enrollmentNumber, apiVersion, lookBackPeriod, scope), "Table", "Table", true},
                 {"RI recommendations (shared)", "rirecommendationsshared", GetRecommendationsShared(enrollmentNumber, apiVersion, lookBackPeriod, scope), "Table", "Table", true},
                 {"RI usage details","riusagedetails", GetRIUsage(enrollmentNumber, apiVersion, scope, dateParameters), "Table", "Table", true},
@@ -303,43 +434,48 @@ in
 /// Note: to get Budget url
 GetBudgetURL = (billingAccountId as text, optional apiVersion as text, optional scope as text, optional billingprofileId as text) =>
 let
-    apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
+    apiVersion = if(apiVersion <> "") then apiVersion else budgetApiVersion,
 
-    result = if scope = "billingProfile" then
-                baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/billingProfiles/" & billingprofileId & "/providers/Microsoft.Consumption/budgets?api-version=" & apiVersion
+    result = if scope = "billingAccount" then
+                GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/budgets?api-version=" & apiVersion
+            else if scope = "billingProfile" then
+                GetBillingAccountUri() & billingAccountId & "/billingProfiles/" & billingprofileId & "/providers/Microsoft.Consumption/budgets?api-version=" & apiVersion
             else
-                baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/budgets?api-version=" & apiVersion
+                GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/budgets?api-version=" & apiVersion
 in
     result;
 
 /// Note: to get Summary url
-GetSummaryURL = (billingProfile as text, apiVersion as text, optional dateParameters as record) =>
+GetChargesURL = (billingAccountId as text, billingProfileId as text, apiVersion as text, optional dateParameters as record) =>
 let
     finalDateParameters = if dateParameters <> null then dateParameters
              else GetDatesForLastNMonth(1),
 
     query = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
 
-    apiVersion = if(apiVersion <> "") then apiVersion else "2018-11-01-preview",
+    apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
 
-    result = baseUri & contentPackApiPrefix & providerBillingAccount & billingProfile & "/providers/Microsoft.Consumption/charges?api-version=" & apiVersion & query
+    result = GetBillingAccountUri() & billingAccountId & "/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/charges?api-version=" & apiVersion & query
 in
     result;
 
 /// Note: post Price sheet url
-PostPriceSheetUrl = (billingAccountId as text, optional apiVersion as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text) =>
+PostPriceSheetUrl = (billingAccountId as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text) =>
     let
          finalDateParameters = if dateParameters <> null then dateParameters
             else GetDatesForLastNMonth(1),
 
          query = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
 
-         result =  if scope = "billingProfile" then
-                      baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/" & billingProfileId & "/pricesheet/default/download?api-version=" & apiVersion & query
+         result =  if scope = "billingAccount" then
+                      GetBillingAccountUri() & billingAccountId & "/pricesheet/default/download?api-version=" & priceSheetApiVersion & query
+                   //GTM BillingProfile scope calls into apiVersion 2022-04-01 which is under the new CostManagement RP
+                   //hence extra uri part is added in below url
+                   else if scope = "billingProfile" then
+                      GetBillingAccountUri() & billingAccountId &"/billingProfiles/" & billingProfileId & costmanagementProviderUriPart & "/pricesheets/default/download?api-version=" & priceSheetApiVersion & "&format=csv"
                    else
                         let
-                            apiVersion = supportedAPIVersion,
-                            result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/pricesheets/download?api-version=" & apiVersion &"&ln=en" & query
+                            result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/pricesheets/download?api-version=" & priceSheetApiVersion &"&ln=en" & query
                         in
                             result
     in
@@ -348,37 +484,43 @@ PostPriceSheetUrl = (billingAccountId as text, optional apiVersion as text, opti
 /// Note: post Usage detail url
 PostUsageDetailUrl = (billingAccountId as text, optional apiVersion as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text, optional isAmortized as logical) =>
     let
+        apiVersion = if(apiVersion <> "") then apiVersion else novApiVersion,
+
         finalDateParameters = if dateParameters <> null then dateParameters
             else GetDatesForLastNMonth(1),
+        gtmQueryDate = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
 
-        result =  if scope = "billingProfile" then
+        usageDetailsUrl =  if scope = "billingAccount" then
                     let
-                        queryDate = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/usageDetails/download?api-version=" & apiVersion & queryDate
+                        result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/usageDetails/download?api-version=" & apiVersion &  gtmQueryDate
+                    in
+                        result
+                  else if scope = "billingProfile" then
+                    let
+                        result =  GetBaseUri() & providerBillingAccount & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/usageDetails/download?api-version=" & novApiVersion & gtmQueryDate
                     in
                         result
                   else
                     let
                         queryDate = "&$filter=properties/usageStart+ge+'" & finalDateParameters[startTime] & "'+and+properties/usageStart+le+'" & finalDateParameters[endTime] & "'",
-                        result = if isAmortized = true then
-                                     baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/usageDetails/download?api-version=2019-05-01-preview&metric=AmortizedCost" & queryDate
-                                  else
-                                     baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/usageDetails/download?api-version=2019-05-01-preview" & queryDate
+                        result = GetBaseUri() & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/usageDetails/download?api-version="& apiVersion & queryDate
                     in
-                        result
-
+                        result,
+        result = if isAmortized = true then usageDetailsUrl & "&metric=AmortizedCost" else usageDetailsUrl
     in
         result;
 
 /// Note: to get credit url
 GetCreditsURL = (billingAccountId as text, apiVersion as text, optional scope as text, optional billingProfileId as text) =>
     let
-        apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
+        apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
 
-        result =  if scope = "billingProfile" then
-                     baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/credits/balanceSummary?api-version=2018-11-01-preview"
+        result =  if scope = "billingAccount" then
+                     GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/credits/balanceSummary?api-version=" & apiVersion
+                  else if scope = "billingProfile" then
+                     GetBillingAccountUri() & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/credits/balanceSummary?api-version=" & apiVersion
                   else
-                     baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/microsoft.consumption/balances?api-version=" & apiVersion
+                     GetBillingAccountUri() & billingAccountId & "/providers/microsoft.consumption/balances?api-version=" & apiVersion
     in
         result;
 
@@ -388,19 +530,19 @@ GetEventsURL = (billingAccountId as text, apiVersion as text, optional dateParam
         finalDateParameters = if dateParameters <> null then dateParameters
             else GetDatesForLastNMonth(1),
 
-        apiVersion = if(apiVersion <> "") then apiVersion else "2018-11-01-preview",
+        apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
 
         query = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
 
-        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/events?api-version=" & apiVersion & query
+        result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/events?api-version=" & apiVersion & query
     in
         result;
 
 /// Note: to get Notes url
 GetLotsURL = (billingAccountId as text, apiVersion as text, billingProfileId as text) =>
     let
-        apiVersion = if(apiVersion <> "") then apiVersion else "2018-11-01-preview",
-        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/lots?api-version=" & apiVersion
+        apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
+        result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/lots?api-version=" & apiVersion
     in
         result;
 
@@ -411,36 +553,64 @@ GetRIChargesURL = (billingAccountId as text, apiVersion as text, optional scope 
             else GetDatesForLastNMonth(1),
         apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
 
-        result = if scope = "billingProfile" then
+        result = if scope = "billingAccount" then
+                    let
+                        queryFilter = "properties/eventDate+ge+" & finalDateParameters[startTime] & "+AND+properties/eventDate+le+" & finalDateParameters[endTime],
+                        result = GetBillingAccountUri() & billingAccountId &"/providers/Microsoft.Consumption/reservationTransactions?$filter=" & queryFilter & "&api-version=" & latestApiVersion
+                    in
+                        result
+                else if scope = "billingProfile" then
                     let
                         querydate = "&periodStartDate=" & finalDateParameters[startTime] & "&periodEndDate=" & finalDateParameters[endTime],
                         queryFilter = "&$filter=properties/kind%20eq%20'Reservation'",
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/"& billingProfileId &"/transactions?api-version=" & billingRpTransactionsApiVersion & querydate & queryFilter
+                        result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/"& billingProfileId &"/transactions?api-version=" & billingRpTransactionsApiVersion & querydate & queryFilter
                     in
                         result
                  else
                      let
                         queryFilter = "&$filter=properties/EventDate+ge+" & finalDateParameters[startTime] & "+AND+properties/EventDate+le+" & finalDateParameters[endTime],
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/providers/Microsoft.Consumption/reservationTransactions?api-version=" & apiVersion & queryFilter
+                        result = GetBillingAccountUri() & billingAccountId &"/providers/Microsoft.Consumption/reservationTransactions?api-version=" & apiVersion & queryFilter
                      in
                          result
     in
         result;
 
+
+GetRITransactionsURL = (billingAccountId as text, apiVersion as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text) =>
+let
+   finalDateParameters = if dateParameters <> null then dateParameters
+        else GetDatesForLastNMonth(1),
+
+   apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
+
+   queryFilter = "?$filter=properties/eventDate+ge+" & finalDateParameters[startTime] & "+AND+properties/eventDate+le+" & finalDateParameters[endTime],
+
+   result = if scope = "billingProfile" then
+                GetBillingAccountUri() & billingAccountId & "/billingProfiles/" & billingProfileId & "/providers/Microsoft.Consumption/reservationTransactions" & queryFilter & "&api-version=" & apiVersion
+            else
+                GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/reservationTransactions" & queryFilter & "&api-version=" & apiVersion
+in
+    result;
+
 /// Note: to get RecommendationsSingle URL
 GetRecommendationsSingleURL = (billingAccountId as text, apiVersion as text, lookBackPeriod as number, optional scope as text, optional billingProfileId as text) =>
     let
          lookBackTimeSlot = "Last" & Number.ToText(lookBackPeriod) & "Days",
-         apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
+         apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
 
-         result = if scope = "billingProfile" then
+         result = if scope = "billingAccount" then
                     let
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Single'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version=" & apiVersion
+                        result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Single'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version=" & apiVersion
+                    in
+                        result
+                else if scope = "billingProfile" then
+                    let
+                        result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Single'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version=" & apiVersion
                     in
                         result
                  else
                     let
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Single'&api-version="& apiVersion
+                        result = GetBillingAccountUri() & billingAccountId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Single'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version="& apiVersion
                     in
                 result
     in
@@ -450,16 +620,21 @@ GetRecommendationsSingleURL = (billingAccountId as text, apiVersion as text, loo
 GetRecommendationsSharedURL = (billingAccountId as text, apiVersion as text, lookBackPeriod as number, optional scope as text,optional billingProfileId as text) =>
     let
         lookBackTimeSlot = "Last" & Number.ToText(lookBackPeriod) & "Days",
-        apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
+        apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
 
-        result = if scope = "billingProfile" then
+        result = if scope = "billingAccount" then
                     let
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Shared'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version=" & apiVersion
+                        result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Shared'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version=" & apiVersion
+                    in
+                        result
+                else if scope = "billingProfile" then
+                    let
+                        result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Shared'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"' &api-version=" & apiVersion
                     in
                         result
                 else
                     let
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Shared'&api-version="& apiVersion
+                        result = GetBillingAccountUri() & billingAccountId &"/providers/Microsoft.Consumption/reservationRecommendations?$filter=properties/scope+eq+'Shared'+AND+properties/lookBackPeriod+eq+'"& lookBackTimeSlot &"'&api-version="& apiVersion
                     in
                         result
      in
@@ -470,19 +645,20 @@ GetRIUsageURL = (billingAccountId as text, apiVersion as text, optional scope as
    let
        finalDateParameters = if dateParameters <> null then dateParameters
             else GetDatesForLastNMonth(1),
-
-       result = if scope = "billingProfile" then
+       querydate = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
+       result = if scope = "billingAccount" then
                     let
-                        apiVersion = if(apiVersion <> "") then apiVersion else "2019-01-01-preview",
-                        querydate = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationdetails?api-version=" & apiVersion & querydate
+                        result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.CostManagement/generateReservationDetailsReport?api-version=" & novApiVersion & querydate
+                    in
+                        result
+                else if scope = "billingProfile" then
+                    let
+                        result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.CostManagement/generateReservationDetailsReport?api-version=" & novApiVersion & querydate
                     in
                         result
                 else
                     let
-                        apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
-                        querydate = "&$filter=properties/UsageDate+ge+" & finalDateParameters[startTime] & "+AND+properties/UsageDate+le+" & finalDateParameters[endTime],
-                        result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/reservationdetails?api-version=" & apiVersion  & querydate
+                        result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.CostManagement/generateReservationDetailsReport?api-version=" & novApiVersion  & querydate
                     in
                         result
    in
@@ -497,10 +673,10 @@ optional billingProfileId as text) =>
 
 let
     url = GetBudgetURL(billingAccountId, apiVersion, scope, billingProfileId),
-    appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
+    appType = if billingProfileId <> null or scope = "billingAccount" then appTypeModern else appTypeLegacy,
     schema = GetSchemaForEntity("apiProperty"),
 
-    jsonContent = GetAllPagesByNextLink(url, schema, appType),
+    jsonContent = GetPage(url, schema, appType),
 
     result = if(jsonContent <> null and (not Table.IsEmpty(jsonContent)))
              then try CreateBudgetData(jsonContent) otherwise handleError(jsonContent)
@@ -522,12 +698,19 @@ in
 /// Note: To create Budget data
 CreateBudgetData = (optional budgetRecord as table) =>
 let
-    tempTable1 = Table.ExpandRecordColumn(budgetRecord,"properties",{"timePeriod","timeGrain","amount","currentSpend","category","notifications","filter","forecast"}),
+    tempTable1 = Table.ExpandRecordColumn(budgetRecord,"properties",{"timePeriod","timeGrain","amount","currentSpend","category","notifications","filter","forecastSpend"}),
     tempTable2 = Table.RenameColumns(tempTable1, {{"amount","budgetAmount"}}),
     tempTable3 = Table.ExpandRecordColumn(tempTable2,"timePeriod",{"startDate","endDate"}),
     tempTable4 = Table.ExpandRecordColumn(tempTable3,"currentSpend",{"amount","unit"}),
     tempTable5 = Table.RenameColumns(tempTable4,{{"amount","currentSpendAmount"},{"unit","currentSpendUnit"}}),
-    tempTable6 = Table.ExpandRecordColumn(tempTable5,"forecast",{"amount","unit"}),
+    tempTable6 = if (Table.HasColumns(tempTable5, "forecastSpend"))
+        then Table.ExpandRecordColumn(tempTable5,"forecastSpend",{"amount","unit"})
+        else
+            let
+                withAmount = Table.AddColumn(tempTable5, "amount", each 0.0),
+                withUnit = Table.AddColumn(withAmount, "unit", each "")
+            in
+            withUnit,
     source = Table.RenameColumns(tempTable6,{{"amount","forecastAmount"},{"unit","forecastUnit"}}),
 
     /// creating a final budget results to be printed
@@ -545,29 +728,30 @@ in
     result;
 
 /// Note: to get summary details.
-GetCharges = (billingAccountId as text, apiVersion as text, optional dateParameters as record) =>
+GetCharges = (billingAccountId as text, billingProfileId as text, apiVersion as text, optional dateParameters as record) =>
 let
     /// to get summary url.
-    url = GetSummaryURL(billingAccountId, apiVersion, dateParameters),
+    url = GetChargesURL(billingAccountId, billingProfileId, apiVersion, dateParameters),
     schema = GetSchemaForEntity("apiProperty"),
     jsonContent = GetAllPagesByNextLink(url, schema, appTypeModern),
 
-    result = if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateSummaryData(jsonContent) otherwise handleError(jsonContent)
-    else CreateEmptySummaryData()
+    result = if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateChargesData(jsonContent) otherwise handleError(jsonContent)
+    else CreateEmptyChargesData()
 in
     result;
 
-/// Note: to create empty summary dataset
-CreateEmptySummaryData = () =>
+/// Note: to create empty charges dataset
+CreateEmptyChargesData = () =>
 let
     result = Table.FromList(
         {},
         Record.FieldValues,
-        apiColumns_Summaries)
+        apiColumns_Charges)
 in
     Table.TransformColumnTypes(
         result,
         {
+           {"isInvoiced", type logical},
            {"usageStart", type datetime},
            {"usageEnd", type datetime},
            {"azureCharges", type number},
@@ -577,9 +761,9 @@ in
         culture);
 
 /// Note: To create summary data
-CreateSummaryData = (optional summaryRecord as table) =>
+CreateChargesData = (optional summaryRecord as table) =>
 let
-    tempTable1 = Table.ExpandRecordColumn(summaryRecord,"properties",{"billingPeriodId","usageStart","usageEnd","azureCharges","chargesBilledSeparately", "marketplaceCharges", "billingAccountId", "billingProfileId", "invoiceSectionId"}),
+    tempTable1 = Table.ExpandRecordColumn(summaryRecord,"properties",{"isInvoiced", "billingPeriodId","usageStart","usageEnd","azureCharges","chargesBilledSeparately", "marketplaceCharges", "billingAccountId", "billingProfileId", "invoiceSectionId"}),
     tempTable2 = Table.ExpandRecordColumn(tempTable1,"azureCharges",{"currency","value"}),
     tempTable3 = Table.RenameColumns(tempTable2, {{"currency","azureChargesCurrency"},{"value","azureCharges"}}),
     tempTable4 = Table.ExpandRecordColumn(tempTable3,"chargesBilledSeparately",{"currency","value"}),
@@ -593,6 +777,7 @@ let
     result = Table.TransformColumnTypes(
         source,
         {
+            {"isInvoiced", type logical},
             {"usageStart", type datetime},
             {"usageEnd", type datetime},
             {"azureCharges", type number},
@@ -606,12 +791,17 @@ in
 /// Note: to get price sheet details
 GetPriceSheet = (billingAccountId as text, optional apiVersion as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text) =>
 let
-    apiVersion = if(apiVersion <> "") then apiVersion else "2018-11-01-preview",
-    postPriceSheetUrl = PostPriceSheetUrl(billingAccountId, apiVersion, scope, dateParameters, billingProfileId),
-    appType = if (billingProfileId = "" or billingProfileId = null) then  appTypeLegacy else appTypeModern,
+    appType = if ((billingProfileId <> "" and billingProfileId <> null) or scope = "billingAccount") then appTypeModern else appTypeLegacy,
+
+    // pricesheet api GTM should use latest api version (2022-xx-xx) while EA should use the older version (2019-xx-xx) because api team does
+    // not support EA customers on newer version yet.
+    apiVersion = if(apiVersion <> "") then apiVersion else
+        if(appType = appTypeModern and scope = "billingProfile") then "2022-04-01-preview" else "2019-10-01-preview", //"2018-11-01-preview" - previous version
+    disableArchive = if(appType = appTypeModern and scope = "billingProfile") then true else false,
+    postPriceSheetUrl = PostPriceSheetUrl(billingAccountId, scope, dateParameters, billingProfileId),
 
     rawContent = if appType = appTypeModern then
-                     QueueData(billingAccountId, apiVersion, postPriceSheetUrl, billingProfileId, appType)
+                     QueueData(billingAccountId, apiVersion, postPriceSheetUrl, billingProfileId, appType, disableArchive)
                  else
                      QueueDataEx(postPriceSheetUrl, appType),
 
@@ -620,10 +810,30 @@ let
 
     metadata = Value.Metadata(rawContent),
     headers = metadata[Headers],
-
     locationUri = headers[Location],
     statusUri = headers[#"Azure-AsyncOperation"],
     result = try DownloadPSData(locationUri, statusUri, appType) otherwise CreateEmptyPriceSheetData()
+in
+    result;
+
+GetPriceSheetDataByBillingProfileV2 = (rawUrls as list) =>
+let
+    ConvertToTable = Table.FromList(rawUrls, Splitter.SplitByNothing(), {"rawUrls"}, null, ExtraValues.Error),
+    InvokeCustomFunction = Table.AddColumn(ConvertToTable, "CsvData", each ReadCSVDataFromBlob([rawUrls])),
+    RemoveColumns = Table.RemoveColumns(InvokeCustomFunction,{"rawUrls"}),
+    ExpandColumns = Table.ExpandTableColumn(RemoveColumns, "CsvData", tableColumns_Pricesheet),
+
+    /// creating a final Summary results to be printed
+    result = Table.TransformColumnTypes(
+             ExpandColumns,
+             {
+                 {"basePrice", type number},
+                 {"unitPrice", type number},
+                 {"effectiveStartDate", type datetime},
+                 {"effectiveEndDate", type datetime},
+                 {"tierMinimumUnits", type number}
+             },
+             culture)
 in
     result;
 
@@ -671,7 +881,9 @@ let
     table12 = if Table.HasColumns(table11, "Unit price") then table11 else Table.AddColumn(table11, "Unit price", each ""),
     table13 = if Table.HasColumns(table12, "Currency code") then table12 else Table.AddColumn(table12, "Currency code", each ""),
     table14 = if Table.HasColumns(table13, "Included quantity") then table13 else Table.AddColumn(table13, "Included quantity", each ""),
-    source = if Table.HasColumns(table14, "Offer Id") then table14 else Table.AddColumn(table14, "Offer Id", each ""),
+    table15 = if Table.HasColumns(table14, "Offer Id") then table14 else Table.AddColumn(table14, "Offer Id", each ""),
+    table16 = if Table.HasColumns(table15, "Term") then table15 else Table.AddColumn(table15, "Term", each ""),
+    source = if Table.HasColumns(table16, "Price type") then table16 else Table.AddColumn(table16, "Price type", each ""),
 
     /// creating a final Summary results to be printed
     result = Table.TransformColumnTypes(
@@ -695,20 +907,19 @@ GetPriceSheetDataTable = (csvString) as list =>
 DownloadPSData = (locationUri as text, statusUri as text, optional appType as text) =>
     let
         data = GetDataWithPolling(locationUri, statusUri, appType),
-        statusText = if (data <> null) then ParseReportStatus(statusUri, appType)
-              else null
+        statusText = if (data <> null) then ParseReportStatus(statusUri, appType) else null
     in
          if (statusText = "3" or statusText = "completed") then
-          (
+         (
             let
-                result = data[properties]
+                //latest apiVersion has properties under publishedEntity object so try that if it fails then it is outside of it
+                result = try data[publishedEntity][properties] otherwise data[properties]
             in(
-                if (result[downloadUrl] <> null and appType = appTypeModern) then GetPriceSheetDataByBillingProfile(result[downloadUrl])  /// Poll operation completed for billing profile scope
-                else if (result[downloadUrl] <> null and appType = appTypeLegacy) then GetPriceSheetDataByEnrollment(result[downloadUrl]) /// Poll operation completed for enrollment scope
+                if (appType = appTypeModern and result[rawUrls] <> null) then GetPriceSheetDataByBillingProfileV2(result[rawUrls])  /// Poll operation completed for billing profile scope
+                else if (appType = appTypeModern and result[downloadUrl] <> null) then GetPriceSheetDataByBillingProfile(result[downloadUrl])
+                else if (appType = appTypeLegacy and result[downloadUrl] <> null) then GetPriceSheetDataByEnrollment(result[downloadUrl]) /// Poll operation completed for enrollment scope
                 else CreateEmptyPriceSheetData())
-              )
-
-
+        )
         else if (statusText = "5" or statusText = "nodatafound") then CreateEmptyPriceSheetData() // NoDataFound
         else error Extension.LoadString("PriceSheetFailed") & locationUri;
 
@@ -735,34 +946,35 @@ CreateEmptyPriceSheetData = () =>
 /// Note: Get usage details
 GetUsageDetails = (billingAccountId as text, optional apiVersion as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text, optional isAmortized as logical) =>
 let
-        apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
+        apiVersion = if(apiVersion <> "") then apiVersion else novApiVersion,
 
-        postUsageDetailUrl = PostUsageDetailUrl(billingAccountId, apiVersion, scope, dateParameters, billingProfileId, isAmortized),
-        finalDateParameters = if dateParameters <> null and Record.HasFields(dateParameters, "startTime") and Record.HasFields(dateParameters, "endTime") then dateParameters
-             else GetDatesForLastNMonth(1),
+         postUsageDetailUrl = PostUsageDetailUrl(billingAccountId, apiVersion, scope, dateParameters, billingProfileId, isAmortized),
+         finalDateParameters = if dateParameters <> null and Record.HasFields(dateParameters, "startTime") and Record.HasFields(dateParameters, "endTime") then dateParameters
+              else GetDatesForLastNMonth(1),
 
-        appType = if (billingProfileId = "" or billingProfileId = null) then  appTypeLegacy else appTypeModern,
+         appType = if ((billingProfileId <> "" and billingProfileId <> null) or scope = "billingAccount") then  appTypeModern else appTypeLegacy,
 
-        rawContent = QueueDataEx(postUsageDetailUrl, appType),
+         rawContent = QueueDataEx(postUsageDetailUrl, appType),
 
-        asJson = try Json.Document(rawContent, 1252) otherwise null,
-        body = if asJson is action then null else asJson meta Value.Metadata(rawContent),
+         asJson = try Json.Document(rawContent, 1252) otherwise null,
+         body = if asJson is action then null else asJson meta Value.Metadata(rawContent),
 
-        metadata = Value.Metadata(rawContent),
+         metadata = Value.Metadata(rawContent),
         headers = metadata[Headers],
 
         responseStatus = metadata[Headers][Response.Status],
         locationUri = metadata[Headers][Location],
         statusUri = metadata[Headers][#"Azure-AsyncOperation"],
-
         result = try DownLoadUsageDetailsData(locationUri, statusUri, appType) otherwise handleError(body)
-in
+ in
     result;
 
 /// Note: to post the content and get download url.
-QueueDataEx = (url as text, optional appType as text) =>
+QueueDataEx = (url as text, optional appType as text, optional isPostCall as logical) =>
     let
-        response = GetWebContents(url, appType)
+        response = if(isPostCall <> null and isPostCall = true)
+                    then GetWebContents(url, appType, null, Text.ToBinary("POST"))
+                    else GetWebContents(url, appType)
     in
         response;
 
@@ -929,6 +1141,12 @@ let
 in
     result;
 
+ReadCSVDataFromBlob = (url as text) =>
+let
+    Source = Csv.Document(Blob.Contents(url),[Delimiter = ",", Encoding = 1252, QuoteStyle = QuoteStyle.None]),
+    Promote = Table.PromoteHeaders(Source)
+in
+    Promote;
 
 /// Note: to get Usage details DataTable.
 ReadCSVData = (csvString) as table =>
@@ -941,7 +1159,7 @@ in
 /// Note: to get Usage details DataTable.
 ReadCSVDataSkipRows = (csvString, optional skipRows as number) as table =>
 let
-   source = Csv.Document(csvString,[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+   source = Csv.Document(csvString,[Delimiter=",", Columns=14, Encoding=1252, QuoteStyle=QuoteStyle.None]),
    result = Table.Skip(source,skipRows)
 in
     Table.PromoteHeaders(result);
@@ -977,7 +1195,7 @@ GetCredits = (billingAccountId as text, apiVersion as text, optional scope as te
 let
     /// to get credit url.
     url = GetCreditsURL(billingAccountId, apiVersion, scope, billingProfileId),
-    appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
+    appType = if (billingProfileId <> null or scope = "billingAccount") then appTypeModern else appTypeLegacy,
     rawContent = GetWebContents(url, appType),
     asJson = try Json.Document(rawContent, 1252) otherwise null,
     jsonContent = if asJson is action then null else asJson meta Value.Metadata(rawContent),
@@ -1246,7 +1464,7 @@ let
     /// to get RI Charges URL.
     url = GetRIChargesURL(billingAccountId, apiVersion, scope, dateParameters, billingProfileId),
     schema = GetSchemaForEntity("apiProperty"),
-    appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
+    appType = if (billingProfileId <> null or scope = "billingAccount") then appTypeModern else appTypeLegacy,
     jsonContent = GetAllPagesByNextLink(url, schema, appType),
 
     result = if scope = "billingProfile" then
@@ -1255,6 +1473,24 @@ let
             else
                 if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateRIChargesByEnrollmentNumber(jsonContent) otherwise handleError(jsonContent)
                     else CreateEmptyRIChargesByEnrollmentNumber()
+in
+    result;
+
+/// Note: to get RI Transactions
+GetRITransactions = (billingAccountId as text, apiVersion as text, optional scope as text, optional dateParameters as record, optional billingProfileId as text) =>
+let
+    /// to get RI Transactions URL.
+    url = GetRITransactionsURL(billingAccountId, apiVersion, scope, dateParameters, billingProfileId),
+    schema = GetSchemaForEntity("ritransactionapiProperty"),
+    appType = if (billingProfileId <> null or scope = "billingAccount") then appTypeModern else appTypeLegacy,
+    jsonContent = GetAllPagesByNextLink(url, schema, appType),
+
+    result = if scope = "billingProfile" then
+                if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateRITransactionsByBillingProfile(jsonContent) otherwise handleError(jsonContent)
+                    else CreateEmptyRITransactionsByBillingProfile()
+             else
+                if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateRITransactionsByEnrollmentNumber(jsonContent) otherwise handleError(jsonContent)
+                    else CreateEmptyRITransactionsByEnrollment()
 in
     result;
 
@@ -1332,17 +1568,59 @@ let
 in
     result;
 
+/// Note: to create empty RITransactions dataset by billing profile
+CreateEmptyRITransactionsByBillingProfile = () =>
+let
+    result = Table.FromList(
+        {},
+        Record.FieldValues,
+        apiColumns_RITransactionsByBillingProfile)
+
+in
+    Table.TransformColumnTypes(
+    result,
+    {},
+    culture);
+
+CreateRITransactionsByBillingProfile = (optional riTransactionsRecord as table) =>
+let
+    tempTable1 = Table.ExpandRecordColumn(riTransactionsRecord, "properties", apiColumns_RITransactionsByBillingProfile),
+    result = Table.TransformColumnTypes(tempTable1, {"quantity", type number})
+in
+    result;
+
+CreateEmptyRITransactionsByEnrollment = () =>
+let
+    result = Table.FromList(
+        {},
+        Record.FieldValues,
+        apiColumns_RITransactionsByEnrollment)
+in
+    Table.TransformColumnTypes(
+    result,
+    {},
+    culture);
+
+CreateRITransactionsByEnrollmentNumber = (optional riTransactionRecord as table) =>
+let
+    tempTable1 = Table.ExpandRecordColumn(riTransactionRecord, "properties", apiColumns_RITransactionsByEnrollment),
+    tempTable2 = Table.RenameColumns(tempTable1, {"currency", "transactionAmountCurrency"}),
+
+    result = Table.TransformColumnTypes(tempTable2, {"quantity", type number})
+in
+    result;
+
 /// Note: to get Recommendations Single.
 GetRecommendationsSingle = (billingAccountId as text, apiVersion as text, lookBackPeriod as number, optional scope as text, optional billingProfileId as text) =>
 let
      /// to get recommendations Single URL.
     url = GetRecommendationsSingleURL(billingAccountId, apiVersion, lookBackPeriod, scope, billingProfileId),
     schema = GetSchemaForEntity("apiProperty"),
-    appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
+    appType = if (billingProfileId <> null or scope = "billingAccount") then appTypeModern else appTypeLegacy,
     jsonContent = GetAllPagesByNextLink(url, schema, appType),
 
     result = if scope = "billingProfile" then
-                  if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then
+                  if(jsonContent <> null and Table.RowCount(jsonContent) > 0)  then
                         try CreateRecommendationsSingleByBillingProfile(jsonContent) otherwise handleError(jsonContent)
                   else
                         CreateEmptyRecommendationsSingleByBillingProfile()
@@ -1365,7 +1643,7 @@ in
     Table.TransformColumnTypes(
         result,
         {
-           {"recommendedQuantity", type number},
+            {"recommendedQuantity", type number},
             {"costWithNoReservedInstances", type number},
             {"totalCostWithReservedInstances", type number},
             {"netSavings", type number},
@@ -1376,9 +1654,8 @@ in
 /// Note: To create RecommendationsSingle By BillingProfile
 CreateRecommendationsSingleByBillingProfile = (optional recommendationsSingleRecord as table) =>
 let
-     tempTable1 = Table.ExpandRecordColumn(recommendationsSingleRecord,"properties",{"subscriptionId","meterId","term","recommendedQuantity","firstUsageDate", "scope", "lookBackPeriod","costWithNoReservedInstances",
-     "totalCostWithReservedInstances","netSavings"}),
-
+    tempTable1 = Table.ExpandRecordColumn(recommendationsSingleRecord,"properties",{"subscriptionId","meterId","term","recommendedQuantity","firstUsageDate", "scope", "lookBackPeriod","costWithNoReservedInstances",
+      "totalCostWithReservedInstances","netSavings", "instanceFlexibilityGroup", "instanceFlexibilityRatio", "location", "resourceType", "skuName", "skuProperties"}),
     tempTable2 = Table.ExpandRecordColumn(tempTable1,"costWithNoReservedInstances",{"currency","value"}),
     tempTable3 = Table.RenameColumns(tempTable2, {{"currency","costWithNoReservedInstancesCurrency"},{"value","costWithNoReservedInstances"}}),
 
@@ -1445,9 +1722,9 @@ in
 GetRecommendationsShared = (billingAccountId as text, apiVersion as text, lookBackPeriod as number, optional scope as text, optional billingProfileId as text) =>
 let
     /// to get recommendations Shared URL.
-    url =GetRecommendationsSharedURL(billingAccountId, apiVersion, lookBackPeriod, scope, billingProfileId),
+    url = GetRecommendationsSharedURL(billingAccountId, apiVersion, lookBackPeriod, scope, billingProfileId),
     schema = GetSchemaForEntity("apiProperty"),
-    appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
+    appType = if (billingProfileId <> null or scope = "billingAccount") then appTypeModern else appTypeLegacy,
     jsonContent = GetAllPagesByNextLink(url, schema, appType),
 
     result = if scope = "billingProfile" then
@@ -1487,7 +1764,8 @@ in
 CreateRecommendationsSharedByBillingProfile = (optional recommendationsSharedRecord as table) =>
 let
     tempTable1 = Table.ExpandRecordColumn(recommendationsSharedRecord,"properties",{"meterId","term","recommendedQuantity","firstUsageDate","scope","lookBackPeriod","costWithNoReservedInstances",
-    "totalCostWithReservedInstances","netSavings"}),
+    "totalCostWithReservedInstances","netSavings", "instanceFlexibilityGroup", "instanceFlexibilityRatio", "location", "normalizedSize", "resourceType", "skuName", "skuProperties"
+    }),
 
     tempTable2 = Table.ExpandRecordColumn(tempTable1,"costWithNoReservedInstances",{"currency","value"}),
     tempTable3 = Table.RenameColumns(tempTable2, {{"currency","costWithNoReservedInstancesCurrency"},{"value","costWithNoReservedInstances"}}),
@@ -1502,7 +1780,7 @@ let
     result = Table.TransformColumnTypes(
         source,
         {
-           {"recommendedQuantity", type number},
+            {"recommendedQuantity", type number},
             {"costWithNoReservedInstances", type number},
             {"totalCostWithReservedInstances", type number},
             {"netSavings", type number},
@@ -1556,18 +1834,51 @@ GetRIUsage = (billingAccountId as text, apiVersion as text, optional scope as te
 let
     /// to get RI Usage URL.
     url = GetRIUsageURL(billingAccountId, apiVersion, scope, dateParameters, billingProfileId),
-    schema = GetSchemaForEntity("apiProperty"),
     appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
-    jsonContent = GetAllPagesByNextLink(url, schema, appType),
-    result = if scope = "billingProfile" then
-                if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateRIUsageData(jsonContent) otherwise handleError(jsonContent) else CreateEmptyRIUsageData()
-             else
-                if(jsonContent <> null and Table.RowCount(jsonContent) > 0) then try CreateRIUsageDetailsData(jsonContent) otherwise handleError(jsonContent) else CreateEmptyRIUsageDetailsData()
-in
-    result;
+    rawContent = QueueDataEx(url, appType, true),
+    metaData = Value.Metadata(rawContent),
+    locationUri = if Record.HasFields(metaData[Headers], {"Location"})
+                    then metaData[Headers][Location]
+                  else
+                    null,
+    data = if locationUri <> null then
+                Value.WaitFor(
+                    (i) =>
+                        let
+                            data = GetDataWithPollingExRIUsage(locationUri, appType),
+                            response = if data <> null
+                                           then data
+                                       else null
+                        in
+                            response,
+                    (i) => #duration(0, 0, 0, i*0.5),
+                    3) // download call will be retried three times
+            else [status="failed"],
+      result =
+            if data <> null then
+                if Text.Lower(data[status]) = "completed" then
+                    (let result = data[properties]
+                        in (
+                            if(appType = appTypeModern) then
+                                if (result[reportUrl] <> null) then GetAsyncRIUsageDetailsByBillingProfile(result[reportUrl])
+                                else CreateEmptyAsyncRIUsageDetailsByBillingProfile()
+                            else
+                                if (result[reportUrl] <> null) then GetAsyncRIUsageDetailsByEnrollment(result[reportUrl])
+                                else CreateEmptyAsyncRIUsageDetailsByEnrollment())
+                    )
+                else // status = "failed" or locationUri not found
+                    Error.Record("RI Usage Details failed - Could not retrieve Web.Contents",
+                                 "Status: Failed",
+                                 "OperationResults: " & Text.AfterDelimiter(locationUri, "reservationDetailsOperationResults/"))
+            else // status = "running"
+                Error.Record("RI Usage Details timeout - Could not retrieve polling URL",
+                             "Status: Running",
+                             "OperationResults: " & Text.AfterDelimiter(locationUri, "reservationDetailsOperationResults/"))
+    in
+        result;
 
 /// Note: to create empty RIUsage dataset
-CreateEmptyRIUsageData = () =>
+CreateEmptyAsyncRIUsageDetailsByBillingProfile = () =>
     let
         result = Table.FromList(
             {},
@@ -1576,36 +1887,68 @@ CreateEmptyRIUsageData = () =>
     in
        Table.TransformColumnTypes(
         result,
-        {
-            {"totalReservedQuantity", type number},
-            {"usageDate", type datetime}
-        },
+            {
+                {"totalReservedQuantity", type number},
+                {"usageDate", type datetime}
+            },
         culture);
 
 /// Note: To create RIUsage data
-CreateRIUsageData = (optional riUsageRecord as table) =>
+GetAsyncRIUsageDetailsByBillingProfile = (optional riUsageRecord as text) =>
 let
-    source = Table.ExpandRecordColumn(riUsageRecord,"properties",{"reservationOrderId","reservationId","usageDate","skuName","instanceId","totalReservedQuantity","reservedHours","usedHours"}),
+    riUsageDataRecord = ReadCSVData(Blob.Contents(riUsageRecord)),
 
     /// creating a final Summary results to be printed
+    renamedTable = Table.RenameColumns(
+        riUsageDataRecord,
+        {
+            {"InstanceId", "name"},
+            {"InstanceFlexibilityRatio", "instanceFlexibilityRatio"},
+            {"InstanceFlexibilityGroup", "instanceFlexibilityGroup"},
+            {"Kind", "type"},
+            {"ReservationId", "reservationId"},
+            {"ReservationOrderId", "reservationOrderId"},
+            {"ReservedHours", "reservedHours"},
+            {"SkuName", "skuName"},
+            {"TotalReservedQuantity", "totalReservedQuantity"},
+            {"UsageDate", "usageDate"},
+            {"UsedHours", "usedHours"}
+        }
+    ),
     result = Table.TransformColumnTypes(
-        source,
+        renamedTable,
         {
             {"totalReservedQuantity", type number},
             {"usageDate", type datetime}
         },
-        culture)
+    culture)
 in
     result;
 
 /// Note: To create RIUsage details data
-CreateRIUsageDetailsData = (optional riUsageDetailsRecord as table) =>
+GetAsyncRIUsageDetailsByEnrollment = (optional riUsageDetailsRecord as text) =>
 let
-    source = Table.ExpandRecordColumn(riUsageDetailsRecord,"properties",{"reservationOrderId","reservationId","usageDate","skuName","instanceId","totalReservedQuantity","reservedHours","usedHours", "instanceFlexibilityGroup", "instanceFlexibilityRatio"}),
+    riUsageDetailsDataRecord = ReadCSVData(Blob.Contents(riUsageDetailsRecord)),
 
     /// creating a final Summary results to be printed
+    renamedTable = Table.RenameColumns(
+        riUsageDetailsDataRecord,
+        {
+            {"InstanceId", "name"},
+            {"InstanceFlexibilityRatio", "instanceFlexibilityRatio"},
+            {"InstanceFlexibilityGroup", "instanceFlexibilityGroup"},
+            {"Kind", "type"},
+            {"ReservationId", "reservationId"},
+            {"ReservationOrderId", "reservationOrderId"},
+            {"ReservedHours", "reservedHours"},
+            {"SkuName", "skuName"},
+            {"TotalReservedQuantity", "totalReservedQuantity"},
+            {"UsageDate", "usageDate"},
+            {"UsedHours", "usedHours"}
+        }
+    ),
     result = Table.TransformColumnTypes(
-        source,
+        renamedTable,
         {
             {"totalReservedQuantity", type number},
             {"usageDate", type datetime},
@@ -1617,7 +1960,7 @@ in
     result;
 
 /// Note: to create empty RIUsage dataset
-CreateEmptyRIUsageDetailsData = () =>
+CreateEmptyAsyncRIUsageDetailsByEnrollment = () =>
     let
         result = Table.FromList(
             {},
@@ -1640,7 +1983,7 @@ let
     /// to get RI Usage URL.
     url = GetRIUsageSummaryURL(billingAccountId, apiVersion, scope, dateParameters, billingProfileId),
     schema = GetSchemaForEntity("apiProperty"),
-    appType = if billingProfileId <> null then appTypeModern else appTypeLegacy,
+    appType = if (billingProfileId <> null or scope = "billingAccount") then appTypeModern else appTypeLegacy,
     jsonContent = GetAllPagesByNextLink(url, schema, appType),
 
     result = if scope = "billingProfile" then
@@ -1656,17 +1999,23 @@ let
     finalDateParameters = if dateParameters <> null then dateParameters
         else GetDatesForLastNMonth(1),
 
-    apiVersion = if(apiVersion <> "") then apiVersion else supportedAPIVersion,
-    result = if scope = "billingProfile" then
+    apiVersion = if(apiVersion <> "") then apiVersion else latestApiVersion,
+    result = if scope = "billingAccount" then
                 let
-                    query = "&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
-                    result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationsummaries?api-version=" & apiVersion  & query
+                    query = "?grain=daily&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
+                    result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/reservationsummaries?" & query & "&api-version=" & apiVersion
+                in
+                    result
+            else if scope = "billingProfile" then
+                let
+                    query = "?grain=daily&startDate=" & finalDateParameters[startTime] & "&endDate=" & finalDateParameters[endTime],
+                    result = GetBillingAccountUri() & billingAccountId &"/billingProfiles/"& billingProfileId &"/providers/Microsoft.Consumption/reservationsummaries?" & query & "&api-version=" & apiVersion
                 in
                     result
             else
                 let
                      query = "&grain=daily&$filter=properties/UsageDate+ge+" & finalDateParameters[startTime] & "+AND+properties/UsageDate+le+" & finalDateParameters[endTime],
-                     result = baseUri & contentPackApiPrefix & providerBillingAccount & billingAccountId & "/providers/Microsoft.Consumption/reservationsummaries?api-version=" & apiVersion  & query
+                     result = GetBillingAccountUri() & billingAccountId & "/providers/Microsoft.Consumption/reservationsummaries?api-version=" & apiVersion  & query
                 in
                     result
 in
@@ -1683,7 +2032,6 @@ CreateEmptyRIUsageSummaryByBillingProfile = () =>
        Table.TransformColumnTypes(
         result,
         {
-            {"totalReservedQuantity", type number},
             {"usageDate", type datetime}
         },
         culture);
@@ -1749,6 +2097,17 @@ GetDatesForLastNMonth = (numberOfMonth as number) =>
         if (numberOfMonth > 36) or (numberOfMonth < 1) then error Extension.LoadString("NumberOfMonthOutOfRange")
              else result;
 
+GetDatesFromParameters = (startDate ,endDate ) =>
+    let
+        differenceInDays = Duration.TotalDays(endDate-startDate), // Calculating number of days
+        startDateParameter =  Date.ToText(startDate, "yyyy-MM-dd"),
+        endDateParameter = Date.ToText(endDate, "yyyy-MM-dd"),
+        result = [startTime = startDateParameter, endTime = endDateParameter]
+    in
+        if (differenceInDays > 31) then  error(Extension.LoadString("DateRangeMoreThan31Days"))
+        else if (differenceInDays < 0)  then error(Extension.LoadString("StartDateGreaterThanEndDate"))
+        else  result;
+
 IsNoStatementAvailableError = (content as binary) =>
     let
         result = (Value.Metadata(content)[Response.Status] = 400) and (Text.Contains(Json.Document(content, 1252)[error][message], "No Statements available"))
@@ -1759,7 +2118,7 @@ IsNoStatementAvailableError = (content as binary) =>
 GetInfoByProfileId = (billingProfileId as text) =>
 let
     query = defaultBillingAccountId & "/billingProfiles/" & billingProfileId & discoverTenantsUri,
-    uri = tenantDiscoveryUri & contentPackApiPrefix & query,
+    uri = GetTenantDiscoveryUri() & contentPackApiPrefix & query,
     content = GetWebContents(uri, appTypeModern),
 
     asJson = try Json.Document(content, 1252) otherwise null,
@@ -1771,20 +2130,49 @@ in
     result;
 
 /// Note: to post the content and get download url.
-QueueData = (billingAccount as text, apiVersion as text, url as text, optional billingProfile as text, optional appType as text) =>
+QueueData = (billingAccount as text, apiVersion as text, url as text, optional billingProfile as text, optional appType as text, optional disableArchive as logical) =>
 let
-    query = [#"api-version"=apiVersion],
-    payload = [
+    payload = if(appType = appTypeModern and disableArchive = true) then
+    [
+        reportType = postReport_reportType,
+        client = client_type,
+        pageSize = postReport_pageSize,
+        format = postReport_format,
+        normalized = postReport_normalized,
+        disableArchive = true // new header for the pricesheet api to disable the zip archive and return raw csv urls
+    ]
+    else
+    [
         reportType = postReport_reportType,
         client = client_type,
         pageSize = postReport_pageSize,
         format = postReport_format,
         normalized = postReport_normalized
     ],
+
     content = Json.FromValue(payload),
     result = GetWebContents(url, appType, false, content)
 in
     result;
+
+/// Note: This function is the same as the one below, using locationUri in place of statusUri
+GetDataWithPollingExRIUsage = (locationUri as text, optional appType as text) =>
+    Value.WaitFor(
+        (i) =>
+            let
+                rawContent = GetWebContents(locationUri, appType, true),
+                asJson = try Json.Document(rawContent, 1252) otherwise null,
+                data = if asJson is action then null else asJson meta Value.Metadata(rawContent),
+                statusText = Text.Lower(data[status]),
+                result = if statusText = "pending"
+                            then null
+                         else if statusText = "running"
+                            then null
+                         else data // "completed" or "failed"
+            in
+                result,
+
+            (i) => #duration(0, 0, 0, i * 0.5), 100);
 
 /// Note: Function is exponentially weighted, and has a maximum refresh count of 40
 GetDataWithPollingEx = (locationUri as text, statusUri as text, optional appType as text) =>
@@ -1806,8 +2194,7 @@ GetDataWithPollingEx = (locationUri as text, statusUri as text, optional appType
             in
                 result,
 
-        (i) => #duration(0, 0, 0, i * 0.5),
-        100);
+        (i) => #duration(0, 0, 0, i * 1), 100);
 
 /// Note: Function is exponentially weighted, and has a maximum refresh count of 40
 GetDataWithPolling = (url as text, statusUri as text, optional appType as text) =>
@@ -1839,8 +2226,7 @@ ParseReportStatus = (url as text, optional appType as text) =>
         asJson = try Json.Document(rawContent, 1252) otherwise null,
         jsonContent = if asJson is action then null else asJson meta Value.Metadata(rawContent),
 
-        result = if (jsonContent <> null) then Text.Lower(jsonContent[status])
-         else null
+        result = if (jsonContent <> null) then Text.Lower(jsonContent[status]) else null
     in
         result;
 
@@ -1865,12 +2251,29 @@ in
 List.Last(list);
 
 Blob.Contents = (url as text) =>
+    let
+        parts = Uri.Parts(url),
+        fixedUri = Uri.FromParts(parts & [Query = []])
+    in
+        Blob.Contents.Internal(fixedUri, Uri.BuildQueryString(parts[Query]));
+
+Blob.Contents.Internal = (url as text, token as text) =>
      Extension.InvokeWithCredentials(
-         (datasource) =>
-             if (datasource[DataSource.Kind] = "AzureBlobs")
-             then [ AuthenticationKind = "Anonymous" ]
-             else Extension.CurrentCredential(),
+         (datasource) => [ AuthenticationKind = "SAS", Token = token],
          () => AzureStorage.BlobContents(url));
+
+Uri.FromParts = (parts) =>
+    let
+        port = if (parts[Scheme] = "https" and parts[Port] = 443) or (parts[Scheme] = "http" and parts[Port] = 80) then ""
+             else ":" & Text.From(parts[Port]),
+        div1 = if Record.FieldCount(parts[Query]) > 0 then "?"
+             else "",
+        div2 = if Text.Length(parts[Fragment]) > 0 then "#"
+             else "",
+        uri = Text.Combine(
+            {parts[Scheme], "://", parts[Host], port, parts[Path], div1, Uri.BuildQueryString(parts[Query]), div2, parts[Fragment]})
+    in
+        uri;
 
 Table.ToNavigationTable = (table as table, keyColumns as list, nameColumn as text, dataColumn as text, itemKindColumn as text, itemNameColumn as text, isLeafColumn as text) as table =>
     let
@@ -1942,9 +2345,9 @@ AzureCostManagement.ContentsType =
              Documentation.SampleValues = {Extension.LoadString("Parameter_Months")}
         ],
         parameters = (type record) meta [
-            Documentation.FieldCaption = {Extension.LoadString("Parameter_Parameter_FieldCaption")},
+            Documentation.FieldCaption = Extension.LoadString("Parameter_Parameter_FieldCaption"),
             Documentation.SampleValues = {Extension.LoadString("Parameter_Parameter_SampleValues")},
-            Documentation.FieldDescription = {Extension.LoadString("Parameter_Parameter_FieldDescription")}
+            Documentation.FieldDescription = Extension.LoadString("Parameter_Parameter_FieldDescription")
         ],
         t = type function (scope as scope, scopeValue as scopeValue, numberOfMonths as numberOfMonths, optional parameters as parameters) as table
     in
@@ -1977,26 +2380,36 @@ AzureCostManagement.TablesType =
     let
         scope = (type text) meta [
              Documentation.FieldCaption = Extension.LoadString("lbl_Choose_Scope"),
-             Documentation.FieldDescription = Extension.LoadString("lbl_Choose_Scope"),
-             Documentation.AllowedValues = {"Billing Profile Id", "Enrollment Number" },
+             Documentation.FieldDescription = Extension.LoadString("lblChooseScopeHelp"),
+             Documentation.AllowedValues = {"Billing Profile Id", "Enrollment Number", "Manually Input Scope" },
              Documentation.SampleValues = {Extension.LoadString("Parameter_Choose_Scope")}
         ],
         scopeValue = (type text) meta [
-             Documentation.FieldCaption = Extension.LoadString("lbl_BillingProfile_EnrollmentNumber"),
-             Documentation.FieldDescription = Extension.LoadString("lbl_BillingProfile_EnrollmentNumber"),
-             Documentation.SampleValues = {Extension.LoadString("Parameter_Scope_Value")}
+             Documentation.FieldCaption = Extension.LoadString("Parameter_CustomScope"),
+             Documentation.FieldDescription = Extension.LoadString("ParameterCustomScopeHelp"),
+             Documentation.SampleValues = {Extension.LoadString("Parameter_CustomScope_Description")}
         ],
         numberOfMonths = (type number) meta [
              Documentation.FieldCaption = Extension.LoadString("lbl_NumberOfMonths"),
-             Documentation.FieldDescription = Extension.LoadString("lbl_NumberOfMonths"),
+             Documentation.FieldDescription = Extension.LoadString("lblNumberOfMonthsHelp"),
               Documentation.SampleValues = {Extension.LoadString("Parameter_Months")}
         ],
-        parameters = (type record) meta [
-            Documentation.FieldCaption = {Extension.LoadString("Parameter_Parameter_FieldCaption")},
-            Documentation.SampleValues = {Extension.LoadString("Parameter_Parameter_SampleValues")},
-            Documentation.FieldDescription = {Extension.LoadString("Parameter_Parameter_FieldDescription")}
-        ],
-        t = type function (scope as scope, scopeValue as scopeValue, numberOfMonths as numberOfMonths, optional parameters as parameters) as table
+        parameters = (type nullable [
+                optional startDate = (type date meta [
+                    Documentation.FieldCaption = Extension.LoadString("lbl_Start_Date"),
+                    Documentation.FieldDescription = Extension.LoadString("lblStartDateHelp"),
+                    Documentation.SampleValues = {Extension.LoadString("Parameter_StartDate")}
+                ]),
+               optional endDate = (type date meta [
+                    Documentation.FieldCaption = Extension.LoadString("lbl_End_Date"),
+                   Documentation.FieldDescription = Extension.LoadString("lblEndDateHelp"),
+                   Documentation.SampleValues = {Extension.LoadString("Parameter_EndDate")}
+                ])
+            ] meta [
+                Documentation.FieldCaption = Extension.LoadString("AdvancedOptionsLabel")
+            ]),
+
+        t = type function (scope as scope, scopeValue as scopeValue, numberOfMonths as numberOfMonths, optional options as parameters) as table
     in
         t meta [
             Documentation.Caption = Extension.LoadString("AzureCostManagement"),
@@ -2005,8 +2418,6 @@ AzureCostManagement.TablesType =
             Documentation.LongDescription = Extension.LoadString("AzureCostManagement"),
             Documentation.Name = Extension.LoadString("AzureCostManagement")
         ];
-
-
 GetSchemaForEntity = (entity as text) as type =>
     try
         SchemaTable{[Entity=entity]}[Type]
@@ -2025,7 +2436,7 @@ GetAllPagesByNextLink = (url as text, optional schema as type, optional appType 
             // if previous is null, then this is our first page of data
             nextLink = if (previous = null) then url else Value.Metadata(previous)[NextLink]?,
             // if NextLink was set to null by the previous call, we know we have no more data
-            page = if (nextLink <> null) then GetPage(nextLink, schema, appType) else null
+            page = if (nextLink <> null and nextLink <> "") then GetPage(nextLink, schema, appType) else null
 
         in
             page
@@ -2040,7 +2451,9 @@ GetPage = (url as text, optional schema as type, optional appType as text) as ta
         nextLink = GetNextLink(body),
 
         // Error Handling while navigation.
-        result = if (Record.HasFields(body, {"error"})) then
+        result = if body = null
+                    then error Error.Record("Response body is null; Status code: " & Text.From(Value.Metadata(rawContent)[Response.Status]?) & "Request ID: " & Text.From(Value.Metadata(rawContent)[Headers]?[#"x-ms-request-id"]?))
+                 else if (Record.HasFields(body, {"error"})) then
                     error Error.Record(body[error][code]?, body[error][message]?, body)
                  else
                     body[value],
@@ -2062,13 +2475,12 @@ GetPage = (url as text, optional schema as type, optional appType as text) as ta
                     expanded = Table.ExpandRecordColumn(asTable, "Column1", fields)
                 in
                     expanded
-
     in
         data meta [NextLink = nextLink];
 
 // In this implementation, 'response' will be the parsed body of the response after the call to Json.Document.
-// We look for the '@odata.nextLink' field and simply return null if it doesn't exist.
-GetNextLink = (response) as nullable text => Record.FieldOrDefault(response, "@odata.nextLink");
+// We look for the 'nextLink' field and simply return null if it doesn't exist.
+GetNextLink = (response) as nullable text => Record.FieldOrDefault(response, "nextLink");
 
 handleError = (body as record)=>
     let
@@ -2125,11 +2537,12 @@ apiColumns_Budgets = {
 };
 
 
-/// Note: summaries columns api columns
-apiColumns_Summaries = {
+/// Note: charges columns api columns
+apiColumns_Charges = {
     "name",
     "type",
     "eTag",
+    "isInvoiced",
     "billingPeriodId",
     "usageStart",
     "usageEnd",
@@ -2248,6 +2661,54 @@ apiColumns_RIChargesByEnrollment = {
     "reservationOrderName"
 };
 
+/// Note: RI Transactions api columns by Billing Profile
+apiColumns_RITransactionsByBillingProfile = {
+    "amount",
+    "armSkuName",
+    "currency",
+    "description",
+    "eventDate",
+    "eventType",
+    "invoice",
+    "invoiceId",
+    "invoiceSectionId",
+    "invoiceSectionName",
+    "quantity",
+    "region",
+    "term",
+    "reservationOrderId",
+    "reservationOrderName",
+    "billingProfileId",
+    "billingProfileName",
+    "purchasingSubscriptionGuid",
+    "purchasingSubscriptionName",
+    "billingFrequency"
+};
+
+/// Note: RI Transactions api columns by Enrollment
+apiColumns_RITransactionsByEnrollment = {
+    "amount",
+    "armSkuName",
+    "currency",
+    "departmentName",
+    "eventDate",
+    "description",
+    "eventType",
+    "quantity",
+    "region",
+    "reservationOrderId",
+    "reservationOrderName",
+    "term",
+    "purchasingEnrollment",
+    "purchasingSubscriptionGuid",
+    "purchasingSubscriptionName",
+    "accountName",
+    "accountOwnerEmail",
+    "costCenter",
+    "currentEnrollment",
+    "billingFrequency"
+};
+
 /// Note: Price sheet api columns
 apiColumns_Pricesheet = {
     "BasePrice",
@@ -2272,7 +2733,9 @@ apiColumns_Pricesheet = {
     "SkuId",
     "TierMinimumUnits",
     "UnitOfMeasure",
-    "UnitPrice"
+    "UnitPrice",
+    "Term",
+    "PriceType"
 };
 
 /// Note: Price sheet target columns
@@ -2299,7 +2762,9 @@ tableColumns_Pricesheet = {
     "skuId",
     "tierMinimumUnits",
     "unitOfMeasure",
-    "unitPrice"
+    "unitPrice",
+    "term",
+    "priceType"
 };
 
 /// Note: Usage Details api columns
@@ -2354,7 +2819,7 @@ apiColumns_UsageDetailsByBillingProfile = {
     "tags"
 };
 
-/// Note: Recommendation Single api columns
+/// Note: Recommendation Single api columns by Billing Profile
 apiColumns_RecommendationSingle = {
     "name",
     "type",
@@ -2370,7 +2835,13 @@ apiColumns_RecommendationSingle = {
     "totalCostWithReservedInstancesCurrency",
     "totalCostWithReservedInstances",
     "netSavingsCurrency",
-    "netSavings"
+    "netSavings",
+    "instanceFlexibilityGroup",
+    "instanceFlexibilityRatio",
+    "location",
+    "resourceType",
+    "skuName",
+    "skuProperties"
 };
 
 /// Note: Recommendation Single api columns by Enrollment
@@ -2391,7 +2862,7 @@ apiColumns_RecommendationSingleByEnrollment = {
     "skuProperties"
 };
 
-/// Note: Recommendation Shared api columns
+/// Note: Recommendation Shared api columns by billing profile
 apiColumns_RecommendationShared = {
     "name",
     "type",
@@ -2406,7 +2877,14 @@ apiColumns_RecommendationShared = {
     "totalCostWithReservedInstancesCurrency",
     "totalCostWithReservedInstances",
     "netSavingsCurrency",
-    "netSavings"
+    "netSavings",
+    "instanceFlexibilityGroup",
+    "instanceFlexibilityRatio",
+    "location",
+    "normalizedSize",
+    "resourceType",
+    "skuName",
+    "skuProperties"
 };
 
 /// Note: Recommendation Shared api columns by enrollment Number
@@ -2494,6 +2972,14 @@ apiColumns_RIUsageDetails= {
     "instanceFlexibilityRatio"
 };
 
+RITransactionPropertyType = type table [
+id = text,
+name = text,
+type = text,
+tags = text,
+properties = text
+];
+
 /// Note: Entities declaration
 APIPropertyType = type table [
 name = text,
@@ -2503,7 +2989,8 @@ properties = text
 ];
 
 SchemaTable = #table({"Entity", "Type"}, {
-    {"apiProperty", APIPropertyType }
+    {"apiProperty", APIPropertyType },
+    {"ritransactionapiProperty", RITransactionPropertyType }
 });
 
 //Load common library functions

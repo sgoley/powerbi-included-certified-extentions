@@ -1,0 +1,39 @@
+// Define customer input and tag the parameters with the right metadata so
+// that the dialog box will have our desired constraints and placeholders.
+let 
+    Parameters.Region = [
+        Documentation.FieldCaption = Extension.LoadString("RegionName"),
+        Documentation.FieldDescription = Extension.LoadString("RegionDesc"),
+        Documentation.AllowedValues = { 
+            Extension.LoadString("RegionUS"), 
+            Extension.LoadString("RegionEU") 
+        },
+        Documentation.SampleValues = {
+            Extension.LoadString("RegionExample")
+        }
+    ],
+    Parameters.RangeStart = [
+        DataSource.Path = false,
+        Documentation.FieldCaption = Extension.LoadString("StartDateName"),
+        Documentation.FieldDescription = Extension.LoadString("StartDateDesc"),
+        Documentation.SampleValues = {
+            Extension.LoadString("StartDateExample")
+        }
+    ],
+    Parameters.RangeEnd = [
+        Documentation.FieldCaption = Extension.LoadString("EndDateName"),
+        Documentation.FieldDescription = Extension.LoadString("EndDateDesc"),
+        Documentation.SampleValues = {
+            Extension.LoadString("EndDateExample")
+        }
+    ],
+    Result.NavTable = [
+        Documentation.Name = Extension.LoadString("ConnName"),
+        Documentation.LongDescription = Extension.LoadString("ConnDesc")
+    ]
+in
+    type function(
+        Region as (type text meta Parameters.Region),
+        RangeStart as (type text meta Parameters.RangeStart),
+        optional RangeEnd as (type text meta Parameters.RangeEnd)
+    ) as table meta Result.NavTable

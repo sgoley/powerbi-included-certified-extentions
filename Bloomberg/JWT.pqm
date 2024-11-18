@@ -1,0 +1,7 @@
+let
+    // Base64URL is a slightly different format from Base64
+    Base64URLToBase64 = (s as text) as text => Text.Replace(Text.Replace(s, "-", "+"), "_", "/") & {"", "", "==", "="}{Number.Mod(Text.Length(s), 4)},
+    Base64UrlDecode = (s as text) as binary => Binary.FromText(Base64URLToBase64(s), BinaryEncoding.Base64),
+    DecodeJWT = (token as text) as record => Json.Document(Base64UrlDecode(Text.Split(token, "."){1}))
+in
+    [DecodeJWT = DecodeJWT]

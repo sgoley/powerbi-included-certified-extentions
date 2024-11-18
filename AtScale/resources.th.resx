@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,19 +118,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>คิวบ์ AtScale</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>นำเข้า/DirectQuery ข้อมูลคิวบ์จาก AtScale</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>คิวบ์ AtScale</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>ข้อมูลคิวบ์การนำเข้า/DirectQuery จาก AtScale</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
 ส่งกลับข้อมูลคิวบ์จาก AtScale บนเซิร์ฟเวอร์ &lt;code&gt;เซิร์ฟเวอร์&lt;/code&gt; พารามิเตอร์ระเบียนที่ไม่จำเป็นต้องระบุ &lt;code&gt;ตัวเลือก&lt;/code&gt; อาจถูกระบุเพื่อควบคุมตัวเลือกต่อไปนี้:
 &lt;ul&gt;
@@ -140,34 +141,34 @@
 &lt;/ul&gt;
 มีการระบุพารามิเตอร์ระเบียนเป็น [option1 = value1, option2 = value2...]</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>แสดงรายการข้อมูลคิวบ์ในคิวบ์ AtScale</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>เซิร์ฟเวอร์</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>ระบุ URL ของเซิร์ฟเวอร์ AtScale</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
     <value>ตัวเลือก</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>ระบุตัวเลือกเพื่อเชื่อมต่อไปยังเซิร์ฟเวอร์ AtScale</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>มีการระบุชื่อเซิร์ฟเวอร์ที่ไม่ถูกต้อง ชื่อเซิร์ฟเวอร์จะต้องอยู่ในรูปแบบ 'http(s)://contoso.atscale.com:10502/xmla/...' โดยไม่จำเป็นต้องระบุหมายเลขพอร์ต</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>'#{0}' ไม่ใช่ตัวเลือก AtScale ที่ถูกต้อง ตัวเลือกที่ถูกต้องคือ: '#{1}'</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>ฟังก์ชัน AtScale นี้ไม่สนับสนุนตัวเลือก '#{0}' ที่มีค่า '#{1}'</value>
   </data>
 </root>

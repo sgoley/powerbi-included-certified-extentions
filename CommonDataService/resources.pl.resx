@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Połącz z usługą Dataverse za pomocą jej punktu końcowego SQL</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Domena środowiska</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Domena środowiska</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Określ środowisko usługi Dataverse, z którym ma zostać nawiązane połączenie. To pole jest opcjonalne i gdy nie zostanie określone, wszystkie środowiska usługi Dataverse dostępne dla zalogowanego użytkownika będą wyświetlane na ekranie "Wybierz dane"</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Połącz się z wystąpieniem usługi Dataverse (usługi Dynamics 365 i PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Domena elementu „#{0}” nie jest obsługiwana przez łącznik usługi Dataverse.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Ładowanie danych z tabeli pośredniej środowisk nie jest obsługiwane.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>„#{0}“ nie są prawidłowymi opcjami. Prawidłowe opcje to: „#{1}“</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Ta funkcja nie obsługuje opcji „#{0}” o wartości „#{1}”.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Format nazwy serwera „#{0}” jest nieprawidłowy.  Usuń schemat, taki jak „https://” z nazwy serwera.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Dołącz kolumny relacji</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Opcje</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Określ opcje nawiązywania połączenia z wystąpieniem usługi Dataverse</value>
   </data>
 </root>

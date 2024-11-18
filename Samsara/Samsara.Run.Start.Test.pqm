@@ -1,0 +1,24 @@
+(Samsara.Test.Modules as record, Test.Context as record) =>
+    let
+        Samsara.Run.Start = Samsara.Test.Modules[Samsara.Run.Start],
+        Samsara.Configuration.Defaults = Samsara.Test.Modules[Samsara.Configuration.Defaults],
+
+        AccessToken = "abc",
+        Region = "US",
+        Version = "2.0.0",
+        Extension.ImportContext = #shared & [ Extension.LoadFunction = Test.Context[Extension.LoadFunction] ],
+
+        LatestEndTime.Text = "2024-05-29T20:23:24Z",
+        LatestEndTime.DateTimeZone = DateTimeZone.ToLocal(DateTimeZone.FromText(LatestEndTime.Text)),
+        
+        Web.Contents.Happy = (Url as text, opts as record) => Json.FromValue([
+            latestEndTime = LatestEndTime.Text
+        ]) meta [ Response.Status = 200 ]
+    in
+        {
+            [
+                Actual = Samsara.Run.Start(AccessToken, Region, Version, Extension.ImportContext & [ Web.Contents = Web.Contents.Happy ])[LatestEndTime],
+                Expected = LatestEndTime.DateTimeZone,
+                Description = "happy path: parses and overrides LatestEndTime"
+            ]
+        }

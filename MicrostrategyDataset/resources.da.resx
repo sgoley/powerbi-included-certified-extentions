@@ -121,7 +121,7 @@
     <value>URL-adresse på MicroStrategy REST API</value>
   </data>
   <data name="ApiUrlDesc" xml:space="preserve">
-    <value>URL-adressen på din MicroStrategy REST API (fx https://mycompany.microstrategy.com/MicroStrategyLibrary/)</value>
+    <value>Indtast et gyldigt miljø-URL (som standard anvendes Library-godkendelsen): https://.../MicroStrategyLibrary. Til OIDC-godkendelse tilføjes #OIDCMode-parameteren bag på dit gyldige miljø-URL: https://.../MicroStrategyLibrary/#OIDCMode.</value>
   </data>
   <data name="AuthMode" xml:space="preserve">
     <value>Godkendelsestilstand</value>
@@ -133,16 +133,13 @@
     <value>Importer data fra MicroStrategy-datasæt</value>
   </data>
   <data name="DataSourceName" xml:space="preserve">
-    <value>MicroStrategy for Power BI</value>
+    <value>MicroStrategy til Power BI</value>
   </data>
   <data name="DefaultMark" xml:space="preserve">
     <value>(standard)</value>
   </data>
   <data name="ErrorContents" xml:space="preserve">
     <value>Kunne ikke hente indhold fra</value>
-  </data>
-  <data name="ErrorPrompted" xml:space="preserve">
-    <value>Prompter i rapporter understøttes ikke.</value>
   </data>
   <data name="Locale" xml:space="preserve">
     <value>da</value>
@@ -151,10 +148,10 @@
     <value>LDAP</value>
   </data>
   <data name="LimitDesc" xml:space="preserve">
-    <value>Maksimalt antal elementer, der returneres pr. side</value>
+    <value>Rækker data udtrukket iht. anmodning</value>
   </data>
   <data name="LimitDescLong" xml:space="preserve">
-    <value>Maksimalt antal elementer, der returneres for en enkelt anmodning om kontrol af personsøgningsadfærd.</value>
+    <value>Maks. antal rækker returneret i en enkelt anmodning. Bruges til at kontrollere paging-adfærd.</value>
   </data>
   <data name="PersonalObjects" xml:space="preserve">
     <value>Mine personlige objekter</value>
@@ -171,7 +168,34 @@
   <data name="TimeoutDescLong" xml:space="preserve">
     <value>Timeout-indstillingen for HTTP-anmodning til REST API-serveren.</value>
   </data>
+  <data name="DefaultIs" xml:space="preserve">
+    <value>Standard er</value>
+  </data>
   <data name="AdvancedOptions" xml:space="preserve">
     <value>Avancerede indstillinger</value>
+  </data>
+  <data name="ErrorPrivilege" xml:space="preserve">
+    <value>Du har ikke UsePowerBI-adgangsrettigheder til dette projekt.</value>
+  </data>
+  <data name="PromptsCloseAll" xml:space="preserve">
+    <value>Luk alle prompter</value>
+  </data>
+  <data name="ErrorPromptedOldEnv" xml:space="preserve">
+    <value>Forespurgte rapporter understøttes kun i MicroStrategy 11.1.3 og nyere.</value>
+  </data>
+  <data name="AuthBasicName" xml:space="preserve">
+    <value>Standard/LDAP</value>
+  </data>
+  <data name="ErrorWrongTimeoutInput" xml:space="preserve">
+    <value>Timeout kan ikke ikke være mindre end 0</value>
+  </data>
+  <data name="ErrorPrompted" xml:space="preserve">
+    <value>Prompter i rapporter understøttes ikke.</value>
+  </data>
+  <data name="AuthOAuthName" xml:space="preserve">
+    <value>Library/OIDC</value>
+  </data>
+  <data name="ApiUrlSample" xml:space="preserve">
+    <value>https://mycompany.microstrategy.com/MicroStrategyLibrary/</value>
   </data>
 </root>

@@ -1,0 +1,34 @@
+/**
+ * Report a metric as a count to our backend.
+ * 
+ * @param Context Global parameters and constants.
+ * @param Value Since M is functional, we can't simply treat metric emission as a side
+ *              effect, so reporting a metric must return a value. Rather than returning
+ *              null, we'll pass through this parameter as our return value, like how
+ *              Power BI's diagnostic tracing functions work.
+ * @param Metric.Name The metric name.
+ * @param Count How much to increment the count by. If omitted, will increment by 1.
+ * @param Metric.Tags Optional list of text values to use as tags in our backend.
+ * @returns The parameter Value.
+ */
+ (Context as record, Value as any, Metric.Name as text, optional Count as number, optional Metric.Tags as list) =>
+    let
+        Samsara.Client.ReportMetric = Context[Extension.LoadFunction](Context, "Samsara.Client.ReportMetric.pqm"),
+        Samsara.DateTime.UtcNow = Context[Extension.LoadFunction](Context, "Samsara.DateTime.UtcNow.pqm"),
+
+        Metric = {[
+            eventType = "count",
+            name = Metric.Name,
+            value = Count ?? 1,
+            tags = Metric.Tags,
+            timestamp = Samsara.DateTime.UtcNow()
+        ]},
+        Response = try Samsara.Client.ReportMetric(Context, Metric)
+    in
+        if Response[HasError]
+            then Diagnostics.Trace(
+                TraceLevel.Error,
+                "Failed to report metric count: " & Response[Error][Message],
+                Value
+            )
+            else Value

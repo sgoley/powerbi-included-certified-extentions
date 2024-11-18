@@ -1,0 +1,12 @@
+﻿(table as table ) as table =>
+let
+    #"Expanded Column2" = Table.ExpandListColumn(table, "Column2"),
+    #"Removed" = Table.RemoveColumns(#"Expanded Column2",{"Column2"}),
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed", "Column1", {"id", "title", "childIds", "scope"}, {"id", "title", "childIds", "scope"}),
+    #"Changed" = Table.TransformColumnTypes(#"Expanded Column1",{{"id", type text}, {"title", type text}, {"scope", type text}}),
+    #"Added Custom" = Table.AddColumn(#"Changed", "Custom", each Wrike.GetFolderDetails([id])),
+    #"Expanded Custom" = Table.ExpandTableColumn(#"Added Custom", "Custom", {"id", "accountId", "title", "createdDate", "updatedDate", "description", "sharedIds", "parentIds", "childIds", "superParentIds", "scope", "hasAttachments", "permalink", "workflowId", "metadata", "customFields"}, {"id.1", "accountId", "title.1", "createdDate", "updatedDate", "description", "sharedIds", "parentIds", "childIds.1", "superParentIds", "scope.1", "hasAttachments", "permalink", "workflowId", "metadata", "customFields"}),
+    #"Removed Columns" = Table.RemoveColumns(#"Expanded Custom",{"id.1", "title.1", "childIds.1", "scope.1"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns",{{"accountId", type text}, {"createdDate", type datetime}, {"updatedDate", type datetime}, {"description", type text}, {"hasAttachments", type logical}, {"permalink", type text}, {"workflowId", type text}})  
+in
+    #"Changed Type"

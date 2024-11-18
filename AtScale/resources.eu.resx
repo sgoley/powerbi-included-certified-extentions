@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,19 +118,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>AtScale kuboak</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>Inportatu/DirectQuery kuboaren datuak AtScale-tik.</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>AtScale kuboak</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>Inportatu/DirectQuery kuboaren datuak AtScale batetik.</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
 &lt;code&gt;server&lt;/code&gt; zerbitzariko AtScale-ko kuboko datuak itzultzen ditu. Aukerako erregistro-parametro bat, &lt;code&gt;options&lt;/code&gt; izenekoa, zehatz daiteke aukera hauek kontrolatzeko:
 &lt;ul&gt;
@@ -140,34 +141,34 @@
 &lt;/ul&gt;
 Erregistro parametroa honela zehazten da: [aukera1 = balioa1, balioa2 = balioa2...].</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>Zerrendatu kuboaren datuak AtScale kubo batean.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>Zerbitzaria</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>Zehaztu AtScale zerbitzariaren URLa</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
     <value>Aukerak</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>Zehaztu AtScale zerbitzarira konektatzeko aukerak</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>Zehaztutako zerbitzari-izenak ez du balio. Zerbitzari-izenaren formatuak "http(s)://contoso.atscale.com:10502/xmla/..." formatuan egon behar du (ataka-zenbakia aukerakoa da).</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>"#{0}" ez da baliozko AtScale aukera bat. Hauek dira balio duten aukerak: "#{1}"</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>AtScale funtzio honek ez du onartzen "#{0}" kontsulta aukera "#{1}" balioarekin</value>
   </data>
 </root>

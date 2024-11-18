@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Opțiuni complexe</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Date agregate</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Granularitate date</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Selectați Date la nivel de rând pentru a încărca rezultatele brute ale interogărilor sau Date agregate pentru a trimite interogările în baza de date și a obține rezultate agregate. Pentru rezultate optime, selectați date la nivel de rând numai dacă alegeți modul Import conectivitate date.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Date la nivel de rând</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Cont organizație</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Conectați-vă la datele de analiză de la locul de muncă</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Conectați-vă la datele Viva Insights</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Servicii online</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Numele tabelului</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Conectați-vă la datele de analiză de la locul de muncă</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Dacă interogarea Detalii complexe afișează mai multe tabele, specificați tabelul la care vă conectați.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Conectați-vă la datele Viva Insights</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Granularitatea de date agregate nu este acceptată în prezent la conectarea la rezultatele interogării specificând un nume sau un identificator de interogare. Selectați granularitatea de date la nivel de rând pentru a vă conecta la rezultatele interogării.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Granularitatea de date la nivel de rând este acceptată în prezent numai la conectarea la rezultatele interogării. Selectați granularitatea de date agregate pentru a vă conecta la un set general de măsurători Persoană sau pentru a specifica un nume sau un identificator de interogare.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Format de antet WWW-Authenticate neașteptat sau valoare antet neașteptată în timpul autentificării.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Răspuns neașteptat de la server în timpul autentificării.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Granularitatea datelor la nivel de rând nu este acceptată pentru această sursă de date. Selectați în schimb granularitatea de date agregate.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Returnează un tabel cu atribute vizibile și măsurători pe săptămână pentru fiecare angajat măsurat din partiție.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identificator interogare</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Identificatori de interogare</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Găsiți acest lucru în Workplace Analytics, deschizând rezultatele interogării, copiind linkul de interogare dorit și extragând ID-ul din ultimele 32 de cifre (GUID) care apare în URL.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>În aplicația Detalii complexe, accesați Analiză &gt; Rezultatele interogării, găsiți interogarea și selectați Link pentru a obține identificatorul de interogare.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Numele interogării</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Introduceți numele interogării exact cum se găsește în fila rezultate pentru interogarea Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Introduceți numele interogării așa cum se găsește în pagina &gt; Analiză &gt; Rezultatele interogării, în aplicația Detalii complexe.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Importați măsurătorile săptămânale și datele de atribute din Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Măsurătorile de persoane de la Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Tip de schemă</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Selectați Pivotat pentru a încărca atribute organizaționale drept coloane individuale sau Nepivotat pentru a încărca atributele organizaționale ca perechi cheie-valoare, cum ar fi Nume atribut = Organizație, Valoare atribut = Finanțe.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Pivotat</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Nepivotată</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Identificator partiție</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Găsiți acest lucru în Workplace Analytics, deschizând profilul de utilizator și selectând Informațiile mele</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>În aplicația Detalii complexe, accesați Analiză &gt; Rezultatele interogării, găsiți interogarea și selectați Link pentru a obține identificatorul partiției.</value>
   </data>
 </root>

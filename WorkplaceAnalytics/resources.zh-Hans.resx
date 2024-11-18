@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>高级选项</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>聚合数据</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>数据粒度</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>选择“行级别数据”以加载原始查询结果或聚合数据，从而将查询推送到数据库并获取聚合结果。为获得最佳结果，请仅在选择“导入数据连接模式”时选择“行级别数据”。</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>行级别数据</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>组织帐户</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>连接到工作区分析数据</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>连接到 Viva Insights 数据</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>工作区分析</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>联机服务</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>工作区分析</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>表名</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>连接到工作区分析数据</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>如果高级见解查询输出多个表，请指定要连接的表。</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>连接到 Viva Insights 数据</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>当前通过指定查询名称或标识符连接到查询结果时不支持聚合数据粒度。选择“行级别数据粒度”以连接到查询结果。</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>行级别数据粒度目前仅在连接到查询结果时受支持。选择“聚合数据粒度”以连接到一组常规人员指标，或指定查询名称或标识符。</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>身份验证期间出现意外的 WWW 身份验证标头格式或值。</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>身份验证期间服务器出现意外响应。</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>此数据源不支持行级别数据粒度。请改为选择“聚合数据粒度”。</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>返回一个表，其中包含分区中每个受测员工的可见属性和每周指标。</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#表({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>查询标识符</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>在工作区分析中查找此项，具体方法是打开“查询结果”，复制所需的查询链接，然后提取 URL 中显示的最后 32 位 ID (GUID)。</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>在高级见解应用中，转到“分析 &gt; 查询结果”，找到查询，然后选择“链接”以获取查询标识符。</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>查询名称</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>准确输入在工作区分析的“查询结果”选项卡上找到的查询名称</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>输入查询名称，因为它位于高级见解应用的“分析 &gt; 查询结果”页上。</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/zh-cn/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>从工作区分析导入每周指标和属性数据。</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contoso 的人员指标</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>架构类型</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>选择“已透视”以将组织属性加载为单个列，或选择“已取消透视”以将组织属性加载为键值对，例如属性名称 = 组织、属性值 = 财务。</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>已透视</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>已取消透视</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>分区标识符</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>在工作区分析中查找此项，具体方法是打开用户配置文件，并选择“我的信息”</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>在高级见解应用中，转到“分析 &gt; 查询结果”，查找查询，然后选择“链接”以获取分区标识符。</value>
   </data>
 </root>

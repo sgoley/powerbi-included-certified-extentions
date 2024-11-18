@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Geavanceerde opties</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Samengevoegde gegevens</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Gegevensgranulatie</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Selecteer 'Gegevens op rijniveau' om onbewerkte queryresultaten te laden of 'Samengevoegde gegevens' om query's naar de database te pushen en samengevoegde resultaten te krijgen. Voor de beste resultaten selecteert u 'Gegevens op rijniveau' alleen als u de modus 'Gegevensconnectiviteit importeren' kiest.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Gegevens op rijniveau</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Organisatieaccount</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Verbinding maken met Workplace Analytics-gegevens</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Verbinding maken met Viva Insights-gegevens</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Onlineservices</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Tabelnaam</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Verbinding maken met Workplace Analytics-gegevens</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Als de Advanced Insights-query meer dan één tabel uitvoert, geeft u op met welke tabel u verbinding wilt maken.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Verbinding maken met Viva Insights-gegevens</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Samengevoegde gegevensgranulatie wordt momenteel niet ondersteund wanneer u verbinding maakt met queryresultaten door een querynaam of id op te geven. Selecteer 'Gegevensgranulatie op rijniveau' om verbinding te maken met queryresultaten.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Gegevensgranulatie op rijniveau wordt momenteel alleen ondersteund wanneer er verbinding wordt gemaakt met queryresultaten. Selecteer 'Samengevoegde gegevensgranulatie' om verbinding te maken met een algemene verzameling metrische persoonsgegevens of geef een querynaam of id op.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Onverwachte indeling of waarde van WWW-Authenticate-header tijdens verificatie.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Onverwachte reactie van server tijdens verificatie.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Gegevensgranulatie op rijniveau wordt niet ondersteund voor deze gegevensbron. Selecteer in plaats daarvan Samengevoegde gegevensgranulatie.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Hiermee wordt voor elke gemeten werknemer in de partitie een tabel met zichtbare kenmerken en metrische waarden per week geretourneerd.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Query-id</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Query-id's</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Open de queryresultaten, kopieer de gewenste querykoppeling en extraheer de laatste 32-cijferige id (GUID) die in de URL wordt weergegeven om dit item in Workplace Analytics op te zoeken.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>Ga in de app Geavanceerde inzichten naar Analyse &gt; Queryresultaten. Zoek uw query en selecteer Link om de query-id op te halen.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Querynaam</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Voer de querynaam precies zo in als wordt weergegeven op het tabblad Queryresultaten van Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Voer de querynaam in zoals deze wordt genoemd op de pagina Analyse &gt; Queryresultaten in de app Geavanceerde inzichten.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Wekelijkse metrische gegevens en kenmerkgegevens importeren uit Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Metrische persoonsgegevens van Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Schematype</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Selecteer 'Gedraaid' om organisatiekenmerken te laden als afzonderlijke kolommen of 'Niet gedraaid' om organisatiekenmerken te laden als sleutel-waardeparen, zoals Kenmerknaam = Organisatie, Kenmerkwaarde = Financiën.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Gedraaid</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Niet-gedraaid</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Partitie-id</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Open uw gebruikersprofiel en selecteer Mijn gegevens om dit item in Workplace Analytics te zoeken</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>Ga in de app Geavanceerde inzichten naar Analyse &gt; Queryresultaten. Zoek uw query en selecteer Link om de partitie-id op te halen.</value>
   </data>
 </root>

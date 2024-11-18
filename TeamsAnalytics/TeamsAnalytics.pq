@@ -1,4 +1,4 @@
-﻿[Version = "1.0.4"]
+[Version = "1.0.6"]
 section TeamsAnalytics;
 
 // List of environments supported and FeatureSwitch that defaults to the global cloud

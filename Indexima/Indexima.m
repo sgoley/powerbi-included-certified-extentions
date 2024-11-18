@@ -1,19 +1,25 @@
 ﻿// Indexima Power BI HiveServer 2 Connector
 //
-// v 1.0            Matt.Masson@microsoft.com Primary release
-// v 1.1            Matt.Masson@microsoft.com Conflict on first class name (Hive) already usedby MicroSoft. Renamed to Indexima
-// v 1.2 2018-02-21 Re-source the .mez provided by Microsoft
-//                  Fix "cannot convert null to Table" error privided by George.Popell@microsoft.com
-// v 1.3 2018-03-26 Rebranding interface with new logos
-// v 1.4 2018-08-15 Add support for MS gateway (Add TestConnection handler to enable gateway support)
-// 		            We maintain both DSN and DSN-less connection string to not loose Kerberos or Knox/Ranger authentication
-// v 1.5 2018-10-15 Pre Release Gateway
-//                  Notes:
+// v 1.0              Matt.Masson@microsoft.com Primary release
+// v 1.1              Matt.Masson@microsoft.com Conflict on first class name (Hive) already usedby MicroSoft. Renamed to Indexima
+// v 1.2   2018-02-21 Re-source the .mez provided by Microsoft
+//                    Fix "cannot convert null to Table" error privided by George.Popell@microsoft.com
+// v 1.3   2018-03-26 Rebranding interface with new logos
+// v 1.4   2018-08-15 Add support for MS gateway (Add TestConnection handler to enable gateway support)
+// 		              We maintain both DSN and DSN-less connection string to not loose Kerberos or Knox/Ranger authentication
+// v 1.5   2018-10-15 Pre Release Gateway
+//                    Notes:
 //                      - Only the Hortonworks driver is capable to interface with Hive2 server
-//                      - Gateway requires IP addresses to works
+//                      - Version 2.01 12.1017 only
+//                      - Gateway requires diagnostics to works
+// v 1.5.2 2018-10-31 Add GUI selector
+//                    The selector allows to select a driver when connecting in DSN-less mode
+//                    One of the selection is DSN. it it possible also to select DSN mode by prefixing the server name with "DSN="
+// v 1.5.3 2019-03-13 Troubleshoot Natixis issues on timestamp
+
 
 // Indexima Data Connector logic
-[Version = "1.0.0"]
+[Version = "1.7.5"]
 section Indexima;
 
 // ----------------------------------------------------------------------------------------------
@@ -22,6 +28,7 @@ section Indexima;
 // False    Diagnostics.LogValue() the call becomes a no-op and simply returns the original value.
 //
 EnableTraceOutput = false;
+DefaultOptionConnection = Record.FromList({"ConnectionTimeout", "CommandTimeout"},{"15", "600"});
 
 [DataSource.Kind="Indexima", Publish="Indexima.Publish"]
 shared Indexima.Database = Value.ReplaceType(IndeximaCore, IndeximaType);
@@ -29,24 +36,31 @@ shared Indexima.Database = Value.ReplaceType(IndeximaCore, IndeximaType);
 // ----------------------------------------------------------------------------------------------
 IndeximaType = type function (
         server as (type text meta [
-            Documentation.FieldCaption = Extension.LoadString("ParamServer_Caption"),           // in resources.resx - ParamServer_Caption	        DSN
-            Documentation.FieldDescription = Extension.LoadString("ParamServer_Description"),   // in resources.resx - ParamServer_Description	    DSN name
-            Documentation.SampleValues = {"Indexima Data Hub DSN"},                             // should be more generic
-            Documentation.DefaultValue = "Indexima Hive DSN"
+            Documentation.FieldCaption = Extension.LoadString("ParamServer_Caption"),
+            Documentation.FieldDescription = Extension.LoadString("ParamServer_Description"),
+            Documentation.SampleValues = {"master.indexima.com"},
+            Documentation.DefaultValue = "master.indexima.comm"
             ]),
-        port as (type number meta [
-            Documentation.FieldCaption = Extension.LoadString("ParamDatabase_Caption"),         // in resources.resx - ParamDatabase_Caption	    Database
-            Documentation.FieldDescription = Extension.LoadString("ParamDatabase_Description"), // in resources.resx - ParamDatabase_Description	Database name
+        port as (type number meta [                         // Render this variable mandatory to make sure the gateway do not miss this parameter
+            Documentation.FieldCaption = Extension.LoadString("ParamPort_Caption"),
+            Documentation.FieldDescription = Extension.LoadString("ParamPort_Description"),
             Documentation.SampleValues = {"10000"},
 		    Documentation.DefaultValue = "10000"
             ]),
-        optional options as (type record meta [
-            Documentation.FieldCaption = Extension.LoadString("ParamOptions_Caption")           // Data Connectivity Mode                           Import or DirectQuery
+        optional ODBCdriver as (type text meta [            // This variable is optionnal, It means that this parameter will be proposed in desktop mode but will
+                                                            // not show up in gateway mode. This is the reason why the prefix "DSN=" is kept
+            Documentation.FieldCaption = Extension.LoadString("ParamDriver_Caption"),
+            Documentation.FieldDescription = Extension.LoadString("ParamDriver_Description"),
+            Documentation.DefaultValue = "DSN",
+            Documentation.AllowedValues = { "DSN" }
+            ]), 
+       optional options as (type record meta [
+            Documentation.FieldCaption = Extension.LoadString("ParamOptions_Caption")           // Data Connectivity Mode - Import or DirectQuery
             ])
         )
     as table meta [
-        Documentation.Name = Extension.LoadString("Function_Name"),                             // in resources.resx - Function_Name		        Indexima 1.x
-        Documentation.LongDescription = Extension.LoadString("Function_Description")            // in resources.resx - Function_Description	        Connect to Indexima
+        Documentation.Name = Extension.LoadString("Function_Name"),                             // Function_Name		Indexima 1.x
+        Documentation.LongDescription = Extension.LoadString("Function_Description")            // Function_Description	        Connect to Indexima
         ];
 
 // ----------------------------------------------------------------------------------------------
@@ -54,51 +68,17 @@ IndeximaType = type function (
 // Prepare ODBC connection string to bridge JDBC queries to our INDEXIMA data hub engine
 
 // ----------------------------------------------------------------------------------------------
-GetAddress = (server as text, defaultPort as number) as record =>
-    let
-        Address = Uri.Parts("http://" & server),
-        // Uri.Parts(absoluteUri as text) as [Scheme = text, Host = text, Port = number, Path = text, Query = record, Fragment = text, UserName = text, Password = text]  
-
-        // pointing to Knox gateway
-        Port = if Address[Port] = 8443 and not Text.EndsWith(server, ":8443") then [Port = defaultPort] else [Port = Address[Port]],
-        Host = [Host= Address[Host]],
-        ConnectionString = Host & Port,
-        Result =
-            if Address[Host] = "" 
-                or Text.StartsWith(server, "http:/", Comparer.OrdinalIgnoreCase) then
-                    error Extension.LoadString("InvalidServerNameError")
-            else
-                ConnectionString
-    in
-        Result;
-
-
 // Building the JDBC connection
-BuildJDBCConnection = (JDBC_Address as text, JDBC_Port as number, JDBC_Driver as number, JDBC_Schema as text) as record =>
+// JDBC_Driver can be null. In this case it is defaulted to "DSN"
+BuildJDBCConnection = (JDBC_Address as text, JDBC_Port as number, JDBC_Driver as text, JDBC_Schema as text) as record =>
     let
         ConnectionString = [
-//          Dsn = server,                                               // clean way to add a DSN
-
 // List of all HIVE->ODBC drivers names. We are going to use such drivers as a bridge to communicate with JDBC devices
-// All the following drives except SIMBA are SIMBA OEM
-            Driver =      if JDBC_Driver = 0 then "Microsoft Hive ODBC Driver"
-                     else if JDBC_Driver = 1 then "Cloudera ODBC Driver for Apache Hive"
-                     else if JDBC_Driver = 2 then "Hortonworks Hive ODBC Driver"
-                     else if JDBC_Driver = 3 then "Simba Hive ODBC Driver"
-                     // No valid driver,  POWER BI will be forced to display following message:
-                     //  "The 'Driver' property with value '{No JDBC Driver}' doesn't correspond to an installed ODBC driver."
-                     else "NO JDBC Driver",   
+// All the following drivers except SIMBA are SIMBA OEM
+            Driver = "DSN",
+                       
 // Simple Authentication
 // Driver="xxxx ODBC Driver"; Host=[Server]; Port=[PortNumber]; AuthMech=3; UID=[YourUserName]; PWD=[YourPassword];
-
-// Kerberos Authentication
-// Driver="xxxx ODBC Driver"; Host=[Server]; Port=[PortNumber]; AuthMech=1; KrbRealm=[Realm]; KrbHostFQDN=[DomainName]; KrbServiceName=[ServiceName];
-
-// Knox/Ranger Authentication
-// Driver="xxxx ODBC Driver"; Host=[Knox Server]; Port=[8443]; SSL= 1; AuthMech=3; UID=[YourUserName]; PWD=[YourPassword];
-// Connecting to jdbc:hive2://ns3615.co.eu:8443/;ssl=true;sslTrustStore=/var/lib/knox/data-2.6.5.0-292/security/keystores/gateway.jks;
-// trustStorePassword=password;transportMode=http;httpPath=gateway/default/indexima
-
             Host = JDBC_Address,
             Port = JDBC_Port,
             Schema = JDBC_Schema,				                        // default schema, must be blank for navigation into Hive2 structures
@@ -111,30 +91,29 @@ BuildJDBCConnection = (JDBC_Address as text, JDBC_Port as number, JDBC_Driver as
             ThriftTransport = 1                                         // ThriftTransport 0 = BINARY  if connecting to Hive Server 1. 
                                                                         //                 1 = SASL    if connecting to Hive Server 2.
                                                                         //                 2 = HTTP
-
-            // Special setup when Ranger/Knox is enabled
-//          ThriftTransport = 2                                         // HTTP transport through the Knox gateway
-//          HTTPPath = "/cliservice"                                    // required if HTTP transport
             ],
-        Result =
-                ConnectionString
+        Result = ConnectionString
     in
         Result;
 
 // ----------------------------------------------------------------------------------------------
-IndeximaCore = (server as text, port as number, optional options as record) =>
+// Main entry point
+// server and port are mandatory parameters even if port is useless in DSN mode.
+// driver is mainly used in desktop mode and is defaulted to DSN when NULL
+IndeximaCore = (server as text, port as number, optional driver as text, optional options as record) =>
     let
         Credential = Extension.CurrentCredential(),
 
-        // WARNING only the HortonWorks driver interprets correctly structures returned by queries SHOW SCHEMA and SHOW TABLES
-        ConnectionString = BuildJDBCConnection(server, port, 2, ""),
+        driver = "DSN",
+
+        // WARNING PowerBI is very sensitive to DAX layers of different drivers. On REX, only the HortonWorks driver interprets correctly SQL structures
+        ConnectionString = BuildJDBCConnection(server, port, driver, ""),   // schema left empty to force PowerBI to brownse into the Indexima Dataspaces
 
         Options = [
         // --------------------------------------------------------------------------------------
         // Credentials are not persisting with the query and are set through a separate record field - CredentialConnectionString.
         // The base Odbc.DataSource function will handle UsernamePassword authentication automatically
         // The very basic is: CredentialConnectionString = [ UID = Credential[Username], PWD = Credential[Password] ],
-
         CredentialConnectionString =                                        // set connection string parameters used for basic authentication
             if Credential[AuthenticationKind]? = "Username" then
                  [ UID = Credential[Username], PWD = "" ]
@@ -158,7 +137,19 @@ IndeximaCore = (server as text, port as number, optional options as record) =>
         // HierarchicalNavigation: Sets whether to view the tables grouped by their schema names.
         // When set to false, tables will be displayed in a flat list under each database.
         // Default: false
-        HierarchicalNavigation = not (options[HierarchicalNavigation]? = false),
+// --- Test Hive Issue
+//        HierarchicalNavigation = not (options[HierarchicalNavigation]? = false),
+        HierarchicalNavigation = true,
+
+// --- Test Hive Issue
+        // --------------------------------------------------------------------------------------
+        // Allows conversion of numeric and text types to larger types if an operation would cause the value to
+        // fall out of range of the original type.
+	// For example, when adding Int32.Max + Int32.Max, the engine will cast the result to Int64 when this setting is set to true.
+	// When adding a VARCHAR(4000) and a VARCHAR(4000) field on a system that supports a maximize VARCHAR size of 4000, the engine
+	// will cast the result into a CLOB type.
+        // Default: false
+        TolerateConcatOverflow = true,
 
         // --------------------------------------------------------------------------------------
         // CreateNavigationProperties: Generate navigation properties on the returned tables. Navigation properties are based on foreign key relationships
@@ -177,24 +168,28 @@ IndeximaCore = (server as text, port as number, optional options as record) =>
         // --------------------------------------------------------------------------------------
         // ClientConnectionPooling: Enables client-side connection pooling for the ODBC driver. Most drivers will want to set this value to true.
         // Default: false
-        ClientConnectionPooling = true,         
-
+        ClientConnectionPooling = true,          
+        
         // --------------------------------------------------------------------------------------
         // SqlCapabilities: Overrides of driver capabilities, and a way to specify capabilities that are not expressed through ODBC 3.8. 
         SqlCapabilities = [
             Sql92Conformance = SQL_SC[SQL_SC_SQL92_FULL],               // SQL_SC_SQL92_FULL = 0x00000008
 
-            GroupByCapabilities = SQL_GB[SQL_GB_COLLATE],               // SQL_GB_NO_RELATION = 0x0003 ????  SQL_GB_COLLATE = 0x0004
+// --- Test Hive Issue --- uses SQL_GB_NO_RELATION
+//          GroupByCapabilities = SQL_GB[SQL_GB_COLLATE],               // SQL_GB_COLLATE = 0x0004
+                                                                        // A constant specifying the relationship between the columns in the GROUP BY clause
+                                                                        // and the nonaggregated columns in the select list, indicates a COLLATE clause can be
+                                                                        // specified at the end of each grouping column.
+            GroupByCapabilities = SQL_GB[SQL_GB_NO_RELATION],           // SQL_GB_NO_RELATION = 0x0003
+                                                                        // A constant specifying the relationship between the columns in the GROUP BY clause and
+                                                                        // the nonaggregated columns in the select list, indicates the columns in the GROUP BY clause
+                                                                        // and the select list are not related.
 
-            SupportsTop = true,                                         // Supports the TOP clause to limit the number of returned rows.
+            SupportsTop = false,                                         // Supports the TOP clause to limit the number of returned rows.
                                                                         // Default: false,  Set to false for Hive connector  
-
-//          FractionalSecondsScale = 3,                                 // Ranging from 1 to 7, Number of decimal places supported for millisecond values.
+            FractionalSecondsScale = 3,                                 // Ranging from 1 to 7, Number of decimal places supported for millisecond values.
                                                                         // This value should be set by connectors that wish to enable query folding over datetime values.
                                                                         // Default: null, Not sure what to put for Indexima said Matt.Masson@microsoft.com
-            // Matt.Masson@microsoft.com
-            // Needed to work around a bug in the driver where selection of parameters only produces an error with an assertion message.
-            // While this doesn't completely solve the issue, it addresses certain common queries that are produced by DirectQuery.
 
             SupportsNumericLiterals = true,                             // Includes numeric literals values.
                                                                         // When set to false, numeric values will always be specified using Parameter Binding.
@@ -220,71 +215,15 @@ IndeximaCore = (server as text, port as number, optional options as record) =>
                                                                         // Default: false
             ],
 
-            // ----------------------------------------------------------------------------------
-            // SQLGetInfo: A record that allows you to override values returned by calls to SQLGetInfo. 
-
-//          SQLGetInfo = [
-//              // TODO: is this the right approach for the Indexima driver? It removes errors but seems to impact performance. Matt.Masson@microsoft.com
-//              // Turn on SQL_FN_STR_LOCATE_2      
-//              SQL_STRING_FUNCTIONS = let driverDefault = 277753,
-//                  locateOff = Number.BitwiseAnd(driverDefault, Number.BitwiseNot(/* SQL_FN_STR_LOCATE */ 0x20)),      // SQL_FN_STR_LOCATE = 0x00000020L
-//                  locate2On = Number.BitwiseOr(locateOff, /* SQL_FN_STR_LOCATE_2 */ 0x10000)                          // SQL_FN_STR_LOCATE_2 = 0x00010000L
-//               in
-//                  locate2On
-//                ],
-
-            SQLGetInfo = [                                              // Place custom overrides here
-                SQL_STRING_FUNCTIONS = let driverDefault =              // Value reported by the driver: 277 753 = 0x43CF9L
-                    {
-                    SQL_FN_STR[SQL_FN_STR_CONCAT],                      // 0x00000001L
-                    SQL_FN_STR[SQL_FN_STR_LTRIM],                       // 0x00000008L
-                    SQL_FN_STR[SQL_FN_STR_LENGTH],                      // 0x00000010L
-                    SQL_FN_STR[SQL_FN_STR_LOCATE],                      // 0x00000020L
-                    SQL_FN_STR[SQL_FN_STR_LCASE],                       // 0x00000040L
-                    SQL_FN_STR[SQL_FN_STR_REPEAT],                      // 0x00000080L
-                    SQL_FN_STR[SQL_FN_STR_RTRIM],                       // 0x00000400L
-                    SQL_FN_STR[SQL_FN_STR_SUBSTRING],                   // 0x00000800L
-                    SQL_FN_STR[SQL_FN_STR_UCASE],                       // 0x00001000L
-                    SQL_FN_STR[SQL_FN_STR_ASCII],                       // 0x00002000L
-                    SQL_FN_STR[SQL_FN_STR_SPACE]                        // 0x00040000L
-                    },                                     // Total bitmap 0x00043CF9L = 277 753
-                updated = driverDefault &                               // add missing string functions
-                    {
-                    SQL_FN_STR[SQL_FN_STR_LEFT],                        // 0x00000004L
-                    SQL_FN_STR[SQL_FN_STR_RIGHT],                       // 0x00000200L
-                                                    // Intermediate bitmap 0x00000204L
-                    SQL_FN_STR[SQL_FN_STR_LOCATE_2]                     // 0x00010000L  // Add specific settings for Indexima
-                    }
-                in
-                    Flags(updated),
-
-                SQL_NUMERIC_FUNCTIONS = let driverDefault =             // this is the value reported by the driver: 8 386 415 = 0x7FF76F
-                    {
-                    SQL_FN_NUM[SQL_FN_NUM_ABS],                         // 0x00000001L
-                    SQL_FN_NUM[SQL_FN_NUM_ASIN],                        // 0x00000004L
-                    SQL_FN_NUM[SQL_FN_NUM_ATAN2],                       // 0x00000010L
-                    SQL_FN_NUM[SQL_FN_NUM_LOG],                         // 0x00000400L
-                    SQL_FN_NUM[SQL_FN_NUM_SIN],                         // 0x00002000L
-                    SQL_FN_NUM[SQL_FN_NUM_SQRT],                        // 0x00004000L
-                    SQL_FN_NUM[SQL_FN_NUM_LOG10],                       // 0x00080000L
-                    SQL_FN_NUM[SQL_FN_NUM_POWER],                       // 0x00100000L
-                    SQL_FN_NUM[SQL_FN_NUM_RADIANS]                      // 0x00200000L 
-                    },                                     // Total bitmap 0x00386415L  // Missing 0x0 8 000 000L 
-                updated = driverDefault &                               // add missing functions
-                    {
-                    SQL_FN_NUM[SQL_FN_NUM_MOD]                          // 0x00000800L
-                    }
-                in
-                    Flags(updated)
-		],
 
             // ----------------------------------------------------------------------------------
             // SQLGetInfo: Override values returned by calls to SQLGetFunctions.
             // A common use of this field is to disable the use of parameter binding, or to specify that generated queries should use CAST rather than CONVERT
             SQLGetFunctions = [
-                SQL_API_SQLBINDPARAMETER = false
+                // We enable numeric and string literals which should enable literals for all constants.
+                SQL_API_SQLBINDPARAMETER = false,
                 // Use Cast Instead Of Convert                          // version ODBCVER >= 0x0300
-                // SQL_CONVERT_FUNCTIONS = SQL_FN_CVT[SQL_FN_CVT_CAST]  // 0x00000002L
+                SQL_CONVERT_FUNCTIONS = SQL_FN_CVT[SQL_FN_CVT_CAST]     // 0x00000002L
                 ],
 
             // ----------------------------------------------------------------------------------
@@ -305,17 +244,20 @@ IndeximaCore = (server as text, port as number, optional options as record) =>
                 ]
             ]
     in
+
+// Genuine calls, new format handle DSN and DSN-less connection
 //      Odbc.DataSource("DSN=" & server, Options){0}[Data]{[Name=db]}[Data];
-//      The prefixed server with "DNS=" is only for PowerBI desktop edition
-        Odbc.DataSource(if Text.StartsWith(server, "DSN=", Comparer.OrdinalIgnoreCase) then server else ConnectionString, Options);
+        if (Text.StartsWith(server, "DSN=", Comparer.OrdinalIgnoreCase)) then Odbc.DataSource (server, Options)
+        else if (driver = "DSN" or driver = Null.Type) then  Odbc.DataSource ("DSN=" & server, Options)
+        else  Odbc.DataSource(ConnectionString, Options);
 
 // ----------------------------------------------------------------------------------------------
 // Data Source UI publishing description
 Indexima.Publish = [
-    Beta = true,            				   			// turn to false when released
+    Beta = false,                                                       
     Category = "Database",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
-    LearnMoreUrl = "http://indexima.com/",
+    LearnMoreUrl = "https://www.indexima.com/",
     SourceImage = Indexima.Icons,
     SourceTypeImage = Indexima.Icons,
     SupportsDirectQuery = true
@@ -328,9 +270,8 @@ Indexima.Icons = [
 
 // ----------------------------------------------------------------------------------------------
 // Data Source Kind description
-    // Desktop PowerBI support just requires simple authentication
+// Desktop PowerBI support just requires simple authentication
 // Indexima = [Authentication = [UsernamePassword = [] ] ];
-
 Indexima = [
     // Set the TestConnection handler to enable gateway support.
     // The TestConnection handler will invoke your data source function to validate the credentials the user has provider. Ideally, this is not 
@@ -339,14 +280,18 @@ Indexima = [
     TestConnection = (dataSourcePath) => 
         let
             json = Json.Document(dataSourcePath),
-            server = json[server],      // name of function parameter
-            port = json[port]           // name of function parameter
-        in
-            { "Indexima.Database", server, port },
+            server = json[server],                      // name of function parameter server
+            port = json[port],                          // JDBC PORT
+            driver =  try json[driver] otherwise "DSN", // JDBC driver DSN if the value is null
+            options = try json[options] otherwise DefaultOptionConnection
+       in
+          { "Indexima.Database", server, port, driver, options },
 
     // Set supported types of authentication
     Authentication = [ UsernamePassword = [] ],
+
     Label = Extension.LoadString("DataSourceLabel")
+//  Label = Null.Type                                   // setting this value to null (or getting an error) and server from connection string will be used
 ];
 
 // ----------------------------------------------------------------------------------------------
@@ -373,4 +318,6 @@ SQL_FN_STR = ODBC[SQL_FN_STR];
 SQL_SC = ODBC[SQL_SC];
 SQL_GB = ODBC[SQL_GB];
 SQL_FN_NUM = ODBC[SQL_FN_NUM];
+SQL_AF = ODBC[SQL_AF];
+SQL_FN_CVT = ODBC[SQL_FN_CVT];
 // ----------------------------------------------------------------------------------------------

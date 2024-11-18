@@ -1,0 +1,52 @@
+/**
+ * Handles all the steps of reporting an error. Currently, that means emitting a trace log,
+ * sending the error message to our backend, and reporting an error metric.
+ *
+ * @param Context
+ * @param Error The error record. This shouldn't be the raw error, but the record that results
+ *              from a `try` expression.
+ * @param Metric.Tags An optional list of tags to apply to the metric and server-reported log.
+ * @returns The original error record. Callers must re-throw the error themselves if they want
+ *          to continue unwinding the stack. 
+ */
+(Context as record, Error as record, optional Metric.Tags as list) =>
+    let
+        Samsara.Client.ReportMetric = Context[Extension.LoadFunction](Context, "Samsara.Client.ReportMetric.pqm"),
+        Samsara.DateTime.UtcNow = Context[Extension.LoadFunction](Context, "Samsara.DateTime.UtcNow.pqm"),
+
+        Error.Traced = Diagnostics.Trace(
+            TraceLevel.Error,
+            "Encountered an error while loading Samsara data: " & Error[Message],
+            Error
+        ),
+
+        Error.Type = Error[Detail][Tag]? ?? "fault",
+        Error.Tag = "type:" & Error.Type,
+        Metric.Tags.WithType = (Metric.Tags ?? {}) & { Error.Tag },
+
+        Timestamp = Samsara.DateTime.UtcNow(),
+
+        Metrics = {
+            [
+                eventType = "log",
+                log = Text.FromBinary(Json.FromValue(Error)),
+                tags = Metric.Tags.WithType,
+                timestamp = Timestamp
+            ],
+            [
+                eventType = "count",
+                name = "data_connector.client.error",
+                value = 1,
+                tags = Metric.Tags.WithType,
+                timestamp = Timestamp
+            ]
+        },
+        Response = try Samsara.Client.ReportMetric(Context, Metrics)
+    in
+        if Response[HasError]
+            then Diagnostics.Trace(
+                TraceLevel.Error,
+                "Failed to report error details: " & Response[Error][Message],
+                Error.Traced
+            )
+            else Error.Traced 

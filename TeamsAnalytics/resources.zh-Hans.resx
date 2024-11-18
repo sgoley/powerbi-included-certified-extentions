@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,16 +118,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>连接到 Microsoft Teams 个人分析</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Microsoft Teams 个人分析</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>Microsoft Teams 个人分析</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="004" xml:space="preserve">
     <value>&lt;p&gt;借助 Teams 分析连接器，可深入了解你对 Teams 的使用情况。数据既可用于你在 Teams 中的个人活动，又可用于你在 Teams 中所属的活动。&lt;/p&gt;
 &lt;p&gt;可获取先前 90 天的数据。&lt;/p&gt;
 &lt;p&gt;有关可用数据类型的详细信息，请参阅以下帮助文档: &lt;/p&gt;
@@ -135,13 +136,13 @@
 &lt;li&gt;&lt;b&gt;Teams 用户活动:&lt;/b&gt; https://docs.microsoft.com/zh-cn/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
 &lt;/ul&gt;</value>
   </data>
-  <data name="TeamsActivityLabel" xml:space="preserve">
+  <data name="TeamsActivityLabel" errorCode="005" xml:space="preserve">
     <value>Teams 使用情况</value>
   </data>
-  <data name="TeamsSummaryActivityLabel" xml:space="preserve">
+  <data name="TeamsSummaryActivityLabel" errorCode="006" xml:space="preserve">
     <value>Teams 使用情况摘要</value>
   </data>
-  <data name="UserActivityLabel" xml:space="preserve">
+  <data name="UserActivityLabel" errorCode="007" xml:space="preserve">
     <value>Teams 用户活动</value>
   </data>
 </root>

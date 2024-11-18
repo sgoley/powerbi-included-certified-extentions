@@ -1,0 +1,90 @@
+let
+    //######################################## DATA HELPER FUNCTIONS ########################################
+    // Eduframe.Request - retrieves a single page of data and sets a Next link value as meta on the returned json response. 
+    // We parse the json result (which will be a list of records) into a table.
+    //
+    Eduframe.Request = (url as text, optional query as nullable record) =>
+        let
+            timeout = (iteration) => if iteration = 0 then #duration(0, 0, 0, 0) else #duration(0, 0, 1, 5), // Wait 65 seconds before trying again. Adds up to 5:30 minutes delay total which is our rate limiting duration.
+            content = Value.WaitFor(Fetcher(url, query), timeout, 10)
+        in
+            if content = null then error "Failed after multiple retry attempts"
+            else Json.Document(content) meta [Next=GetNextLink(content)],
+
+    // Fetcher - retries up to 10 times in case of rate limiting (status 429)
+    Fetcher = (url as text, optional query as nullable record) => (iteration) => 
+                let
+                    base_options = [ManualStatusHandling = {429}, IsRetry = iteration > 0], // Set IsRetry if this is not the first iteration to prevent using the cache.
+                    options = if query <> null then Record.AddField(base_options, "Query", query) else base_options,
+                    result = Web.Contents(url, AddAuthHeader(options)),
+                    status = Value.Metadata(result)[Response.Status]
+                in
+                    if status = 429 then null else result,
+
+
+    // Manually set authorization header in case we're using an access token, otherwise Power BI will handle the Authorization header.
+    AddAuthHeader = (header as record) =>
+        let is_bearer_token = Extension.CurrentCredential()[AuthenticationKind] = "Key" in
+        if is_bearer_token then
+            Record.AddField(Record.AddField(header, "Headers", [Authorization = "Bearer " & Extension.CurrentCredential()[Key]]), "ManualCredentials", true)
+        else
+            header,
+
+    // Eduframe.PagedRecords - fetches all pages using the link headers
+    // Adds the query parameters to the first request and afterwards relies only on the link headers
+    Eduframe.PagedRecords = (url as text, optional query as nullable record) as list => List.GenerateByPage(
+        () => Eduframe.Request(url, query),
+        (previous) =>
+            let
+                // If we have a previous page, get its Next link from metadata on the page.
+                next = if (previous <> null) then Value.Metadata(previous)[Next] else null,
+                // If we have a next link, use it, otherwise use the original URL that was passed in.
+                urlToUse = if (next <> null) then next else url,
+                // If we have a previous page, but don't have a next link, then we're done paging. Otherwise retrieve the next page.
+                current = if (previous <> null and next = null) then null else Eduframe.Request(urlToUse),
+                // If we got data back from the current page, get the link for the next page
+                link = if (current <> null) then Value.Metadata(current)[Next] else null
+            in
+                current meta [Next=link]),
+
+    // This function returns an absolute URL to the next page of data.
+    // 
+    // The 'response' parameter typically contains the result of the call to Web.Contents. 
+    // The 'request' parameter is optional and contains values to formulate the request.
+    // It is typically used when the next link is a relative URL and needs to be 
+    // appended to a base URL from the request. Its format is up to the extension author. 
+    //
+    GetNextLink = (response, optional request) =>
+        let
+            // extract the "Link" header if it exists
+            link = Value.Metadata(response)[Headers][#"Link"]?,
+            links = Text.Split(link, ","),
+            splitLinks = List.Transform(links, each Text.Split(Text.Trim(_), ";")),
+            next = List.Select(splitLinks, each Text.Trim(_{1}) = "rel=""next"""),
+            first = List.First(next),
+            removedBrackets = Text.Range(first{0}, 1, Text.Length(first{0}) - 2)
+        in
+            try removedBrackets otherwise null,
+
+    // Calls the getNextPage function until it returns null. 
+    // Each call to getNextPage expects a list of records to be returned.
+    // The result of the previous call to getNextPage is passed along to the next call.
+    // Returns a list of all records returned by a single API endpoint
+    List.GenerateByPage = (getFirstPage as function, getNextPage as function) as list =>
+        List.Combine(List.Generate(
+            () => getFirstPage(),
+            (lastPage) => lastPage <> null,
+            (lastPage) => getNextPage(lastPage)
+        )),
+
+    // This function is useful when making an asynchronous HTTP request and you need to poll the server until the request is complete.
+    Value.WaitFor = (producer as function, interval as function, optional count as number) as any =>
+        let
+            list = List.Generate(
+                () => {0, null},
+                (state) => state{0} <> null and (count = null or state{0} < count),
+                (state) => if state{1} <> null then {null, state{1}} else {1 + state{0}, Function.InvokeAfter(() => producer(state{0}), interval(state{0}))},
+                (state) => state{1})
+        in
+            List.Last(list)
+in  [PagedList = Eduframe.PagedRecords, Fetch = Eduframe.Request]

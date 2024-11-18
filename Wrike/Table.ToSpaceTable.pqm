@@ -1,0 +1,9 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns1" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns1", "Column1", {"id", "accountId", "title", "createdDate", "updatedDate", "description", "sharedIds", "parentIds", "childIds", "scope", "permalink", "workflowId", "space"}, {"Column1.id", "Column1.accountId", "Column1.title", "Column1.createdDate", "Column1.updatedDate", "Column1.description", "Column1.sharedIds", "Column1.parentIds", "Column1.childIds", "Column1.scope", "Column1.permalink", "Column1.workflowId", "Column1.space"}),
+    #"Removed Columns2" = Table.RemoveColumns(#"Expanded Column1",{"Column1.accountId", "Column1.createdDate", "Column1.updatedDate", "Column1.description", "Column1.sharedIds", "Column1.parentIds", "Column1.scope", "Column1.permalink", "Column1.workflowId"}),
+    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns2",{{"Column1.title", "title"}, {"Column1.childIds", "childIds"}, {"Column1.id", "id"}, {"Column1.space", "space"}}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"title", type text}, {"id", type text},{"space", type logical}})
+in
+    #"Changed Type"

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>詳細設定オプション</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>集計されたデータ</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>データの粒度</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>生のクエリ結果を読み込む場合は「行レベル データ」を選択し、クエリをデータベースにプッシュして集計結果を取得する場合は「集計済みデータ」を選択します。最良の結果を得るには、[データ接続モードのインポート] を選択した場合のみ、行レベル データを選択します。</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>行レベル データ</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>組織アカウント</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Workplace Analytics データに接続します</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Viva インサイト データに接続する</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva インサイト</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Online Services</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>テーブル名</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Workplace Analytics データに接続します</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Advanced Insights クエリで複数のテーブルが出力される場合は、接続先のテーブルを指定します。</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva インサイト</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Viva インサイト データに接続する</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>クエリ名や識別子を指定してクエリ結果に接続する場合、集計されたデータ粒度は現在サポートされていません。クエリ結果に接続する場合は、[行レベル データ粒度] を選択します。</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>行レベル データ粒度は、現在、クエリ結果への接続時にのみサポートされます。ユーザー メトリックの一般的なセットに接続する場合、またはクエリ名や識別子を指定する場合は、[集約されたデータ粒度] を選択します。</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>認証中に予期しない WWW 認証ヘッダーの形式または値が検出されました。</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>認証中にサーバーから予期しない応答が返されました。</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>このデータ ソースでは、行レベルのデータ粒度はサポートされていません。代わりに集計データの粒度を選択してください。</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>パーティション内の測定された従業員ごとに、表示可能な属性と週ごとのメトリックを含むテーブルを返します。</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>クエリ識別子</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>クエリ ID</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>これを Workplace Analytics で検索するには、クエリ結果を開き、必要なクエリ リンクをコピーして、URL に表示される最後の 32 桁の ID (GUID) を抽出します。</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>高度な分析情報アプリで、[分析] &gt; [クエリの結果] に移動し、クエリを検索し、[リンク] を選択してクエリ識別子を取得します。</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>クエリ名</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Workplace Analytics の [クエリ結果] タブと全く同じクエリ名を入力します</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>詳細な分析情報アプリの [分析] &gt; [クエリ結果] ページにあるクエリ名を入力します。</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/ja-jp/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Workplace Analytics から週単位のメトリックと属性データをインポートします。</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contoso の個人のメトリック</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>スキーマの種類</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>[ピボット済み] を選択して、組織の属性を個別の列として読み込むか、[ピボット解除] を選択して、組織属性をキーと値のペア (属性名 = 組織、属性値 = 財務など) として読み込みます。</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>ピボット済み</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>ピボット解除</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>パーティション識別子</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>これを Workplace Analytics で検索するには、ユーザー プロファイルを開いて、情報を選択します</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>高度な分析情報アプリで、[分析] &gt; [クエリの結果] に移動し、クエリを検索し、[リンク] を選択してパーティション識別子を取得します。</value>
   </data>
 </root>

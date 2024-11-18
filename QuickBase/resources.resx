@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BaseUrl" xml:space="preserve">
+    <value>https://api.quickbase.com/v1/</value>
+  </data>
   <data name="ButtonHelp" xml:space="preserve">
     <value>Connect to qbconnector</value>
   </data>
@@ -124,7 +127,7 @@
     <value>qbconnector</value>
   </data>
   <data name="ContentType" xml:space="preserve">
-    <value>application/xml</value>
+    <value>application/json</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
     <value>qbconnector</value>
@@ -139,12 +142,12 @@
     <value>Application Url (Hint: https://domain/db/appID)</value>
   </data>
   <data name="UrlFieldDescription" xml:space="preserve">
-    <value>Quick Base Domain</value>
+    <value>Application URL containing  Quick Base domain with application's id to identify and connect with an application and fetch data.</value>
   </data>
   <data name="UrlFieldSampleValues" xml:space="preserve">
     <value>https://realm.quickbase.com/db/ApplicationID</value>
   </data>
   <data name="UserAgent" xml:space="preserve">
-    <value>Power BI/v1.1</value>
+    <value>Power BI/v1.4</value>
   </data>
 </root>

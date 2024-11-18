@@ -1,5 +1,5 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.7"]
+[Version = "1.0.14"]
 section CustomerInsights;
 CustomerInsights.resource_uri =  "https://api.ci.ai.microsoft.com";
 CustomerInsights.BaseUri =  "https://global.api.ci.ai.dynamics.com/api/instances";  // Global Api for instances
@@ -12,12 +12,12 @@ DefaultCIOptions = [
 
 CustomerInsights.ApiRootQuery = "?$select=*"; 
 CustomerInsights.ProxyApiRootQuery = CustomerInsights.ApiRootQuery & "&proxy=true";
-CustomerInsights.UserAgentString = "Microsoft.Data.Mashup;CustomerInsightsConnector;v=1.0.7";
+CustomerInsights.UserAgentString = "Microsoft.Data.Mashup;CustomerInsightsConnector;v=1.0.13";
 CustomerInsights.OriginString = "https://powerbi.microsoft.com";
 
 CustomerInsights.SimpleHeaders = [#"User-Agent" = CustomerInsights.UserAgentString];
 CustomerInsights.DefaultRequestHeaders = [#"Accept" = "application/json;odata.metadata=minimal", #"OData-MaxVersion" = "4.0", #"User-Agent" = CustomerInsights.UserAgentString, #"Origin" = CustomerInsights.OriginString];  //Required to fetch metadata and instances
-CustomerInsights.CsvRequestHeaders = [#"Content-Type" = "text/csv", #"User-Agent" = CustomerInsights.UserAgentString];  //Required to enable the downloading of data in raw csv format
+CustomerInsights.CsvRequestHeaders = [#"User-Agent" = CustomerInsights.UserAgentString];  //Required to enable the downloading of data in raw csv format
 
 //Record of all the replace types
 CustomerInsights.ReplaceDataTypes = [
@@ -34,7 +34,8 @@ CustomerInsights.ReplaceDataTypes = [
             Edm.TimeOfDay = type time,
             Edm.DateTimeOffset = type datetimezone,
             Edm.Byte = type number,
-            Edm.SByte = type number
+            Edm.SByte = type number,
+            Edm.Guid = type text
         ];
 
 [DataSource.Kind="CustomerInsights", Publish="CustomerInsights.Publish"]
@@ -84,11 +85,15 @@ CustomerInsights.EnvNavTable = (url as text, optional options as record) as tabl
         cIOptions = MergeOptions(DefaultCIOptions, options),
 
         JsonResponse = Json.Document(Web.Contents(Text.TrimEnd(url, {"/"}), [Headers = CustomerInsights.SimpleHeaders])),
-        Environments = Table.FromRecords(JsonResponse),  //  we need to convert json records to table
-        FilteredEnviornments = Table.SelectRows(Environments, each [name] <> null and (Text.Length([name]) <> 36 and List.Count(Text.Split([name], "-")) <> 4)),  //  Eliminate guid named instances & those with null as name
+
+        asTable = Table.FromList(JsonResponse, Splitter.SplitByNothing(), {"Column1"}),
+        expanded = Table.ExpandRecordColumn(asTable, "Column1", {"instanceId", "tenantId", "tenantName", "scaleUnitUri", "name", "instanceType", "region"}),
+
+        EnvironmentsNoErrors = Table.RemoveRowsWithErrors(expanded), // this filters out instances that return 500 for some reason
+        FilteredEnvironments = Table.SelectRows(EnvironmentsNoErrors, each [name] <> null),  //  Eliminate instances with null as name
  
         //Core of the expansion.  scaleUnitUri + core path + Id + data. Also this url is the previous versions url
-        EnvWithData = Table.AddColumn(FilteredEnviornments, "Data", each CustomerInsights.EntityNameNav( [scaleUnitUri] & "/api/instances/"& [instanceId], cIOptions)), 
+        EnvWithData = Table.AddColumn(FilteredEnvironments, "Data", each CustomerInsights.EntityNameNav( [scaleUnitUri] & "/api/instances/"& [instanceId], cIOptions)), 
         EnvWithHealth = Table.AddColumn(EnvWithData, "Health", each Json.Document(Web.Contents([scaleUnitUri] & "/api/instances/"& [instanceId], [Headers = CustomerInsights.SimpleHeaders]))),
         dataWithoutErrors = Table.RemoveRowsWithErrors(EnvWithHealth,{"Data","Health"}),   //Remove broken instances  doesn't work
         removeCols = Table.RemoveColumns(dataWithoutErrors, {"instanceType","region", "tenantId", "tenantName"}, MissingField.Ignore),   // Removing unneeded data
@@ -116,9 +121,11 @@ CustomerInsights.EntityNameNav = (url as text, optional cIOptions as record) as 
 
         //Keeping only the Customer schema and passing it to fetch all segments
         Segments =  Table.SelectRows(AllEntities, each [EntityType] = "Segment" ),
-        EntitiesOnly = Table.SelectRows(AllEntities, each [EntityType] <> "AggregateKpi" and [EntityType] <> "UnifiedActivity" and [EntityType] <> "Segment"),
+        EntitiesOnly = Table.SelectRows(AllEntities, each [EntityType] <> "Enrichment" and [EntityType] <> "AggregateKpi" and [EntityType] <> "UnifiedActivity" and [EntityType] <> "Segment"),
         Measures  = Table.SelectRows(AllEntities, each [EntityType] = "AggregateKpi"),
         Activities = Table.SelectRows(AllEntities, each [EntityType] = "UnifiedActivity"),
+        Enrichments = Table.SelectRows(AllEntities, each [EntityType] = "Enrichment"),
+
         UserDefinedRelationships = CustomerInsights.GetAllRelationships(url),
         BuiltinMeasuresRelationships = CustomerInsights.AppendBuiltinRelationships(Measures, UserDefinedRelationships),
         BuiltinActivityRelationships = CustomerInsights.AppendBuiltinRelationships(Activities, BuiltinMeasuresRelationships),
@@ -140,8 +147,12 @@ CustomerInsights.EntityNameNav = (url as text, optional cIOptions as record) as 
                                 else Table.InsertRows(#table(NavColumns, {}),  0 , {
                                 Record.FromList({Extension.LoadString("UnifiedActivity"), CustomerInsights.EntityNavTable(Activities, url & "/data/", cIOptions, "Entity", BuiltinActivityRelationships), "Folder", "Folder", false }, NavColumns)
                                 }),
+        SourceWithEnrichments = if Table.IsEmpty(Enrichments) then #table(NavColumns, {})
+                                else Table.InsertRows(#table(NavColumns, {}),  0 , {
+                                Record.FromList({Extension.LoadString("Enrichments"), CustomerInsights.EntityNavTable(Enrichments, url & "/data/", cIOptions, "Entity", BuiltinActivityRelationships), "Folder", "Folder", false }, NavColumns)
+                                }),
 
-        MergeTables = Table.Combine({Table.RemoveRowsWithErrors(SourceWithEntities), Table.RemoveRowsWithErrors(SourceWithMeasures), Table.RemoveRowsWithErrors(SourceWithSegments), Table.RemoveRowsWithErrors(SourceWithUnifiedActivity)}, NavColumns),
+        MergeTables = Table.Combine({Table.RemoveRowsWithErrors(SourceWithEntities), Table.RemoveRowsWithErrors(SourceWithEnrichments), Table.RemoveRowsWithErrors(SourceWithMeasures), Table.RemoveRowsWithErrors(SourceWithSegments), Table.RemoveRowsWithErrors(SourceWithUnifiedActivity)}, NavColumns),
         EntityNameNav = Table.ToNavigationTable(MergeTables, {"EntityName"}, "EntityName", "Data", "ItemKind", "ItemName", "IsLeaf")
     in
         EntityNameNav;
@@ -172,32 +183,27 @@ CustomerInsights.GetAllRelationships = (uri as text) as table =>
 //Fetches all items in metadata and ignores D365 metadata entities
 CustomerInsights.GetAllEntities = (uri as text) as table =>
     let
-        //Intial Response and Root data item we will be parsing
-        //This will convert root xml schema to a table of tables for each entity with 
-        //"Attribute:Name", "Attribute:Type", "Attribute:Nullable" as the format of each entities schema table
-        Response = Xml.Tables(Web.Contents(uri & "/data/$metadata", [Headers=CustomerInsights.DefaultRequestHeaders])),
-        RemovedColumns = Table.RemoveColumns(Response,{"Attribute:Version"}, MissingField.Ignore),
-        ExpandedDataServices = Table.ExpandTableColumn(RemovedColumns, "DataServices", {"http://docs.oasis-open.org/odata/ns/edm"}, {"Edm"}),
-        ExpandedEdm = Table.ExpandTableColumn(ExpandedDataServices, "Edm", {"Schema"}, {"Schema"}),
+        MetadataRawResponse = Web.Contents(uri & "/manage/entities?includeSelfConflatedEntity=true&includeQuarantined=true", [Headers=CustomerInsights.DefaultRequestHeaders,  ManualStatusHandling={403}]),
+        responseCode = Value.Metadata(MetadataRawResponse)[Response.Status]
+    in
+        if responseCode = 403 then {}
+        else
+            let
+                Response = Record.ToTable(Json.Document(MetadataRawResponse)),
 
-        //Expanding the annotations path in the metadata xml to fetch the actual entity type data.
-        Annotations = Table.ExpandTableColumn(ExpandedEdm ,"Schema", {"Annotations"}, {"Annotations"}),
-        ExpandedAnnotations = Table.ExpandTableColumn(Annotations, "Annotations", {"Annotation", "Attribute:Target"}, {"Annotation", "EntityName"}),
-        ExpandedAnnotationsTypes = Table.ExpandTableColumn(ExpandedAnnotations, "Annotation", {"Attribute:Term", "Attribute:String"}, {"Term", "EntityType"}),
-        FiltertoEntityTypes = Table.SelectRows(ExpandedAnnotationsTypes, each ([Term] = "microsoft.customer360.entityType")),
-        CorrectEntityName = Table.ReplaceValue(FiltertoEntityTypes,"CustomerInsights.","",Replacer.ReplaceText,{"EntityName"}),
+            // Keep just the entities row
+            Entities =  Table.SelectRows(Response, each [Name] = "entities"),
+            Records = Entities{0}[Value],
+            EntitiesAsTable = Table.FromList(Records, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+            ExpandedEntities = Table.RenameColumns(Table.ExpandRecordColumn(EntitiesAsTable, "Column1", {"qualifiedEntityName", "entityType", "attributes"}), {{"entityType", "EntityType"}, {"qualifiedEntityName", "EntityName"}}),
 
-        //This is the actual schema data
-        ExpandedSchema = Table.ExpandTableColumn(ExpandedEdm, "Schema", {"EntityType"}, {"EntityTypes"}),
-        ExpandedEntityTypes = Table.ExpandTableColumn(ExpandedSchema, "EntityTypes", {"Property", "Attribute:Name"}, {"Schema", "EntityName"}),
+            // Convert attributes lists to table
+            AttributesListToTable = Table.AddColumn(ExpandedEntities, "Schema", each Table.RenameColumns(Table.FromRecords([attributes], {"name", "dataType"}), { {"name", "Attribute:Name"}, {"dataType", "Attribute:Type"}})),
+            FormattedTable = Table.RemoveColumns(AttributesListToTable, "attributes"),
 
-        //We merge both annotation Entity Type data and the schema data back together
-        SourceMerge = Table.NestedJoin(ExpandedEntityTypes, {"EntityName"}, CorrectEntityName, {"EntityName"}, "Annotations", JoinKind.LeftOuter),
-        MergedData = Table.ExpandTableColumn(SourceMerge, "Annotations", {"EntityType"}, {"EntityType"}),
-
-        //Conflations as they are not required
-        SelectSourceEntities = Table.SelectRows(MergedData, 
-            each [EntityType] <> "ConflationMap")
+            //Conflations as they are not required
+            SelectSourceEntities = Table.SelectRows(FormattedTable, 
+                each [EntityType] <> "ConflationMap")
     in
         SelectSourceEntities;
 
@@ -240,23 +246,23 @@ CustomerInsights.GetData = (url as text, schema as table, cIOptions as record, d
     let
         //Rename and retransform the formats in the data
         RenamedSchema = Table.RenameColumns(schema, {{"Attribute:Name", "Name"}, {"Attribute:Type", "Type"}}, MissingField.Ignore),
-        TransformToTypes = Table.TransformColumns(RenamedSchema,{"Type",each Record.FieldOrDefault(CustomerInsights.ReplaceDataTypes,_)}),
+        TransformToTypes = Table.TransformColumns(RenamedSchema,{"Type",each Record.FieldOrDefault(CustomerInsights.ReplaceDataTypes,_,type text)}),
         TypeList = List.Zip({Table.Column(TransformToTypes, "Name"), Table.Column(TransformToTypes, "Type")}),
         RemoveNullableAndType = Table.SelectColumns(RenamedSchema,{"Name"}, MissingField.Ignore),
         Header = Table.FirstN(Table.DemoteHeaders(Table.Pivot(RemoveNullableAndType, List.Distinct(RemoveNullableAndType[Name]), "Name", "Name")), 1),
         
         //Fetches the httpRequests which contains the list of csvs and auth headers
         jsonResp = Json.Document(Web.Contents(url, [Headers = CustomerInsights.CsvRequestHeaders]))[httpRequests],
-        RequestList = Table.FromList(jsonResp, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+        RequestList = Table.FromList(jsonResp, Splitter.SplitByNothing(), {"Column1"}),
         ExpandList = Table.ExpandRecordColumn(RequestList, "Column1", {"uri", "headers"}, {"uri", "headers"}),
 
         // Here we take each csv and auth header provided and fetch the csvs
         // Segements keeps header, data Entities does not have header
         // Create a column list based on all data first row header and rejoin with original header row data
         CsvRequests = Table.TransformRows(ExpandList,
-                      (row) => () =>  
+                      (row) => () =>
                         let 
-                           result = Csv.Document(Web.Contents(row[uri], [Headers= row[headers], ManualCredentials = true, Timeout=#duration(0, 0, 1, 0)])),
+                           result = Csv.Document(CustomerInsights.FetchCsv(row[uri], row[headers])),
                            //get the first row from result and transpose it to column to check if it contains headers
                            firstRowFromData = Table.Transpose(Table.FirstN(result, 1)),
                            //check if header has CustomerId as attribute
@@ -268,14 +274,42 @@ CustomerInsights.GetData = (url as text, schema as table, cIOptions as record, d
                             filteredResult),
 
         BatchResult = List.ParallelInvoke(CsvRequests, cIOptions[ConcurrentRequests]),
-        AddAllData = Table.FromList(BatchResult, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+        AddAllData = Table.FromList(BatchResult, Splitter.SplitByNothing(), {"Column1"}),
         SelectDataOnly = Table.SelectColumns(AddAllData, {"Column1"}),
         CustomColumnNames = Table.ColumnNames(SelectDataOnly{0}[Column1]),
         JoinedTables = Table.ExpandTableColumn(SelectDataOnly, "Column1", CustomColumnNames, CustomColumnNames),
         responseWithHeader = Table.PromoteHeaders(Table.Combine({Header, JoinedTables})),
         TransformedTable = (Table.TransformColumnTypes(responseWithHeader, TypeList))
      in
-        TransformedTable; 
+        if Table.IsEmpty(RequestList) then
+            Table.PromoteHeaders(Header)
+        else 
+            TransformedTable;
+
+CustomerInsights.FetchCsv = (uri as text, headers as record) => 
+    let
+        uriParts = Uri.Parts(uri),
+        uriWithoutQuery = Uri.FromParts(uriParts & [Query = []])
+    in
+        Web.Contents(uriWithoutQuery, [
+            Headers = headers,
+            CredentialQuery = uriParts[Query],
+            ManualCredentials = true,
+            Timeout=#duration(0, 0, 20, 0)
+        ]);
+
+Uri.FromParts = (parts) =>
+    let
+        port = if (parts[Scheme] = "https" and parts[Port] = 443) or (parts[Scheme] = "http" and parts[Port] = 80) then ""
+             else ":" & Text.From(parts[Port]),
+        div1 = if Record.FieldCount(parts[Query]) > 0 then "?"
+             else "",
+        div2 = if Text.Length(parts[Fragment]) > 0 then "#"
+             else "",
+        uri = Text.Combine(
+            {parts[Scheme], "://", parts[Host], port, parts[Path], div1, Uri.BuildQueryString(parts[Query]), div2, parts[Fragment]})
+    in
+        uri;
 
 //Formating the schema to a type table with order
 CustomerInsights.FormatSchema = (rawSchema as table) as table  =>
@@ -286,7 +320,7 @@ CustomerInsights.FormatSchema = (rawSchema as table) as table  =>
         Join the two lists of names/types as a single list of lists
         */
         RenamedSchema = Table.RenameColumns(rawSchema, {{"Attribute:Name", "Name"}, {"Attribute:Type", "Type"}}),
-        TransformToTypes = Table.TransformColumns(RenamedSchema,{"Type",each Record.FieldOrDefault(CustomerInsights.ReplaceDataTypes,_)}),
+        TransformToTypes = Table.TransformColumns(RenamedSchema,{"Type",each Record.FieldOrDefault(CustomerInsights.ReplaceDataTypes,_,type text)}),
         Transpose = Table.Transpose(TransformToTypes),
         Promote = Table.PromoteHeaders(Transpose),
         TransformHeaderAsTable = (Table.TransformColumnTypes(Promote, List.Zip({Table.Column(TransformToTypes, "Name"), Table.Column(TransformToTypes, "Type")})))

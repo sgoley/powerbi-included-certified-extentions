@@ -1,0 +1,8 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "name", "dateFormat", "firstDayOfWeek", "workDays", "rootFolderId", "recycleBinId", "createdDate", "subscription", "metadata", "customFields", "joinedDate"}, {"id", "name", "dateFormat", "firstDayOfWeek", "workDays", "rootFolderId", "recycleBinId", "createdDate", "subscription", "metadata", "customFields", "joinedDate"}),
+    #"Expanded subscription" = Table.ExpandRecordColumn(#"Expanded Column1", "subscription", {"type", "suspended", "paid", "userLimit"}, {"type", "suspended", "paid", "userLimit"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded subscription",{{"id", type text}, {"name", type text}, {"dateFormat", type text}, {"firstDayOfWeek", type text}, {"rootFolderId", type text}, {"recycleBinId", type text}, {"createdDate", type datetime}, {"type", type text}, {"suspended", type logical}, {"paid", type logical}, {"userLimit", Int64.Type}, {"joinedDate", type datetime}})
+in
+    #"Changed Type"

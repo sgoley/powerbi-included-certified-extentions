@@ -109,7 +109,7 @@
     <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-    <value>1.0</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
     <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -118,39 +118,39 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FormulaTitle" xml:space="preserve">
-    <value>Projectplace for Power BI</value>
+    <value>Planview ProjectPlace</value>
   </data>
   <data name="FormulaHelp" xml:space="preserve">
-    <value>Import data from Planview Projectplace</value>
+    <value>Import data from Planview ProjectPlace</value>
   </data>
   <data name="ResourceLabel" xml:space="preserve">
-    <value>Projectplace for Power BI</value>
+    <value>Planview ProjectPlace</value>
   </data>
   <data name="PlanviewProjectplace.Contents.Function.Caption" xml:space="preserve">
     <value>PlanviewProjectplace.Contents</value>
   </data>
   <data name="PlanviewProjectplace.Contents.Function.Description" xml:space="preserve">
-    <value>Enter the URL of your Planview Projectplace account.</value>
+    <value>Enter the URL of your Planview ProjectPlace account.</value>
   </data>
   <data name="PlanviewProjectplace.Contents.Function.DisplayName" xml:space="preserve">
-    <value>Projectplace for Power BI</value>
+    <value>Planview ProjectPlace</value>
   </data>
   <data name="PlanviewProjectplace.Contents.Function.LongDescription" xml:space="preserve">
-    <value>Returns a table with relevant Planview Projectplace data.</value>
+    <value>Returns a table with relevant Planview ProjectPlace data.</value>
   </data>
   <data name="PlanviewProjectplace.Contents.Function.Name" xml:space="preserve">
-    <value>Projectplace for Power BI </value>
+    <value>Planview ProjectPlace</value>
   </data>
   <data name="PlanviewProjectplace.Contents.Parameter.url.FieldCaption" xml:space="preserve">
-    <value>Planview Projectplace OData URL</value>
+    <value>Planview ProjectPlace OData URL</value>
   </data>
-    <data name="ButtonHelp" xml:space="preserve">
-    <value>Connect to Projectplace for Power BI </value>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Connect to Planview ProjectPlace</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Projectplace for Power BI </value>
+    <value>Planview ProjectPlace</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Projectplace for Power BI  </value>
+    <value>Planview ProjectPlace</value>
   </data>
 </root>

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,154 +118,197 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Подключиться к Управлению затратами Azure</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Управление затратами Azure</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>Управление затратами Azure</value>
   </data>
-  <data name="Parameter_billingProfile_FieldCaption" xml:space="preserve">
+  <data name="Parameter_billingProfile_FieldCaption" errorCode="004" xml:space="preserve">
     <value>Идентификатор профиля выставления счетов</value>
   </data>
-  <data name="Parameter_billingProfile_SampleValues" xml:space="preserve">
+  <data name="Parameter_billingProfile_SampleValues" errorCode="005" xml:space="preserve">
     <value>e1b90562-f94b-452A-9a4d-5c27ca74a8f2</value>
   </data>
-  <data name="Parameter_Parameter_FieldCaption" xml:space="preserve">
+  <data name="Parameter_Parameter_FieldCaption" errorCode="006" xml:space="preserve">
     <value>Расширенные параметры запроса.</value>
   </data>
-  <data name="Parameter_Parameter_FieldDescription" xml:space="preserve">
+  <data name="Parameter_Parameter_FieldDescription" errorCode="007" xml:space="preserve">
     <value>Поддерживаемые варианты: dataType, numberOfMonth, startBillingDataWindow и endBillingDataWindow. Дополнительные сведения см. в примере кода.</value>
   </data>
-  <data name="Parameter_Parameter_SampleValues" xml:space="preserve">
+  <data name="Parameter_Parameter_SampleValues" errorCode="008" xml:space="preserve">
     <value>[ dataType = "DetailCharges", numberOfMonth = 1 ]</value>
   </data>
-  <data name="UnknownAPIType" xml:space="preserve">
+  <data name="UnknownAPIType" errorCode="009" xml:space="preserve">
     <value>Недопустимый тип API</value>
   </data>
-  <data name="UnknownErrorHandlingLevel" xml:space="preserve">
+  <data name="UnknownErrorHandlingLevel" errorCode="010" xml:space="preserve">
     <value>Неизвестный errorHandlingLevel:</value>
   </data>
-  <data name="CodeSample_1_Code" xml:space="preserve">
-    <value>let    
+  <data name="CodeSample_1_Code" errorCode="011" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ numberOfMonth = 1 ],
-          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      in     
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
           result</value>
   </data>
-  <data name="CodeSample_1_Description" xml:space="preserve">
+  <data name="CodeSample_1_Description" errorCode="012" xml:space="preserve">
     <value>Предположив, что сегодня 15.06.2017, получить данные сводок между датами 01.05.2017 и 15.06.2017</value>
   </data>
-  <data name="CodeSample_1_Result" xml:space="preserve">
+  <data name="CodeSample_1_Result" errorCode="013" xml:space="preserve">
     <value>Функция вернет данные сводок с 01.05.2017 по 15.06.2017</value>
   </data>
-  <data name="CodeSample_2_Code" xml:space="preserve">
-    <value>let    
+  <data name="CodeSample_2_Code" errorCode="014" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ startBillingDataWindow = "-2", endBillingDataWindow = "-1" ],
-          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      in     
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
           result</value>
   </data>
-  <data name="CodeSample_2_Description" xml:space="preserve">
+  <data name="CodeSample_2_Description" errorCode="015" xml:space="preserve">
     <value>Предположив, что сегодня 15.06.2017, получить данные сводок за апрель 2017 г.</value>
   </data>
-  <data name="CodeSample_2_Result" xml:space="preserve">
+  <data name="CodeSample_2_Result" errorCode="016" xml:space="preserve">
     <value>Функция вернет данные с 01.04.2017 по 30.04.2017</value>
   </data>
-  <data name="CodeSample_3_Code" xml:space="preserve">
-    <value>let    
+  <data name="CodeSample_3_Code" errorCode="017" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ startBillingDataWindow = "-2", endBillingDataWindow = "0", dataType = "Summaries" ],
-          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      in     
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
           result</value>
   </data>
-  <data name="CodeSample_3_Description" xml:space="preserve">
+  <data name="CodeSample_3_Description" errorCode="018" xml:space="preserve">
     <value>Предположив, что сегодня 15.06.2017, получить данные сводок с апреля 2017 г. по настоящее время.</value>
   </data>
-  <data name="CodeSample_3_Result" xml:space="preserve">
+  <data name="CodeSample_3_Result" errorCode="019" xml:space="preserve">
     <value>Функция вернет данные с 01.04.2017 по 15.06.2017</value>
   </data>
-  <data name="ReportGenerationFailed" xml:space="preserve">
+  <data name="ReportGenerationFailed" errorCode="020" xml:space="preserve">
     <value>Произошел сбой при создании отчета </value>
   </data>
-  <data name="PriceSheetFailed" xml:space="preserve">
+  <data name="PriceSheetFailed" errorCode="021" xml:space="preserve">
     <value>Сбой прейскуранта. URL-адрес:</value>
   </data>
-  <data name="UsageDetailsFailed" xml:space="preserve">
+  <data name="UsageDetailsFailed" errorCode="022" xml:space="preserve">
     <value>Сбой сведений об использовании. URL-адрес:</value>
   </data>
-  <data name="Parameter_apiVersion_FieldCaption" xml:space="preserve">
+  <data name="Parameter_apiVersion_FieldCaption" errorCode="023" xml:space="preserve">
     <value>Версия API</value>
   </data>
-  <data name="Parameter_apiVersion_SampleValues" xml:space="preserve">
+  <data name="Parameter_apiVersion_SampleValues" errorCode="024" xml:space="preserve">
     <value>2018-11-01-preview</value>
   </data>
-  <data name="InvalidBillingAccountId" xml:space="preserve">
+  <data name="InvalidBillingAccountId" errorCode="025" xml:space="preserve">
     <value>Отсутствуют допустимые "ИД учетной записи выставления счетов", связанные с "Профилем выставления счетов":</value>
   </data>
-  <data name="APIVersionRequired" xml:space="preserve">
+  <data name="APIVersionRequired" errorCode="026" xml:space="preserve">
     <value>"Версия API" — обязательное поле.</value>
   </data>
-  <data name="BillingProfileIdRequired" xml:space="preserve">
+  <data name="BillingProfileIdRequired" errorCode="027" xml:space="preserve">
     <value>"Идентификатор профиля выставления счетов" — обязательное поле.</value>
   </data>
-  <data name="AzureCostManagement" xml:space="preserve">
+  <data name="AzureCostManagement" errorCode="028" xml:space="preserve">
     <value>Управление затратами Azure</value>
   </data>
-  <data name="Parameter_billingAccount_FieldCaption" xml:space="preserve">
+  <data name="Parameter_billingAccount_FieldCaption" errorCode="029" xml:space="preserve">
     <value>Идентификатор учетной записи выставления счетов</value>
   </data>
-  <data name="Parameter_billingAccount_SampleValues" xml:space="preserve">
+  <data name="Parameter_billingAccount_SampleValues" errorCode="030" xml:space="preserve">
     <value>b1b8fc19-e597-53a4-fb6d-cbcd97ffb091</value>
   </data>
-  <data name="GeneralFailure" xml:space="preserve">
+  <data name="GeneralFailure" errorCode="031" xml:space="preserve">
     <value>Ошибка: сбой при создании данных для API: #[Name]. Повторите попытку через некоторое время.</value>
   </data>
-  <data name="TenantDiscoveryFailure" xml:space="preserve">
+  <data name="TenantDiscoveryFailure" errorCode="032" xml:space="preserve">
     <value>Не удалось обнаружить учетную запись для профиля выставления счетов:</value>
   </data>
-  <data name="EnrollmentNumberRequired" xml:space="preserve">
+  <data name="EnrollmentNumberRequired" errorCode="033" xml:space="preserve">
     <value>Поле "Номер регистрации" обязательное.</value>
   </data>
-  <data name="lbl_BillingProfile_EnrollmentNumber" xml:space="preserve">
-    <value>For Billing Profile Id/Enrollment Number</value>
-  </data>
-  <data name="lbl_Choose_Scope" xml:space="preserve">
-    <value>Choose Scope</value>
-  </data>
-  <data name="lbl_NumberOfMonths" xml:space="preserve">
-    <value>Number of months</value>
-  </data>
-  <data name="Parameter_Choose_Scope" xml:space="preserve">
-    <value>Choose Scope</value>
-  </data>
-  <data name="Parameter_Months" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="Parameter_Scope_Value" xml:space="preserve">
-    <value>e1b90562-f94b-452a-9a4d-5c27ca74a8f2 / 8608480</value>
-  </data>
-  <data name="lbl_BillingProfile_EnrollmentNumber" xml:space="preserve">
+  <data name="lbl_BillingProfile_EnrollmentNumber" errorCode="034" xml:space="preserve">
     <value>Для ИД профиля выставления счетов/номера регистрации</value>
   </data>
-  <data name="lbl_Choose_Scope" xml:space="preserve">
+  <data name="lbl_Choose_Scope" errorCode="035" xml:space="preserve">
     <value>Выбрать область действия</value>
   </data>
-  <data name="lbl_NumberOfMonths" xml:space="preserve">
+  <data name="lbl_NumberOfMonths" errorCode="036" xml:space="preserve">
     <value>Число месяцев</value>
   </data>
-  <data name="Parameter_Choose_Scope" xml:space="preserve">
+  <data name="Parameter_Choose_Scope" errorCode="037" xml:space="preserve">
     <value>Выбрать область действия</value>
   </data>
-  <data name="Parameter_Months" xml:space="preserve">
+  <data name="Parameter_Months" errorCode="038" xml:space="preserve">
     <value>Введите число включаемых месяцев.</value>
   </data>
-  <data name="Parameter_Scope_Value" xml:space="preserve">
+  <data name="Parameter_Scope_Value" errorCode="039" xml:space="preserve">
     <value>Введите свой ИД профиля выставления счетов или номер регистрации.</value>
+  </data>
+  <data name="Parameter_azureCloud_FieldCaption" errorCode="040" xml:space="preserve">
+    <value>Облако Azure</value>
+  </data>
+  <data name="Parameter_azureCloud_FieldDescription" errorCode="041" xml:space="preserve">
+    <value>Облако, используемое подпиской </value>
+  </data>
+  <data name="Parameter_azureCloud_SampleValues" errorCode="042" xml:space="preserve">
+    <value>"global", "us-government"</value>
+  </data>
+  <data name="Parameter_CustomScope" errorCode="043" xml:space="preserve">
+    <value>Идентификатор области</value>
+  </data>
+  <data name="Parameter_CustomScope_Description" errorCode="044" xml:space="preserve">
+    <value>"/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}"</value>
+  </data>
+  <data name="Parameter_EndDate" errorCode="045" xml:space="preserve">
+    <value>Введите дату окончания.</value>
+  </data>
+  <data name="Parameter_StartDate" errorCode="046" xml:space="preserve">
+    <value>Введите дату начала.</value>
+  </data>
+  <data name="lbl_End_Date" errorCode="047" xml:space="preserve">
+    <value>Дата окончания</value>
+  </data>
+  <data name="lbl_Start_Date" errorCode="048" xml:space="preserve">
+    <value>Дата начала</value>
+  </data>
+  <data name="lblChooseScopeHelp" errorCode="049" xml:space="preserve">
+    <value>Выберите имя области для получения записей.</value>
+  </data>
+  <data name="lblEndDateHelp" errorCode="050" xml:space="preserve">
+    <value>Укажите дату окончания для анализа определенного диапазона дат записей.</value>
+  </data>
+  <data name="lblNumberOfMonthsHelp" errorCode="051" xml:space="preserve">
+    <value>Укажите количество месяцев данных, о которых нужно создать отчет. Если требуется проанализировать определенный диапазон дат, введите 0 в качестве количества месяцев и укажите даты в разделе "Дополнительные параметры"</value>
+  </data>
+  <data name="lblStartDateHelp" errorCode="052" xml:space="preserve">
+    <value>Укажите дату начала для анализа определенного диапазона дат записей.</value>
+  </data>
+  <data name="ParameterCustomScopeHelp" errorCode="053" xml:space="preserve">
+    <value>Введите значение для Scope Identifier (Идентификатора области), только если для Scope (Области) выбрано Manually Input Scope (Ввод области вручную).</value>
+    <comment>"Scope", "Scope Identifier", and "Manually Input Scope" are parameter names and should not be localized.</comment>
+  </data>
+  <data name="DateRangeMoreThan31Days" errorCode="054" xml:space="preserve">
+    <value>Диапазон дат не должен превышать 31 день.</value>
+  </data>
+  <data name="InvalidDateFormat" errorCode="055" xml:space="preserve">
+    <value>Недопустимый формат даты. Введите даты в формате мм-дд-гггг.</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" errorCode="056" xml:space="preserve">
+    <value>Дата начала не может быть установлена позже даты окончания.</value>
+  </data>
+  <data name="EmptyDateParametrs" errorCode="057" xml:space="preserve">
+    <value>Параметры диапазона дат не могут быть пустыми, если количество месяцев равно нулю.</value>
+  </data>
+  <data name="InvalidDateAndMonthParametrs" errorCode="058" xml:space="preserve">
+    <value>Количество месяцев больше 0, поэтому дата начала и окончания должна быть пустой. Для запроса по диапазону дат количество месяцев должно быть равно 0.</value>
+  </data>
+  <data name="AdvancedOptionsLabel" errorCode="059" xml:space="preserve">
+    <value>Дополнительные параметры</value>
   </data>
 </root>

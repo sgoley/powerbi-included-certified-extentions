@@ -1,0 +1,14 @@
+﻿{
+  "api_url": "https://start.exactonline.nl",
+  "userinfo_rel_path": "api/v1/current/Me",
+  "connection_rel_path": "api/v1/{Division}/officeapp/ReportingUser",
+  "oauth": {
+    "auth_url": "https://start.exactonline.nl/api/oauth2/auth",
+    "token_url": "https://start.exactonline.nl/api/oauth2/token",
+    "redirect_uri": "https://oauth.powerbi.com/views/oauthredirect.html",
+    "window": {
+      "height": 1000,
+      "width": 1200
+    }
+  }
+}

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Ligar ao Dataverse através do respetivo ponto final de SQL</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Domínio do ambiente</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Domínio do ambiente</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Especifique um ambiente do Dataverse ao qual ligar. Este campo é opcional e, quando não for especificado, todos os ambientes do Dataverse disponíveis para o utilizador sessão ativa serão apresentados no ecrã "Escolher dados"</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Ligue-se à sua instância do Dataverse (Dynamics 365 e PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>O domínio para "#{0}" não é suportado pelo conector do Dataverse.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>O carregamento de dados a partir de uma tabela indireta de ambientes não é suportado.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>#{0}' não são opções válidas. As opções válidas são: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Esta função não suporta a opção '#{0}' com o valor '#{1}'.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>O formato do nome de servidor \"#{0}\" não é válido.  Remova esquema como "https://" do nome do servidor.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Incluir colunas de relação</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Opções</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Especifique as opções para ligar à sua instância do Dataverse</value>
   </data>
 </root>

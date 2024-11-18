@@ -1,8 +1,9 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.0"]
+[Version = "1.0.4"]
+// The connector version is written above like this for microsoft to pull it with ease. Update version here and below if powerBI connector version is changed.
 section Vena;
-
-
+// Power BI connector version number
+pbic_version = "1.0.4";
 [DataSource.Kind="Vena", Publish="Vena.Publish"]
 shared Vena.Contents = Value.ReplaceType(VenaImpl, VenaInputs);
 
@@ -19,19 +20,24 @@ VenaInputs = type function (
             "https://us1.vena.io",
             "https://eu1.vena.io"
         }
-    ]),        
+    ]),
     optional modelQuery as (type text meta [
         Documentation.FieldCaption = "Model Query",
         Documentation.FieldDescription = "MQL Query For Your Hierarchies/Intersections.            " 
                                           & "Leaving This Field Blank Will Retrieve All Members And Intersections.",
         Documentation.SampleValues = { "dimension(..." }//Suggested input
-    ])) 
+    ]),
+    optional apiVersion as (type text meta [
+        Documentation.FieldCaption = "Endpoint version",
+        Documentation.FieldDescription = "The format you want to pull Vena data in.  V2 now includes operators.",
+        Documentation.AllowedValues = { "v1", "v2" }
+    ]))
     as table meta [
-        Documentation.Name = "Vena",
+        Documentation.Name = "Vena " & pbic_version,
         Documentation.LongDescription = "Vena"
     ];
 
-VenaImpl = (source as text, optional modelQuery as text) as table =>
+VenaImpl = (source as text, optional modelQuery as text,optional apiVersion as text) as table =>
     let
         VenaBasic = 
         let
@@ -42,10 +48,12 @@ VenaImpl = (source as text, optional modelQuery as text) as table =>
         in
             "VenaBasic " & b64,
 
+
+        apiVersion = if Value.Equals(apiVersion, null) then "" else apiVersion,
         CodeDTO = CodeDTO.Fetch(),
         Main = Expression.Evaluate(CodeDTO[Main.pqm], #shared),
         Utils = Expression.Evaluate(CodeDTO[Utils.pqm], #shared),
-        result = Main(source, VenaBasic, Utils, modelQuery)
+        result = Main(source, VenaBasic, Utils, pbic_version, apiVersion, modelQuery)
     in
         result;
 
@@ -60,10 +68,9 @@ Vena = [
     TestConnection = (dataSourcePath) =>
     let
         json = Json.Document(dataSourcePath),
-        source = json[source],
-        modelId = json[modelId]
+        source = json[source]
     in
-        {"Vena.Contents", source, modelId},
+        {"Vena.Contents", source},
 
     Authentication = [
         UsernamePassword = [
@@ -77,7 +84,6 @@ Vena = [
 
 // Data Source UI publishing description
 Vena.Publish = [
-    Beta = true,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://powerbi.microsoft.com/",

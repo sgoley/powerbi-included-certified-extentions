@@ -1,0 +1,61 @@
+/**
+ * Initialize the client by starting a run. The server will also provide
+ * override parameters for the configuration defined in 
+ * Samsara.Configuration.Defaults.
+ * @param Context Global parameters and constants.
+ * @returns A record of the override parameters from the server.
+ * @raises A modeled error if the call fails.
+ */
+(Context as record) =>
+    let
+        Samsara.Client.Headers = Context[Extension.LoadFunction](Context, "Samsara.Client.Headers.pqm"),
+        Samsara.Client.Retry = Context[Extension.LoadFunction](Context, "Samsara.Client.Retry.pqm"),
+
+        Request = [
+            Url = Context[BaseUrl] & "/start-run",
+            Headers = Samsara.Client.Headers(Context),
+            Body = []
+        ],
+
+        Json.ParsingError = (e) => Error.Record(
+            Extension.LoadString("ErrorFatal"),
+            Extension.LoadString("ErrorServerUnknown"),
+            [ Cause = "JSON parsing failure", Tag = "fault" ],
+            { "JSON Parsing" }
+        ), 
+    
+        Response = try Samsara.Client.Retry(Context, Request),
+        Response.Parsed = if Response[HasError]
+            then error Response[Error]
+            else try Json.Document(Response[Value]) catch (e) => error Json.ParsingError(e),
+        RunId = if Response[HasError]
+            then error Response[Error]
+            else Value.Metadata(Response[Value])[Headers][#"X-Samsara-Run-Id"],
+
+        ToPascalCase = (camelCased as record) as record => 
+            let
+                Capitalize = (Value as text) =>
+                    let
+                        FirstLetter = Text.Start(Value, 1),
+                        Tail = Text.Middle(Value, 1)
+                    in
+                        Text.Upper(FirstLetter) & Tail,
+                ToPascalCase.Recurse = (PascalCased, FieldName) =>
+                    let
+                        FieldValue.Raw = Record.Field(camelCased, FieldName),
+                        FieldValue.PascalCased = if FieldValue.Raw is record
+                            then @ToPascalCase(FieldValue.Raw)
+                            else FieldValue.Raw 
+                    in
+                        Record.AddField(PascalCased, Capitalize(FieldName), FieldValue.PascalCased)
+            in
+                List.Accumulate(
+                    Record.FieldNames(camelCased),
+                    [],
+                    ToPascalCase.Recurse
+                )
+    in
+        Record.Combine({
+            ToPascalCase(Response.Parsed),
+            [ RunId = RunId ]
+        }) 

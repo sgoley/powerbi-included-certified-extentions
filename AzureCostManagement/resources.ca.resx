@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,154 +118,197 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Connexió a l'Azure Cost Management</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Azure Cost Management</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>Azure Cost Management</value>
   </data>
-  <data name="Parameter_billingProfile_FieldCaption" xml:space="preserve">
+  <data name="Parameter_billingProfile_FieldCaption" errorCode="004" xml:space="preserve">
     <value>ID del perfil de facturació</value>
   </data>
-  <data name="Parameter_billingProfile_SampleValues" xml:space="preserve">
+  <data name="Parameter_billingProfile_SampleValues" errorCode="005" xml:space="preserve">
     <value>e1b90562-f94b-452a-9a4d-5c27ca74a8f2</value>
   </data>
-  <data name="Parameter_Parameter_FieldCaption" xml:space="preserve">
+  <data name="Parameter_Parameter_FieldCaption" errorCode="006" xml:space="preserve">
     <value>Paràmetres avançats de les consultes.</value>
   </data>
-  <data name="Parameter_Parameter_FieldDescription" xml:space="preserve">
+  <data name="Parameter_Parameter_FieldDescription" errorCode="007" xml:space="preserve">
     <value>Les opcions admeses són les següents: dataType, numberOfMonth, startBillingDataWindow i endBillingDataWindow. Per obtenir més informació, vegeu la mostra de codi.</value>
   </data>
-  <data name="Parameter_Parameter_SampleValues" xml:space="preserve">
+  <data name="Parameter_Parameter_SampleValues" errorCode="008" xml:space="preserve">
     <value>[ dataType = "DetailCharges", numberOfMonth = 1 ]</value>
   </data>
-  <data name="UnknownAPIType" xml:space="preserve">
+  <data name="UnknownAPIType" errorCode="009" xml:space="preserve">
     <value>El tipus d'API no és vàlid.</value>
   </data>
-  <data name="UnknownErrorHandlingLevel" xml:space="preserve">
+  <data name="UnknownErrorHandlingLevel" errorCode="010" xml:space="preserve">
     <value>Element errorHandlingLevel desconegut:</value>
   </data>
-  <data name="CodeSample_1_Code" xml:space="preserve">
-    <value>let    
+  <data name="CodeSample_1_Code" errorCode="011" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ numberOfMonth = 1 ],
-          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      in     
-          result</value>
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
+          resultat</value>
   </data>
-  <data name="CodeSample_1_Description" xml:space="preserve">
+  <data name="CodeSample_1_Description" errorCode="012" xml:space="preserve">
     <value>Suposant que avui sigui 15 de juny del 2017, s'obtindran les dades resumides corresponents al període entre l'1 de maig del 2017 i el 15 de juny del 2017.</value>
   </data>
-  <data name="CodeSample_1_Result" xml:space="preserve">
+  <data name="CodeSample_1_Result" errorCode="013" xml:space="preserve">
     <value>La funció retornarà els resums corresponents al període entre l'1 de maig del 2017 i el 15 de juny del 2017.</value>
   </data>
-  <data name="CodeSample_2_Code" xml:space="preserve">
-    <value>let    
+  <data name="CodeSample_2_Code" errorCode="014" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ startBillingDataWindow = "-2", endBillingDataWindow = "-1" ],
-          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      in     
-          result</value>
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
+          resultat</value>
   </data>
-  <data name="CodeSample_2_Description" xml:space="preserve">
+  <data name="CodeSample_2_Description" errorCode="015" xml:space="preserve">
     <value>Suposant que avui sigui 15 de juny del 2017, s'obtindran les dades resumides corresponents a l'abril del 2017.</value>
   </data>
-  <data name="CodeSample_2_Result" xml:space="preserve">
+  <data name="CodeSample_2_Result" errorCode="016" xml:space="preserve">
     <value>La funció retornarà les dades corresponents al període entre l'1 d'abril del 2017 i el 30 d'abril del 2017.</value>
   </data>
-  <data name="CodeSample_3_Code" xml:space="preserve">
-    <value>let    
+  <data name="CodeSample_3_Code" errorCode="017" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ startBillingDataWindow = "-2", endBillingDataWindow = "0", dataType = "Summaries" ],
-          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      in     
-          result</value>
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
+          resultat</value>
   </data>
-  <data name="CodeSample_3_Description" xml:space="preserve">
+  <data name="CodeSample_3_Description" errorCode="018" xml:space="preserve">
     <value>Suposant que avui sigui 15 de juny del 2017, s'obtindran les dades resumides corresponents al període entre l'abril del 2017 fins ara.</value>
   </data>
-  <data name="CodeSample_3_Result" xml:space="preserve">
+  <data name="CodeSample_3_Result" errorCode="019" xml:space="preserve">
     <value>La funció retornarà les dades corresponents al període entre l'1 d'abril del 2017 i el 15 de juny del 2017.</value>
   </data>
-  <data name="ReportGenerationFailed" xml:space="preserve">
+  <data name="ReportGenerationFailed" errorCode="020" xml:space="preserve">
     <value>S'ha produït un error en generar l'informe.</value>
   </data>
-  <data name="PriceSheetFailed" xml:space="preserve">
+  <data name="PriceSheetFailed" errorCode="021" xml:space="preserve">
     <value>S'ha produït un error en el full de preus. URL:</value>
   </data>
-  <data name="UsageDetailsFailed" xml:space="preserve">
+  <data name="UsageDetailsFailed" errorCode="022" xml:space="preserve">
     <value>S'ha produït un error relatiu a l'ús de les dades. URL:</value>
   </data>
-  <data name="Parameter_apiVersion_FieldCaption" xml:space="preserve">
+  <data name="Parameter_apiVersion_FieldCaption" errorCode="023" xml:space="preserve">
     <value>Versió de l'API</value>
   </data>
-  <data name="Parameter_apiVersion_SampleValues" xml:space="preserve">
+  <data name="Parameter_apiVersion_SampleValues" errorCode="024" xml:space="preserve">
     <value>01-11-2018-versió preliminar</value>
   </data>
-  <data name="InvalidBillingAccountId" xml:space="preserve">
+  <data name="InvalidBillingAccountId" errorCode="025" xml:space="preserve">
     <value>No hi ha cap ID de compte de facturació associat a aquest perfil de facturació:</value>
   </data>
-  <data name="APIVersionRequired" xml:space="preserve">
+  <data name="APIVersionRequired" errorCode="026" xml:space="preserve">
     <value>El camp "Versió de l'API" és obligatori.</value>
   </data>
-  <data name="BillingProfileIdRequired" xml:space="preserve">
+  <data name="BillingProfileIdRequired" errorCode="027" xml:space="preserve">
     <value>El camp "ID del perfil de facturació" és obligatori.</value>
   </data>
-  <data name="AzureCostManagement" xml:space="preserve">
+  <data name="AzureCostManagement" errorCode="028" xml:space="preserve">
     <value>Azure Cost Management</value>
   </data>
-  <data name="Parameter_billingAccount_FieldCaption" xml:space="preserve">
+  <data name="Parameter_billingAccount_FieldCaption" errorCode="029" xml:space="preserve">
     <value>ID del compte de facturació</value>
   </data>
-  <data name="Parameter_billingAccount_SampleValues" xml:space="preserve">
+  <data name="Parameter_billingAccount_SampleValues" errorCode="030" xml:space="preserve">
     <value>b1b8fc19-e597-53a4-fb6d-cbcd97ffb091</value>
   </data>
-  <data name="GeneralFailure" xml:space="preserve">
+  <data name="GeneralFailure" errorCode="031" xml:space="preserve">
     <value>Error: s'ha produït un error en generar les dades de l'API:  #[Name]. Torneu-ho a provar més tard.</value>
   </data>
-  <data name="TenantDiscoveryFailure" xml:space="preserve">
+  <data name="TenantDiscoveryFailure" errorCode="032" xml:space="preserve">
     <value>No s'ha pogut detectar el compte de facturació corresponent al perfil de facturació:</value>
   </data>
-  <data name="EnrollmentNumberRequired" xml:space="preserve">
+  <data name="EnrollmentNumberRequired" errorCode="033" xml:space="preserve">
     <value>El camp "Número d'inscripció" és obligatori.</value>
   </data>
-  <data name="lbl_BillingProfile_EnrollmentNumber" xml:space="preserve">
-    <value>For Billing Profile Id/Enrollment Number</value>
-  </data>
-  <data name="lbl_Choose_Scope" xml:space="preserve">
-    <value>Choose Scope</value>
-  </data>
-  <data name="lbl_NumberOfMonths" xml:space="preserve">
-    <value>Number of months</value>
-  </data>
-  <data name="Parameter_Choose_Scope" xml:space="preserve">
-    <value>Choose Scope</value>
-  </data>
-  <data name="Parameter_Months" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="Parameter_Scope_Value" xml:space="preserve">
-    <value>e1b90562-f94b-452a-9a4d-5c27ca74a8f2 / 8608480</value>
-  </data>
-  <data name="lbl_BillingProfile_EnrollmentNumber" xml:space="preserve">
+  <data name="lbl_BillingProfile_EnrollmentNumber" errorCode="034" xml:space="preserve">
     <value>Per a l'ID del perfil de facturació o el número d'inscripció</value>
   </data>
-  <data name="lbl_Choose_Scope" xml:space="preserve">
+  <data name="lbl_Choose_Scope" errorCode="035" xml:space="preserve">
     <value>Trieu l'àmbit</value>
   </data>
-  <data name="lbl_NumberOfMonths" xml:space="preserve">
+  <data name="lbl_NumberOfMonths" errorCode="036" xml:space="preserve">
     <value>Nombre de mesos</value>
   </data>
-  <data name="Parameter_Choose_Scope" xml:space="preserve">
+  <data name="Parameter_Choose_Scope" errorCode="037" xml:space="preserve">
     <value>Trieu l'àmbit</value>
   </data>
-  <data name="Parameter_Months" xml:space="preserve">
+  <data name="Parameter_Months" errorCode="038" xml:space="preserve">
     <value>Introduïu el nombre de mesos que voleu incloure.</value>
   </data>
-  <data name="Parameter_Scope_Value" xml:space="preserve">
+  <data name="Parameter_Scope_Value" errorCode="039" xml:space="preserve">
     <value>Introduïu l'ID del perfil de facturació o el número d'inscripció.</value>
+  </data>
+  <data name="Parameter_azureCloud_FieldCaption" errorCode="040" xml:space="preserve">
+    <value>Núvol de l'Azure</value>
+  </data>
+  <data name="Parameter_azureCloud_FieldDescription" errorCode="041" xml:space="preserve">
+    <value>Núvol que utilitza la subscripció </value>
+  </data>
+  <data name="Parameter_azureCloud_SampleValues" errorCode="042" xml:space="preserve">
+    <value>"global", "us-government"</value>
+  </data>
+  <data name="Parameter_CustomScope" errorCode="043" xml:space="preserve">
+    <value>Identificador de l'àmbit</value>
+  </data>
+  <data name="Parameter_CustomScope_Description" errorCode="044" xml:space="preserve">
+    <value>"/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}"</value>
+  </data>
+  <data name="Parameter_EndDate" errorCode="045" xml:space="preserve">
+    <value>Introduïu la data de finalització.</value>
+  </data>
+  <data name="Parameter_StartDate" errorCode="046" xml:space="preserve">
+    <value>Introduïu la data d'inici.</value>
+  </data>
+  <data name="lbl_End_Date" errorCode="047" xml:space="preserve">
+    <value>Data de finalització</value>
+  </data>
+  <data name="lbl_Start_Date" errorCode="048" xml:space="preserve">
+    <value>Data d'inici</value>
+  </data>
+  <data name="lblChooseScopeHelp" errorCode="049" xml:space="preserve">
+    <value>Seleccioneu el nom de l'àmbit per obtenir els registres.</value>
+  </data>
+  <data name="lblEndDateHelp" errorCode="050" xml:space="preserve">
+    <value>Especifiqueu la data de finalització per analitzar un interval de dates específic dels registres.</value>
+  </data>
+  <data name="lblNumberOfMonthsHelp" errorCode="051" xml:space="preserve">
+    <value>Especifiqueu el nombre de mesos de les dades de les que voleu informar. Si voleu analitzar un interval específic de dates, introduïu el nombre de mesos com a 0 i especifiqueu les dates a "Opcions avançades"</value>
+  </data>
+  <data name="lblStartDateHelp" errorCode="052" xml:space="preserve">
+    <value>Especifiqueu la data d'inici per analitzar un interval específic de dates dels registres.</value>
+  </data>
+  <data name="ParameterCustomScopeHelp" errorCode="053" xml:space="preserve">
+    <value>Introduïu el valor d'"Identificador de l'àmbit" només si l'"àmbit" seleccionat és "Àmbit d'entrada manual"</value>
+    <comment>"Scope", "Scope Identifier", and "Manually Input Scope" are parameter names and should not be localized.</comment>
+  </data>
+  <data name="DateRangeMoreThan31Days" errorCode="054" xml:space="preserve">
+    <value>L'interval de dates no ha de ser superior a 31 dies.</value>
+  </data>
+  <data name="InvalidDateFormat" errorCode="055" xml:space="preserve">
+    <value>El format de data no és vàlid, introduïu les dates en format mm-dd-yyyyy.</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" errorCode="056" xml:space="preserve">
+    <value>La data d'inici no pot ser superior a la data de finalització.</value>
+  </data>
+  <data name="EmptyDateParametrs" errorCode="057" xml:space="preserve">
+    <value>Els paràmetres de l'interval de dates no poden estar buits si el nombre de mesos és zero.</value>
+  </data>
+  <data name="InvalidDateAndMonthParametrs" errorCode="058" xml:space="preserve">
+    <value>El nombre de mesos és superior a 0, de manera que les dates d'inici i finalització han d'estar buides. Per consultar per interval de dates, el nombre de mesos ha de ser 0.</value>
+  </data>
+  <data name="AdvancedOptionsLabel" errorCode="059" xml:space="preserve">
+    <value>Opcions avançades</value>
   </data>
 </root>

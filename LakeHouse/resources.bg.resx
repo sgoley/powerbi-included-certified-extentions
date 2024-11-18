@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Импортиране на данни от Lakehouse</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Lakehouse</value>
+  </data>
+  <data name="lakehouse.caption" errorCode="003" xml:space="preserve">
+    <value>Импортиране на данни от Lakehouse</value>
+  </data>
+  <data name="lakehouse.longDescription" errorCode="004" xml:space="preserve">
+    <value>Свържете се с всички складове Lakehouse, до които имате достъп, и изберете обектите, които искате да използвате</value>
+  </data>
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
+    <value>Lakehouse</value>
+  </data>
+  <data name="lakehouse.description" errorCode="006" xml:space="preserve">
+    <value>Импортиране на данни от Lakehouse</value>
+  </data>
+  <data name="Workspaces" errorCode="007" xml:space="preserve">
+    <value>Работни области</value>
+  </data>
+  <data name="WorkspaceId" errorCode="008" xml:space="preserve">
+    <value>ИД на работна област</value>
+  </data>
+  <data name="LakeHouseArtifactId" errorCode="009" xml:space="preserve">
+    <value>LakehouseArtifactId</value>
+  </data>
+  <data name="LakeHouses" errorCode="010" xml:space="preserve">
+    <value>Складове Lakehouse</value>
+  </data>
+  <data name="Files" errorCode="011" xml:space="preserve">
+    <value>Файлове</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="012" xml:space="preserve">
+    <value>„#{0}“ не са валидни опции. Валидните опции са: „#{1}“</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="013" xml:space="preserve">
+    <value>Тази функция не поддържа опцията „#{0}“ със стойност „#{1}“.</value>
+  </data>
+  <data name="DeltaModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Не можахме да заредим тези данни, защото се съхраняват в делта формат</value>
+  </data>
+  <data name="MultiTableInsertNotSupported" errorCode="015" xml:space="preserve">
+    <value>Вмъкването на няколко таблици не се поддържа от конектора на Lakehouse</value>
+  </data>
+  <data name="MultiTableDeleteInVersionNotSupported" errorCode="016" xml:space="preserve">
+    <value>Изтриването на няколко таблици във версия не се поддържа от конектора на Lakehouse</value>
+  </data>
+  <data name="MultiTableInsertInVersionNotSupported" errorCode="017" xml:space="preserve">
+    <value>Вмъкването на няколко таблици във версия не се поддържа от конектора на Lakehouse</value>
+  </data>
+  <data name="MultipleVersionsWithSameGuid" errorCode="018" xml:space="preserve">
+    <value>Няколко версии с един и същ GUID или GUID не съвпада с функцията на селектора „#{0}“. Не може да се обработи тази операция!</value>
+  </data>
+  <data name="InvalidTableName" errorCode="019" xml:space="preserve">
+    <value>Таблиците могат да съдържат само главни или малки букви, цифри или долна черта.</value>
+  </data>
+  <data name="CannotDeletePublishedVersion" errorCode="020" xml:space="preserve">
+    <value>Публикуваната версия не може да бъде изтрита.</value>
+  </data>
+  <data name="VersionedLakehouseTableInsertError" errorCode="021" xml:space="preserve">
+    <value>Грешка при създаване на таблица на езерен дом за данни във версия.</value>
+  </data>
+  <data name="VersionedLakehouseDeleteExistingTableError" errorCode="022" xml:space="preserve">
+    <value>Грешка при изтриване на съществуваща таблица на езерен дом за данни във версия.</value>
+  </data>
+  <data name="LakehouseOldDfeVersionCommitError" errorCode="023" xml:space="preserve">
+    <value>Грешка при съставяне на версия.</value>
+  </data>
+  <data name="VersionedLakehouseTableDeleteError" errorCode="024" xml:space="preserve">
+    <value>Грешка при изтриване на данните на таблицата във версия.</value>
+  </data>
+  <data name="LakehouseVersionDeleteError" errorCode="025" xml:space="preserve">
+    <value>Грешка при изтриване на версия.</value>
+  </data>
+  <data name="LakehouseVersionCommitError" errorCode="026" xml:space="preserve">
+    <value>Грешка при съставяне на версия.</value>
+  </data>
+  <data name="LakehouseVersionInsertError" errorCode="027" xml:space="preserve">
+    <value>Грешка при вмъкване на версия.</value>
+  </data>
+  <data name="LakehouseNonVersionedDeleteError" errorCode="028" xml:space="preserve">
+    <value>Неуспешно изтриване на редове.</value>
+  </data>
+  <data name="LakehouseNonVersionedInsertError" errorCode="029" xml:space="preserve">
+    <value>Неуспешно вмъкване на таблица.</value>
+  </data>
+  <data name="VersionedLakehouseTableReplaceError" errorCode="030" xml:space="preserve">
+    <value>Грешка при заместване на съдържанието на таблицата с нови данни във версия: #{0}.</value>
+  </data>
+  <data name="VersionedLakehouseTableCreateError" errorCode="031" xml:space="preserve">
+    <value>Грешка при създаване на таблица на езерен дом за данни във версия</value>
+  </data>
+  <data name="MetadataRefreshError" errorCode="032" xml:space="preserve">
+    <value>Неуспешно обновяване на метаданните: #{0}, състояние #{1}</value>
+  </data>
+  <data name="TraceMessageWithDetails" errorCode="033" xml:space="preserve">
+    <value>#{0}, InnerException: #{1}</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="034" xml:space="preserve">
+    <value>Неуспешно извикване на услугата надолу по веригата на URL адрес „#{0}“ с код на състояние #{1}.</value>
+  </data>
+  <data name="DownstreamServiceCallFailureWithErrorCode" errorCode="035" xml:space="preserve">
+    <value>Неуспешно извикване на услугата надолу по веригата на URL адрес „#{0}“ с код на състояние #{1}. ErrorCode: #{2}</value>
+  </data>
+  <data name="FinalErrorMessageWithDetails" errorCode="036" xml:space="preserve">
+    <value>#{0}, Основна грешка: #{1}</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="037" xml:space="preserve">
+    <value>Възникна изключение при анализиране на отговора за грешка „#{0}“ от уеб услугата.</value>
+  </data>
+  <data name="MetadataRefreshErrorWithDetail" errorCode="038" xml:space="preserve">
+    <value>Не може да се създаде таблица в каталога на Lakehouse SQL поради грешка при обновяване на метаданните за ИД на хранилище за необработени данни: #{0} и ИД на партида: #{1} базова грешка #{2}</value>
+  </data>
+  <data name="DownstreamServiceCallError" errorCode="039" xml:space="preserve">
+    <value>Неуспешно извикване на услугата надолу по веригата на URL адрес „#{0}“. Код на грешка: „#{1}“ и съобщение за грешка: „#{2}“.</value>
+  </data>
+  <data name="TableCreationFailureError" errorCode="040" xml:space="preserve">
+    <value>Не може да се създаде таблица. Основна грешка : '#{0}'</value>
+  </data>
+  <data name="MetadataRefreshParseResponseError" errorCode="041" xml:space="preserve">
+    <value>Невалиден отговор от услугата за синхронизиране на хранилище за метаданни с ИД: #{0} и ИД на партида: #{1}. Основна грешка: „#{2}“.</value>
+  </data>
+  <data name="StagingLakehouseInInvalidState" errorCode="042" xml:space="preserve">
+    <value>Поетапното хранилище с инструменти за управление не е конфигурирано правилно. ИД на хранилище с инструменти за управление: №{0}. Създайте билет за поддръжка с този отчет за грешки. Вж. aka.ms/fabricstaginglakehousefix</value>
+  </data>
+  <data name="MetadataRefreshUnableToSyncTable" errorCode="043" xml:space="preserve">
+    <value>След максимален брой повторни опити не може да се създаде таблица в каталога на хранилище за необработени данни на SQL, ИД на хранилище за необработени данни: #{0} и ИД на партида: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshNothingInProgress" errorCode="044" xml:space="preserve">
+    <value>След максимален брой повторни опити не може да се създаде таблица в каталога на хранилище за необработени данни на SQL, тъй като нищо не е в ход, ИД на хранилище за необработени данни: #{0} и TableName: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshBatchError" errorCode="045" xml:space="preserve">
+    <value>Не може да се създаде таблица в каталога на хранилище за необработени данни на SQL поради грешка при обновяване на метаданните за ИД на хранилище за необработени данни: #{0} и ИД на партида: #{1}, код на основна грешка: „#{2}“, грешка: #{3}</value>
+  </data>
+  <data name="ArtifactInInvalidState" errorCode="046" xml:space="preserve">
+    <value>Артефактът #{1} на #{0}за данни с ИД #{2} е в невалидно състояние. Състояние: #{3}, Състояние #{4}.</value>
+  </data>
+  <data name="NoSqlEndPoint" errorCode="047" xml:space="preserve">
+    <value>Не може да се намери крайна точка на SQL</value>
+  </data>
+</root>

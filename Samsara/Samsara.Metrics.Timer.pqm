@@ -1,0 +1,61 @@
+/**
+ * Time the evaluation of an expression and report it as a metric.
+ * 
+ * @param Context
+ * @param Expression What we want to time.
+ * @param Metric.Name The name of the duration metric.
+ * @param Metric.Tags An optional list of tags to apply to the metric.
+ * @returns The value of Expression.
+ * @raises Any errors encountered while evaluating Expression. The duration metric is still
+ *         emitted even if Expression raises an error. 
+ */
+(Context as record, Expression as any, Metric.Name as text, optional Metric.Tags as list) =>
+    let
+        Samsara.Metrics.ReportNumber = Context[Extension.LoadFunction](Context, "Samsara.Metrics.ReportNumber.pqm"),
+        Samsara.Metrics.ReportError = Context[Extension.LoadFunction](Context, "Samsara.Metrics.ReportError.pqm"),
+
+        Error.ImpossibleState = (Unexpected.Null as text) => Error.Record(
+            "ImpossibleState",
+            "Impossible state reached: #{0} should never be null, but it was.",
+            { Unexpected.Null }
+        ),
+        Metric.ImpossibleState = (Unexpected.Null as text) => Samsara.Metrics.ReportError(
+            Context,
+            Error.ImpossibleState(Unexpected.Null),
+            "ImpossibleState",
+            Metric.Tags
+        ),
+
+        // FixedLocalNow will keeps start time the same each time it's evaluated, which we need
+        // for accurate timing.
+        StartTime = DateTime.FixedLocalNow(), 
+
+        // Create dependency on StartTime for Expression. This forces PowerBI to evaluate StartTime
+        // before Expression, which pins the value of StartTime to the instant right before it
+        // evaluates Expression. We need this since PowerBI is lazily evaluated, meaning StartTime
+        // will only be initialized once we need it for something else, so we need to make PowerBI
+        // think it needs it in order to evaluate Result.
+        Result = if StartTime <> null
+            then try Expression
+            else error Metric.ImpossibleState("StartTime"),
+        
+        // This will be lazily evaluated when calculating the duration.
+        EndTime = DateTime.LocalNow(),
+
+        // Durations track fractional seconds, so this will accurately report milliseconds even though
+        // the function name implies that we'd only get seconds. The fractional seconds actually go past
+        // milliseconds so we also need to round to get nearest milli.
+        Elapsed.Seconds = Duration.TotalSeconds(EndTime - StartTime),
+        Elapsed.Millis = Number.Round(Elapsed.Seconds * 1000),
+
+        // Doing the same thing again to force the evaluation of Result before emitting the metric.
+        // Skipping this would make start time and end time get evaluated together instead of on
+        // either side of `Result`. Result won't be null because of the `try`, which wraps the
+        // value of `Expression` into an error guard record.
+        Result.Metricated = if Result <> null
+            then Samsara.Metrics.ReportNumber(Context, Result, Metric.Name, Elapsed.Millis, Metric.Tags)
+            else error Metric.ImpossibleState("Result Error Guard")
+    in
+        if Result.Metricated[HasError]
+            then error Result.Metricated[Error]
+            else Result.Metricated[Value]

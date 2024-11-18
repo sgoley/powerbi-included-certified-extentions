@@ -1,0 +1,257 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdvancedOptionsLabel" xml:space="preserve">
+    <value>詳細オプション</value>
+  </data>
+  <data name="AzureActiveDirectoryLabel" xml:space="preserve">
+    <value>Azure Active Directory</value>
+  </data>
+  <data name="BatchSizeHelp" xml:space="preserve">
+    <value>フェッチに使用されるバッチ サイズ (最大行数)</value>
+  </data>
+  <data name="BatchSizeLabel" xml:space="preserve">
+    <value>バッチ サイズ (行)</value>
+  </data>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Azure Databricks からデータをインポートする</value>
+  </data>
+  <data name="ButtonTitle" xml:space="preserve">
+    <value>Azure Databricks</value>
+  </data>
+  <data name="MultiCloudButtonHelp" xml:space="preserve">
+    <value>Databricks からデータをインポートする</value>
+  </data>
+  <data name="MultiCloudButtonTitle" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="CatalogHelp" xml:space="preserve">
+    <value>接続の既定のカタログを選択します。</value>
+  </data>
+  <data name="CatalogLabel" xml:space="preserve">
+    <value>既定のカタログ</value>
+  </data>
+  <data name="DatabaseHelp" xml:space="preserve">
+    <value>選択したデータベースへの接続を制限します。これにより、テーブルのリスト表示が高速になる可能性があります。ただし、複数の異なるデータベースにヒットするクエリのクエリ フォールディングはできなくなります。</value>
+  </data>
+  <data name="DatabaseLabel" xml:space="preserve">
+    <value>データベース</value>
+  </data>
+  <data name="DataSourceLabel" xml:space="preserve">
+    <value>Azure Databricks</value>
+  </data>
+  <data name="DataSourceName" xml:space="preserve">
+    <value>Azure Databricks</value>
+  </data>
+  <data name="MultiCloudDataSourceLabel" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="MultiCloudDataSourceName" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="EnableAutomaticProxyDiscoveryFlagsHelp" xml:space="preserve">
+    <value>これにより、Windows の自動システム全体の自動プロキシ検出が有効になります。</value>
+  </data>
+  <data name="EnableAutomaticProxyDiscoveryFlagsLabel" xml:space="preserve">
+    <value>プロキシの自動検出</value>
+  </data>
+  <data name="ErrorAadInvalidDomain" xml:space="preserve">
+    <value>AAD はドメイン #{0} についてはサポートされていません。</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorAadInvalidLocation" xml:space="preserve">
+    <value>サーバーから予期しない承認エンドポイントを受信しました</value>
+  </data>
+  <data name="ErrorAadRedirectFailed" xml:space="preserve">
+    <value>組織の承認エンドポイントを取得できませんでした。</value>
+  </data>
+  <data name="ErrorAdvancedOptionValue" xml:space="preserve">
+    <value>フィールド #{1} の値 '#{0}' が無効です。</value>
+    <comment>#{0}: Field value, #{1}: Field name</comment>
+  </data>
+  <data name="ErrorExpectedSqlString" xml:space="preserve">
+    <value>SQL クエリが必要ですが、null 値または空の値が返されました。</value>
+  </data>
+  <data name="ErrorInvalidHost" xml:space="preserve">
+    <value>ホストは有効なドメイン名ではありません: #{0}</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorMultiCloudOAuthOnAzureNotSupported" xml:space="preserve">
+    <value>ホストは Azure にあります。Azure エンドポイントの場合は、'Azure Databricks' データソース #{0} を使用してください。</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorInvalidHttpPath" xml:space="preserve">
+    <value>HTTP パス #{0} が無効です。</value>
+    <comment>#{0}: HTTP Path</comment>
+  </data>
+  <data name="ErrorMissingClientLibrary" xml:space="preserve">
+    <value>Databricks ODBC ドライバーがホストにインストールされていません。適切なドライバーをインストールしてください。</value>
+  </data>
+  <data name="ErrorOdbcAccessDenied" xml:space="preserve">
+    <value>指定された資格情報で ODBC 接続に失敗しました。別の資格情報または別の認証メカニズムでもう一度お試しください。</value>
+  </data>
+  <data name="ErrorOdbcCouldNotConnect" xml:space="preserve">
+    <value>サーバーに接続できませんでした。ODBC 構成をもう一度確認してください。 </value>
+  </data>
+  <data name="AutomaticProxyDiscoveryFlagDisabledLabel" xml:space="preserve">
+    <value>無効 (既定)</value>
+  </data>
+  <data name="AutomaticProxyDiscoveryFlagEnabledLabel" xml:space="preserve">
+    <value>有効</value>
+  </data>
+  <data name="HttpPathHelp" xml:space="preserve">
+    <value>クラスターの HTTP パス。</value>
+  </data>
+  <data name="HttpPathLabel" xml:space="preserve">
+    <value>HTTP パス</value>
+  </data>
+  <data name="PersonalAccessTokenLabel" xml:space="preserve">
+    <value>個人用アクセス トークン</value>
+  </data>
+  <data name="OIDCLabel" xml:space="preserve">
+    <value>OAuth (OIDC)</value>
+  </data>
+  <data name="QueryDataSourceDescription" xml:space="preserve">
+    <value>SQL クエリを実行するための Databricks データ ソースを定義する</value>
+  </data>
+  <data name="QueryDataSourceInstanceDescription" xml:space="preserve">
+    <value>Databricks で SQL クエリを実行し、結果を取得する</value>
+  </data>
+  <data name="QueryDataSourceInstanceName" xml:space="preserve">
+    <value>Databricks SQL クエリ</value>
+  </data>
+  <data name="QueryDataSourceName" xml:space="preserve">
+    <value>Databricks SQL クエリ ソース</value>
+  </data>
+  <data name="ServerHostNameHelp" xml:space="preserve">
+    <value>Databricks サーバーのホスト名。</value>
+  </data>
+  <data name="ServerHostNameLabel" xml:space="preserve">
+    <value>サーバー ホスト名</value>
+  </data>
+  <data name="SqlQueryHelp" xml:space="preserve">
+    <value>Databricks で実行する SQL クエリを入力する</value>
+  </data>
+  <data name="SqlQueryLabel" xml:space="preserve">
+    <value>SQL クエリ</value>
+  </data>
+  <data name="UsernamePasswordLabel" xml:space="preserve">
+    <value>ユーザー名 / パスワード</value>
+  </data>
+</root>

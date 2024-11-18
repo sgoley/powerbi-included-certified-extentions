@@ -1,0 +1,11 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "name", "standard", "hidden", "customStatuses"}, {"id", "name", "standard", "hidden", "customStatuses"}),
+    #"Changed" = Table.TransformColumnTypes(#"Expanded Column1",{{"id", type text}, {"name", type text}, {"standard", type logical}, {"hidden", type logical}}),
+    #"Expanded customStatuses" = Table.ExpandListColumn(#"Changed", "customStatuses"),
+    #"Expanded customStatuses1" = Table.ExpandRecordColumn(#"Expanded customStatuses", "customStatuses", {"id", "name", "standardName", "color", "standard", "group", "hidden"}, {"customStatuses.id", "customStatuses.name", "customStatuses.standardName", "customStatuses.color", "customStatuses.standard", "customStatuses.group", "customStatuses.hidden"}),
+    #"Renamed Columns" = Table.RenameColumns(#"Expanded customStatuses1",{{"customStatuses.id", "csId"}, {"customStatuses.name", "csName"}, {"customStatuses.standardName", "csStandardName"}, {"customStatuses.color", "csColor"}, {"customStatuses.standard", "csStandard"}, {"customStatuses.group", "csGroup"}, {"customStatuses.hidden", "csHidden"}}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"csId", type text}, {"csName", type text}, {"csStandardName", type logical}, {"csColor", type text}, {"csStandard", type logical}, {"csGroup", type text}, {"csHidden", type logical}})
+in
+    #"Changed Type"

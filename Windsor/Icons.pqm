@@ -1,0 +1,18 @@
+let
+    _Icon16 = {
+        Extension.Contents("Windsor16.png"),
+        Extension.Contents("Windsor20.png"),
+        Extension.Contents("Windsor24.png"),
+        Extension.Contents("Windsor32.png")
+    },
+    _Icon32 = {
+        Extension.Contents("Windsor32.png"),
+        Extension.Contents("Windsor40.png"),
+        Extension.Contents("Windsor48.png"),
+        Extension.Contents("Windsor64.png")
+    }
+in
+    [
+        Icon16 = _Icon16,
+        Icon32 = _Icon32
+    ]

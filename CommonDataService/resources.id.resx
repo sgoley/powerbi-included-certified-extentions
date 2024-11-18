@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Sambungkan ke Dataverse melalui titik akhir SQL-nya</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Domain lingkungan</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Domain lingkungan</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Tentukan lingkungan Dataverse untuk disambungkan. Bidang ini bersifat opsional. Jika bidang tidak ditentukan, semua lingkungan Dataverse yang tersedia untuk pengguna yang masuk akan ditampilkan di layar "Pilih data"</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Sambungkan ke instans Dataverse Anda (Dynamics 365 dan PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Domain untuk '#{0}' tidak didukung oleh konektor Dataverse.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Memuat data dari tabel lingkungan yang tidak langsung tidak didukung.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>'#{0}' bukan opsi yang valid. Opsi yang valid adalah: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Fungsi ini tidak mendukung opsi '#{0}' dengan nilai '#{1}'.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Format nama server '#{0}' tidak valid. Hapus skema, seperti "https://" dari nama server.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Sertakan kolom hubungan</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Opsi</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Tentukan opsi untuk menyambungkan ke instans Dataverse Anda</value>
   </data>
 </root>

@@ -1,0 +1,85 @@
+let
+	Extension.LoadFunction = (name as text) =>
+    let
+        binary = Extension.Contents(name),
+        asText = Text.FromBinary(binary)
+    in
+        Expression.Evaluate(asText, #shared),
+
+    DataLoading = Extension.LoadFunction("DataLoading.pqm"),
+	DataLoading.ValidateUrlScheme = DataLoading[ValidateUrlScheme],
+	OauthUrl = "https://login.funnel.io",
+
+	redirect_uri = "https://oauth.powerbi.com/views/oauthredirect.html",
+	windowWidth = 1200,
+	windowHeight = 1400,
+	StartLogin = (resourceUrl, state, display) =>
+		let
+			AuthorizeUrl = OauthUrl & "/authorize?" & Uri.BuildQueryString([
+				scope = "openid profile email offline_access",
+				state = state,
+				client_id="KHGyWRL56519p0uqBkjtbueBdavHGOPK",
+				response_type = "code",
+				audience = "https://auth.funnel.io",
+				prompt = "login",
+				redirect_uri = redirect_uri]),
+			AuthorizeUrl_ = DataLoading.ValidateUrlScheme(AuthorizeUrl)
+		in
+			[
+				LoginUri = AuthorizeUrl_,
+				CallbackUri = redirect_uri,
+				WindowHeight = windowHeight,
+				WindowWidth = windowWidth,
+				Context = null
+			],
+
+	FinishLogin = (context, callbackUri, state) =>
+		let
+			parts = Uri.Parts(callbackUri)[Query]
+		in
+			TokenMethod(parts),
+
+	TokenMethod = (parts) =>
+		let
+			tokenUrl = DataLoading.ValidateUrlScheme(OauthUrl & "/oauth/token"),
+			Response = Web.Contents(tokenUrl, [
+				Content = Text.ToBinary(Uri.BuildQueryString([
+					code = parts[code],
+					grant_type = "authorization_code",
+					client_id = "KHGyWRL56519p0uqBkjtbueBdavHGOPK",
+					client_secret="RGVw7aZ56PUTB05lC7gitUb_tJf_Il4hSp_9tj_yCJ53fotja2ewj3JbcXoOge8Q",
+					redirect_uri = redirect_uri])),
+				Headers=[
+					#"Content-type" = "application/x-www-form-urlencoded",
+					#"Accept" = "application/json"
+				]]),
+			partsFromResponse = Json.Document(Response)
+		in
+			partsFromResponse,
+
+	Refresh = (clientApplication, dataSourcePath, oldCredential) =>
+		let 
+			refreshUrl = DataLoading.ValidateUrlScheme(OauthUrl & "/oauth/token"),
+			Response = Web.Contents(refreshUrl, [
+				Content = Json.FromValue([
+					refresh_token = oldCredential[refresh_token],
+					client_id = "KHGyWRL56519p0uqBkjtbueBdavHGOPK",
+					client_secret="RGVw7aZ56PUTB05lC7gitUb_tJf_Il4hSp_9tj_yCJ53fotja2ewj3JbcXoOge8Q",
+					grant_type = "refresh_token"
+				]),
+				Headers = [
+					#"Content-type" = "application/json",
+					#"Accept" = "application/json"
+				]
+			]),
+			partsFromResponse = Json.Document(Response)
+		in
+			partsFromResponse
+
+in
+    [
+        StartLogin = StartLogin,
+        FinishLogin = FinishLogin,
+        TokenMethod = TokenMethod,
+		Refresh = Refresh
+    ]

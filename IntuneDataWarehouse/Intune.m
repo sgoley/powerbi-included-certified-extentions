@@ -1,5 +1,5 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.0"]
+[Version = "1.0.1"]
 section Intune;
 
 Intune.AuthUri = "https://login.microsoftonline.com/common/oauth2/authorize";

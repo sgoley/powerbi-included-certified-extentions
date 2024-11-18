@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Jungtis prie „Dataverse“ per SQL galinį punktą</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Aplinkos domenas</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Aplinkos domenas</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Nurodykite „Dataverse“ aplinką, prie kurios reikia prisijungti. Šis laukas yra pasirinktinis ir kai nenurodyta, visos prisijungusio vartotojo pasiekiamos „Dataverse“ aplinkos bus rodomos ekrane „Pasirinkti duomenis“</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Prisijunkite prie „Dataverse“ egzemplioriaus („Dynamics 365“ ir „PowerApps“).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>„Dataverse“ jungtis nepalaiko „#{0}“ domeno.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Duomenų įkėlimas iš netiesioginės aplinkų lentelės nepalaikomas.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>„#{0}“ nėra tinkamos parinktys. Tinkamos parinktys yra „#{1}“</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Ši funkcija nepalaiko parinkties „#{0}“, kurios reikšmė yra „#{1}“.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Neleistinas serverio vardo formatas #{0}.  Iš serverio vardo pašalinkite schemą, pvz., „https://“.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Įtraukti ryšių stulpelius</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Parinktys</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Nurodykite prisijungimo prie „Dataverse“ egzemplioriaus parinktis</value>
   </data>
 </root>

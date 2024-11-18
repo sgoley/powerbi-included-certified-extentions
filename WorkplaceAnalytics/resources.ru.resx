@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Расширенные параметры</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Агрегированные данные</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Детализация данных</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Выберите данные на уровне строк, чтобы загрузить необработанные результаты запроса, или агрегированные данные, чтобы отправить запросы в базу данных и получить агрегированные результаты. Для достижения наилучших результатов выбирайте данные на уровне строк, только если выбран режим подключения к импорту данных.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Данные на уровне строки</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Учетная запись организации</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Подключение к данным Рабочей аналитики</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Подключиться к данным Viva Аналитики</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Рабочая аналитика</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Аналитика</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Веб-службы</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Рабочая аналитика</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Имя таблицы</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Подключение к данным Рабочей аналитики</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Если запрос расширенной аналитики выводит более одной таблицы, укажите таблицу для подключения.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Аналитика</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Подключиться к данным Viva Аналитики</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Детализация агрегированных данных в настоящее время не поддерживается при подключении к результатам запроса путем указания имени или идентификатора запроса. Выберите детализацию данных на уровне строк, чтобы подключиться к результатам запроса.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Детализация данных на уровне строк в настоящее время поддерживается только при подключении к результатам запроса. Выберите детализацию агрегированных данных, чтобы подключиться к общему набору метрик Person или указать имя или идентификатор запроса.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Непредвиденный формат или значение заголовка WWW-Authenticate во время проверки подлинности.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Неожиданный ответ сервера во время проверки подлинности.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Детализация данных на уровне строк не поддерживается для этого источника данных. Вместо этого выберите Агрегированные данные.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Возвращает таблицу с видимыми атрибутами и метриками за неделю для каждого оцениваемого сотрудника в секции.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>Идентификатор запроса</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Чтобы найти идентификатор запроса в Рабочей аналитике, откройте результаты запроса, скопируйте нужную ссылку на запрос и извлеките идентификатор GUID (последние 32 символа URL-адреса).</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>В приложении расширенной аналитики выберите "Анализ" &gt; "Результаты запроса", найдите свой запрос и нажмите "Ссылка", чтобы получить идентификатор запроса.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Имя запроса</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Введите имя запроса в точности так, как оно отображается на вкладке "Результаты запросов Рабочей аналитики".</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Введите имя запроса в виде, указанном на странице "Анализ" &gt; "Результаты запроса" в приложении расширенной аналитики.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Импортируйте еженедельные метрики и данные атрибутов из Рабочей аналитики.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Метрики сотрудника Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Тип схемы</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Выберите ''Сводная'', чтобы загружать организационные атрибуты в виде отдельных столбцов, или ''Не сводная'', чтобы загружать организационные атрибуты в виде пар ''ключ-значение'', например Имя атрибута = Организация, Значение атрибута = Финансы.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Сводная</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Несводная</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Идентификатор секции</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Чтобы найти идентификатор запроса в Рабочей аналитике, откройте свой профиль пользователя и выберите "Мои сведения".</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>В приложении расширенной аналитики выберите "Анализ" &gt; "Результаты запроса", найдите свой запрос и нажмите "Ссылка", чтобы получить идентификатор раздела.</value>
   </data>
 </root>

@@ -1,0 +1,292 @@
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    Diagnostics = Extension.LoadFunction("Diagnostics.pqm"),
+    Diagnostics.LogValue = Diagnostics[LogValue],
+    Diagnostics.LogTrace = Diagnostics[LogTrace],
+
+    // Utils
+    Utils = Extension.LoadFunction("Utils.pqm"),
+    SendPostQuery = Utils[SendPostQuery],
+    ParseToTables = Utils[ParseToTables],
+    LoadGqlQuery = Utils[LoadGqlQuery],
+    Value.WaitFor = Utils[WaitFor],
+    CheckForErrorResponse = Utils[CheckForErrorResponse],
+    CheckGraphQLErrors = Utils[CheckGraphQLErrors],
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.PollDelay = Configuration[PollDelay],
+    Configuration.PollRetryAttempts = Configuration[PollRetryAttempts],
+    Table.GenerateByPageMultiTable = Utils[GenerateByPageMultiTable],
+
+
+    RequestBiAppSql = (
+        sql as text,
+        foldingTransforms as list,
+        clientContext as list,
+        traceParentId as text
+    ) =>
+        let
+            result = RequestDataGql("gql-request-biAppsSql.graphql", [
+                sql=sql,
+                foldingTransforms=foldingTransforms,
+                clientContext=clientContext
+            ], traceParentId),
+            validatedResult = CheckForErrorResponse(result, (data) => data[biAppsSql])
+        in
+            validatedResult,
+
+    RequestBiAppBql = (bql as text, clientContext as list, traceParentId as text) =>
+        let
+            result = RequestDataGql("gql-request-biAppsBql.graphql",[
+                bql=bql,
+                clientContext=clientContext
+            ], traceParentId),
+            validatedResult = CheckForErrorResponse(result, (data) => data[biAppsBql])
+        in
+            validatedResult,
+
+    RequestBiAppsNextPage = (requestId as text, traceParentId as text) =>
+        let
+            result = RequestDataGql(
+                "gql-request-biAppsNextPage.graphql",
+                [requestId = requestId],
+                traceParentId
+            ),
+            validatedResult = CheckForErrorResponse(result, (data) => data[biAppsNextPage])
+        in
+            validatedResult,
+
+    // Request next page after waiting for a polling interval/keep polling until we get a response that's not in the "RUNNING" state
+    PollForNextPage = (requestId as text, traceParentId as text) =>
+        let
+            waitForResult = Value.WaitFor(
+                (iteration) =>
+                    let
+                        result = RequestBiAppsNextPage(requestId, traceParentId),
+                        status = result[data][biAppsNextPage][status],
+                        actualResult = if status = "RUNNING" then null else result
+                    in
+                        actualResult,
+                    (iteration) => #duration(0, 0, 0, Configuration.PollDelay),
+                    Configuration.PollRetryAttempts
+                ),
+            finalResult = if waitForResult = null
+                then
+                    error "Failed to return data after reaching poll retry attempt limit"
+                else
+                    waitForResult
+        in
+            finalResult,
+
+    PollForSqlMetadata = (requestId as text, traceParentId as text) =>
+        let
+            waitForResult = Value.WaitFor(
+                (iteration) =>
+                    let
+                        result = RequestSqlMetadataCheck(requestId, traceParentId),
+                        status = result[data][sqlMetadataCheck][status],
+                        actualResult = if status = "RUNNING" then null else result
+                    in
+                        actualResult,
+                    (iteration) => #duration(0, 0, 0, Configuration.PollDelay),
+                    Configuration.PollRetryAttempts
+                ),
+            finalResult = if waitForResult = null
+                then
+                    error "Failed to return metadata after reaching poll retry attempt limit"
+                else
+                    waitForResult
+        in
+            finalResult,
+
+    RequestSqlMetadata = (state as record) =>
+        let
+            response =  RequestDataGql(
+                "gql-request-sqlMetadata.graphql",
+                [
+                    sql = state[sql],
+                    foldingTransforms= Record.FieldOrDefault(state, "foldingTransforms", {})
+                ],
+                state[traceParentId]
+            ),
+            validatedResult = CheckForErrorResponse(response, (data) => data[sqlMetadata])
+        in
+            validatedResult,
+
+    RequestSqlMetadataCheck = (requestId as text, traceParentId as text) =>
+        let
+            response =  RequestDataGql("gql-request-sqlMetadataCheck.graphql",[
+                requestId = requestId
+            ], traceParentId),
+            validatedResult = CheckForErrorResponse(response, (data) => data[sqlMetadataCheck])
+        in
+            validatedResult,
+
+    ParseBiAppsResponseToTable = (queryResult as record) =>
+        let
+            metadata = queryResult[metadata],
+            data = queryResult[data],
+            dataTable = ParseToTables(metadata, data)
+        in
+            dataTable,
+
+    GetSqlMetadata = (state as record) =>
+        let
+            initialResult = RequestSqlMetadata(
+                state
+            ),
+            responseReady = initialResult[data][sqlMetadata][status] <> "RUNNING",
+            DoPoll = () => PollForSqlMetadata(
+                initialResult[data][sqlMetadata][requestId],
+                state[traceParentId]
+            ),
+            metadata = if responseReady
+                then initialResult[data][sqlMetadata][metadata]
+                else DoPoll()[data][sqlMetadataCheck][metadata]
+        in
+            metadata,
+
+    // Returns table
+    GetSqlData = (state as record) =>
+        let
+            res = Table.GenerateByPageMultiTable((previous) =>
+                if previous = null then GetFirstPageSql(
+                    state[sql],
+                    Record.FieldOrDefault(state, "foldingTransforms", {}),
+                    Record.FieldOrDefault(state, "clientContext", {}),
+                    state[traceParentId]
+                )
+                else GetSubsequentPage(Value.Metadata(previous), state[traceParentId])
+            )
+        in
+            res,
+
+    // Returns: table or navigation table of tables
+    GetBqlData = (bql as text, clientContext as list, traceParentId as text) =>
+        let
+            res = Table.GenerateByPageMultiTable((previous) =>
+                let
+                    res = if previous = null
+                        then GetFirstPageBql(bql, clientContext, traceParentId)
+                    else GetSubsequentPage(Value.Metadata(previous), traceParentId)
+                in
+                    res
+
+            )
+        in
+            res,
+
+    // GetFirstPageSql/GetFirstPageBql/GetSubsequentPage all return lists of records
+    // { [ tableId = <text>, data = <table> ] ... }, one for each table/partial table in that page
+     GetFirstPageSql = (
+        sql as text,
+        foldingTransforms as list,
+        clientContext as list,
+        traceParentId as text
+    ) =>
+        let
+            page = RequestBiAppSql(sql, foldingTransforms, clientContext, traceParentId),
+            innerResponse = page[data][biAppsSql],
+            nextShouldWaitForNextPage = innerResponse[status] = "RUNNING",
+            requestId = innerResponse[requestId]
+        in
+            if Record.HasFields(innerResponse, "data")
+                then ParseBiAppsResponseToTable(innerResponse) meta [
+                    hasNextPage = innerResponse[pageInfo][hasNextPage],
+                    // Whether we should wait/poll before getting the next page, as opposed to requesting it immediately
+                    shouldWaitForNextPage = nextShouldWaitForNextPage,
+                    requestId = requestId
+                ]
+            // Response not containing data -> also get next page
+            else {} meta [
+                hasNextPage = true,
+                shouldWaitForNextPage = nextShouldWaitForNextPage,
+                requestId = requestId
+            ],
+
+    GetFirstPageBql = (bql as text, clientContext as list, traceParentId as text) =>
+        let
+            page = RequestBiAppBql(bql, clientContext, traceParentId),
+            innerResponse = page[data][biAppsBql],
+            nextShouldWaitForNextPage = innerResponse[status] = "RUNNING",
+            requestId = innerResponse[requestId]
+        in
+            if Record.HasFields(innerResponse, "data")
+                then ParseBiAppsResponseToTable(innerResponse) meta [
+                    hasNextPage = innerResponse[pageInfo][hasNextPage],
+                    shouldWaitForNextPage = nextShouldWaitForNextPage,
+                    requestId = requestId
+                ]
+            // Response not containing data -> also get next page
+            else {} meta [
+                hasNextPage = true,
+                shouldWaitForNextPage = nextShouldWaitForNextPage,
+                requestId = requestId
+            ],
+
+    GetSubsequentPage = (prevPageMetadata as record, traceParentId as text) =>
+        let
+            prevPageMetadata_ = Diagnostics.LogValue("prevPageMetadata", prevPageMetadata),
+            hasNextPage = prevPageMetadata_[hasNextPage],
+            requestId = prevPageMetadata[requestId],
+            shouldWaitForNextPage = prevPageMetadata[shouldWaitForNextPage],
+
+            page = if shouldWaitForNextPage
+                then PollForNextPage(requestId, traceParentId)
+                else RequestBiAppsNextPage(requestId, traceParentId),
+            innerResponse = page[data][biAppsNextPage],
+            nextShouldWaitForNextPage = innerResponse[status] = "RUNNING",
+            res = if not hasNextPage
+                then null // End pagination
+            else if Record.HasFields(innerResponse, "data")
+                then ParseBiAppsResponseToTable(innerResponse) meta [
+                    hasNextPage = innerResponse[pageInfo][hasNextPage],
+                    shouldWaitForNextPage = nextShouldWaitForNextPage,
+                    requestId = requestId
+                ]
+            else {} meta [
+                hasNextPage = true,
+                shouldWaitForNextPage = nextShouldWaitForNextPage,
+                requestId = requestId
+            ]
+        in
+            res,
+
+    RequestDataGql = (gqlfile as text, variables as record, traceParentId as text) =>
+        let
+            bodyData = [
+                query = LoadGqlQuery(gqlfile),
+                variables = variables
+            ],
+            body = Text.FromBinary(Json.FromValue(bodyData)),
+            body1 = Diagnostics.LogValue("Request body", body),
+            rawResult = SendPostQuery(body1, traceParentId),
+            rawResultText =  Text.FromBinary(rawResult),
+            truncatedRawResultText = Text.Start(rawResultText, 1000),
+            rawResultText1 = Diagnostics.LogTrace(
+                TraceLevel.Information,
+                Text.Combine({"Raw response (truncated): ", truncatedRawResultText}),
+                rawResultText
+            ),
+            parsedResult = try Json.Document(rawResultText1)
+                otherwise error Error.Record(
+                    "Invalid Response",
+                    "Unable to read data due to invalid response format.",
+                    rawResultText1
+                ),
+            resultWithErrorCheck = CheckGraphQLErrors(parsedResult)
+        in
+            resultWithErrorCheck
+in
+    [
+       GetBqlData = GetBqlData,
+       GetSqlData = GetSqlData,
+       GetSqlMetadata = GetSqlMetadata
+    ]

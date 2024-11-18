@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,19 +118,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>AtScale-kubussen</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>Kubusgegevens uit AtScale importeren/DirectQuery uitvoeren.</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>AtScale-kubussen</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>Import-/DirectQuery-kubusgegevens uit een AtScale.</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
 Hiermee worden kubusgegevens van AtScale op de server &lt;code&gt;server&lt;/code&gt; geretourneerd. Een optionele recordparameter &lt;code&gt;options&lt;/code&gt; kan worden opgegeven voor het bepalen van de volgende opties:
 &lt;ul&gt; 
@@ -140,34 +141,34 @@ Hiermee worden kubusgegevens van AtScale op de server &lt;code&gt;server&lt;/cod
  &lt;/ul&gt;
 De recordparameter is opgegeven als [optie1 = waarde1, optie2 = waarde2...].</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>De kubusgegevens in een AtScale-kubus vermelden.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>Server</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>Geef de URL van de AtScale-server op</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
     <value>Opties</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>Geef de opties op om verbinding te maken met de AtScale-server</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>Er is een ongeldige servernaam opgegeven. De servernaam moet de indeling http(s)://contoso.atscale.com:10502/xmla/... hebben, waarbij het poortnummer optioneel is.</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>#{0} is geen geldige AtScale-optie. Geldige opties zijn: #{1}</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>De functie van AtScale biedt geen ondersteuning voor de optie #{0} met de waarde #{1}</value>
   </data>
 </root>

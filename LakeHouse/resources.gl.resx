@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Importar datos dun Lakehouse</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Lakehouse</value>
+  </data>
+  <data name="lakehouse.caption" errorCode="003" xml:space="preserve">
+    <value>Importar datos dun Lakehouse</value>
+  </data>
+  <data name="lakehouse.longDescription" errorCode="004" xml:space="preserve">
+    <value>Conéctate a todas as Lakehouses ás que tes acceso e escolle as entidades que queres usar</value>
+  </data>
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
+    <value>Lakehouse</value>
+  </data>
+  <data name="lakehouse.description" errorCode="006" xml:space="preserve">
+    <value>Importar datos dun Lakehouse</value>
+  </data>
+  <data name="Workspaces" errorCode="007" xml:space="preserve">
+    <value>Áreas de traballo</value>
+  </data>
+  <data name="WorkspaceId" errorCode="008" xml:space="preserve">
+    <value>WorkspaceId</value>
+  </data>
+  <data name="LakeHouseArtifactId" errorCode="009" xml:space="preserve">
+    <value>LakehouseArtifactId</value>
+  </data>
+  <data name="LakeHouses" errorCode="010" xml:space="preserve">
+    <value>Lakehouses</value>
+  </data>
+  <data name="Files" errorCode="011" xml:space="preserve">
+    <value>Ficheiros</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="012" xml:space="preserve">
+    <value>“#{0}” non son opcións válidas. Estas son as opcións válidas: “#{1}”</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="013" xml:space="preserve">
+    <value>Esta función non admite a opción “#{0}” co valor “#{1}”.</value>
+  </data>
+  <data name="DeltaModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Non foi posible cargar estes datos porque estaban almacenados en formato delta</value>
+  </data>
+  <data name="MultiTableInsertNotSupported" errorCode="015" xml:space="preserve">
+    <value>O conector de Lakehouse non admite a inserción de mesas múltiples</value>
+  </data>
+  <data name="MultiTableDeleteInVersionNotSupported" errorCode="016" xml:space="preserve">
+    <value>O conector de Lakehouse non admite as eliminacións de varias táboas nunha versión</value>
+  </data>
+  <data name="MultiTableInsertInVersionNotSupported" errorCode="017" xml:space="preserve">
+    <value>O conector de Lakehouse non admite a inserción de mesas múltiples nunha versión</value>
+  </data>
+  <data name="MultipleVersionsWithSameGuid" errorCode="018" xml:space="preserve">
+    <value>Varias versións co mesmo GUID ou o GUID non coincide coa función de selección "#{0}", non se pode procesar esta operación!</value>
+  </data>
+  <data name="InvalidTableName" errorCode="019" xml:space="preserve">
+    <value>As táboas só poden conter letras maiúsculas ou minúsculas, números ou o carácter de guión baixo.</value>
+  </data>
+  <data name="CannotDeletePublishedVersion" errorCode="020" xml:space="preserve">
+    <value>Non se pode eliminar a versión publicada.</value>
+  </data>
+  <data name="VersionedLakehouseTableInsertError" errorCode="021" xml:space="preserve">
+    <value>Produciuse un erro ao crear a táboa de lakehouse nunha versión.</value>
+  </data>
+  <data name="VersionedLakehouseDeleteExistingTableError" errorCode="022" xml:space="preserve">
+    <value>Produciuse un erro ao eliminar unha táboa de lakehouse existente nunha versión.</value>
+  </data>
+  <data name="LakehouseOldDfeVersionCommitError" errorCode="023" xml:space="preserve">
+    <value>Produciuse un erro ao confirmar a versión.</value>
+  </data>
+  <data name="VersionedLakehouseTableDeleteError" errorCode="024" xml:space="preserve">
+    <value>Produciuse un erro ao eliminar os datos da táboa nunha versión.</value>
+  </data>
+  <data name="LakehouseVersionDeleteError" errorCode="025" xml:space="preserve">
+    <value>Produciuse un erro ao eliminar a versión.</value>
+  </data>
+  <data name="LakehouseVersionCommitError" errorCode="026" xml:space="preserve">
+    <value>Produciuse un erro ao confirmar a versión.</value>
+  </data>
+  <data name="LakehouseVersionInsertError" errorCode="027" xml:space="preserve">
+    <value>Produciuse un erro na inserción da versión.</value>
+  </data>
+  <data name="LakehouseNonVersionedDeleteError" errorCode="028" xml:space="preserve">
+    <value>Produciuse un erro ao eliminar as filas.</value>
+  </data>
+  <data name="LakehouseNonVersionedInsertError" errorCode="029" xml:space="preserve">
+    <value>Produciuse un erro ao inserir unha táboa.</value>
+  </data>
+  <data name="VersionedLakehouseTableReplaceError" errorCode="030" xml:space="preserve">
+    <value>Produciuse un erro ao substituír o contido da táboa por datos novos nunha versión: #{0}.</value>
+  </data>
+  <data name="VersionedLakehouseTableCreateError" errorCode="031" xml:space="preserve">
+    <value>Produciuse un erro ao crear a táboa de lakehouse nunha versión</value>
+  </data>
+  <data name="MetadataRefreshError" errorCode="032" xml:space="preserve">
+    <value>Produciuse un erro ao actualizar os metadatos: #{0}, estado #{1}</value>
+  </data>
+  <data name="TraceMessageWithDetails" errorCode="033" xml:space="preserve">
+    <value>#{0}, InnerException: #{1}</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="034" xml:space="preserve">
+    <value>A chamada de servizo de baixada ao URL “#{0}” fallou co código de estado #{1}.</value>
+  </data>
+  <data name="DownstreamServiceCallFailureWithErrorCode" errorCode="035" xml:space="preserve">
+    <value>A chamada de servizo de baixada ao URL “#{0}” fallou co código de estado #{1}. ErrorCode: #{2}.</value>
+  </data>
+  <data name="FinalErrorMessageWithDetails" errorCode="036" xml:space="preserve">
+    <value>#{0}, Erro subxacente: #{1}</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="037" xml:space="preserve">
+    <value>Encontrouse unha excepción ao analizar a resposta de erro “#{0}” do servizo web.</value>
+  </data>
+  <data name="MetadataRefreshErrorWithDetail" errorCode="038" xml:space="preserve">
+    <value>Non se pode crear unha táboa no catálogo de SQL do lago de datos debido a un erro de actualización de metadatos, para o id. do lago de datos: #{0} e o id. do lote: #{1} erro subxacente #{2}</value>
+  </data>
+  <data name="DownstreamServiceCallError" errorCode="039" xml:space="preserve">
+    <value>Produciuse un erro na chamada de servizo de baixada ao URL "#{0}". Código de erro: "#{1}" e Mensaxe de erro: "#{2}".</value>
+  </data>
+  <data name="TableCreationFailureError" errorCode="040" xml:space="preserve">
+    <value>Non se pode crear unha táboa. Erro subxacente: "#{0}".</value>
+  </data>
+  <data name="MetadataRefreshParseResponseError" errorCode="041" xml:space="preserve">
+    <value>Resposta non válida do servizo de sincronización de metadatos ID de Lakehouse: #{0} e ID de lote: #{1}. Erro subxacente: "#{2}".</value>
+  </data>
+  <data name="StagingLakehouseInInvalidState" errorCode="042" xml:space="preserve">
+    <value>A transición do lago de datos non se configurou correctamente. ID do lago de datos: nº {0} Cree un tícket de asistencia con este informe de erro. Consulte aka.ms/fabricstaginglakehousefix</value>
+  </data>
+  <data name="MetadataRefreshUnableToSyncTable" errorCode="043" xml:space="preserve">
+    <value>Non foi posible crear unha táboa no catálogo SQL de Lakehouse despois de reintentos máximos, ID de Lakehouse: #{0} e ID de lote: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshNothingInProgress" errorCode="044" xml:space="preserve">
+    <value>Non foi posible crear unha táboa no catálogo SQL de Lakehouse despois de reintentos máximos xa que non hai nada en curso, ID de Lakehouse: #{0} e TableName: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshBatchError" errorCode="045" xml:space="preserve">
+    <value>Non se pode crear unha táboa no catálogo de SQL do lago de datos debido a un erro de actualización de metadatos, para o ID de Lakehouse #{0} e o id. do lote: #{1} código de erro subxacente #"{2}", erro: #{3}</value>
+  </data>
+  <data name="ArtifactInInvalidState" errorCode="046" xml:space="preserve">
+    <value>O artefacto #{0} #{1} co ID #{2} está en estado non válido. Estado: #{3}, estado #{4}.</value>
+  </data>
+  <data name="NoSqlEndPoint" errorCode="047" xml:space="preserve">
+    <value>Non se pode atopar o punto final de SQL</value>
+  </data>
+</root>

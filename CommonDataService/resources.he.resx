@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>התחבר אל Dataverse באמצעות נקודת הקצה שלה של SQL</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>תחום סביבה</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>תחום סביבה</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>ציין סביבת Dataverse שאליה תתחבר. שדה זה הוא אופציונלי, אם לא צוינה סביבת Dataverse, כל סביבות Dataverse הזמינות למשתמש המחובר יוצגו במסך 'בחירת נתונים'</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>התחבר למופע של Dataverse שברשותך (Dynamics 365 ו- PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>מחבר ה- Dataverse אינו תומך בתחום של '#{0}'.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>טעינת נתונים מטבלה עקיפה של סביבות אינה נתמכת.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>'#{0}' אינן אפשרויות חוקיות. האפשרויות החוקיות הן: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>פונקציה זו אינה תומכת באפשרות '#{0}' עם הערך '#{1}'.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>תבנית שם השרת '#{0}' אינה חוקית.  הסר ערכה כגון "https://" משם השרת.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>כלול עמודות של קשרי גומלין</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>אפשרויות</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>ציין את האפשרויות להתחבר למופע Dataverse שלך</value>
   </data>
 </root>

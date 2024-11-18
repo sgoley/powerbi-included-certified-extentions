@@ -1,4 +1,4 @@
-
+[Version = "3.0.4"]
 section AtScale;
 
 // =============================================================================
@@ -8,7 +8,7 @@ section AtScale;
 shared AtScale.Cubes = Value.ReplaceType(AtScaleImpl, AtScaleType);
 
 AtScale = [
-    TestConnection = (resourcePath) => { "AtScale.Cubes", Json.Document(resourcePath)[server] },
+    TestConnection = (resourcePath as text) => { "AtScale.Cubes", resourcePath },
     Authentication = [
         UsernamePassword = [
             Name = "AtScale",

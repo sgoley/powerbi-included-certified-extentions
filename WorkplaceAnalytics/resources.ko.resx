@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>고급 옵션</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>집계된 데이터</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>데이터 세분성</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>행 수준 데이터를 선택하여 원시 쿼리 결과를 로드하거나 집계된 데이터를 선택하여 쿼리를 데이터베이스에 푸시하고 집계된 결과를 가져옵니다. 최상의 결과를 얻으려면 데이터 연결 가져오기 모드를 선택한 경우에만 행 수준 데이터를 선택하세요.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>행 수준 데이터</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>조직 계정</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Workplace Analytics 데이터에 연결</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Viva Insights 데이터에 연결</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>온라인 서비스</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>테이블 이름</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Workplace Analytics 데이터에 연결</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Advanced insights 쿼리가 둘 이상의 테이블을 출력하는 경우 연결할 테이블을 지정합니다.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Viva Insights 데이터에 연결</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>쿼리 이름 또는 식별자를 지정하여 쿼리 결과에 연결할 때 집계 데이터 세분성은 현재 지원되지 않습니다. 쿼리 결과에 연결하려면 행 수준 데이터 세분성을 선택합니다.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>행 수준 데이터 세분성은 현재 쿼리 결과에 연결할 때만 지원됩니다. 개인 메트릭의 일반 집합에 연결하거나 쿼리 이름 또는 식별자를 지정하려면 집계된 데이터 세분성을 선택합니다.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>인증하는 동안 예기치 않은 WWW-Authenticate 헤더 형식 또는 값을 받았습니다.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>인증하는 동안 서버에서 예기치 않은 응답을 받았습니다.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>이 데이터 원본에는 행 수준 데이터 세분이 지원되지 않습니다. 대신 집계된 데이터 세분성을 선택하세요.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dcdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>파티션에서 측정된 각 직원에 대해 표시되는 특성 및 주별 메트릭을 포함하는 표를 반환합니다.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>쿼리 식별자</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>쿼리 결과를 열고 원하는 쿼리 링크를 복사하고 URL에 표시되는 마지막 32자리 ID(GUID)를 추출하여 Workplace Analytics에서 쿼리 식별자를 찾습니다.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>고급 인사이트 앱에서 분석 &gt; 쿼리 결과로 이동하여 쿼리를 찾은 다음 링크를 선택하여 쿼리 식별자를 가져옵니다.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>쿼리 이름</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Workplace Analytics 쿼리 결과 탭에 표시되는 대로 정확히 쿼리 이름을 입력합니다.</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>고급 인사이트 앱의 분석 &gt; 쿼리 결과 페이지에 있는 쿼리 이름을 입력합니다.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Workplace Analytics에서 주간 메트릭 및 특성 데이터를 가져옵니다.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contoso의 개인 메트릭</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>스키마 유형</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>조직 속성을 개별 열로 로드하려면 피벗을 선택하고 속성 이름 = 조직, 속성 값 = 재무와 같은 키-값 쌍으로 조직 속성을 로드하려면 피벗을 선택합니다.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>피벗</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>피벗 해제됨</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>파티션 식별자</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>사용자 프로필을 열고 내 정보를 선택하여 Workplace Analytics에서 이 정보를 찾습니다.</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>고급 인사이트 앱에서 분석 &gt; 쿼리 결과로 이동하여 쿼리를 찾은 다음 링크를 선택하여 파티션 식별자를 가져옵니다.</value>
   </data>
 </root>

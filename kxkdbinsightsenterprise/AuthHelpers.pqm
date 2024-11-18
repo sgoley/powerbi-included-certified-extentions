@@ -1,0 +1,112 @@
+﻿let
+    // OAuth configuration settings
+    OPENID_CONNECT = "auth/realms/insights/protocol/openid-connect",
+    REDIRECT_URL = "https://oauth.powerbi.com/views/oauthredirect.html",
+    CLIENT_ID = "insights-app",
+    WINDOW_HEIGHT = 800,
+    WINDOW_WIDTH = 1000,
+    // Helper functions for OAuth
+    // https://docs.microsoft.com/en-us/power-query/handlingauthentication
+    AuthHelpers.CreateSha256Hash = (CodeVerifier) =>
+        let
+            Hash = Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary(CodeVerifier)),
+            Base64Text = Binary.ToText(Hash, BinaryEncoding.Base64),
+            Base64TextTrimmed = Text.TrimEnd(Base64Text, "="),
+            Base64Url = Text.Replace(Text.Replace(Base64TextTrimmed, "+", "-"), "/", "_")
+        in
+            Base64Url,
+    AuthHelpers.TokenMethod = (DataSourcePath, Code, GrantType, optional Verifier) =>
+        let
+            CodeVerifier = if (Verifier <> null) then [code_verifier = Verifier] else [],
+            CodeParameter = if (GrantType = "authorization_code") then [code = Code] else [refresh_token = Code],
+            query = CodeVerifier
+                & CodeParameter
+                & [
+                    client_id = CLIENT_ID,
+                    grant_type = GrantType,
+                    redirect_uri = REDIRECT_URL
+                ],
+            Response = Web.Contents(
+                DataSourcePath & OPENID_CONNECT & "/token",
+                [
+                    Content = Text.ToBinary(Uri.BuildQueryString(query)),
+                    Headers = [
+                        #"Content-type" = "application/x-www-form-urlencoded",
+                        #"Accept" = "application/json"
+                    ]
+                ]
+            ),
+            JsonResponse = Json.Document(Response)
+        in
+            if (Record.HasFields(JsonResponse, {"error", "error_description"})) then
+                error Error.Record(JsonResponse[error], JsonResponse[error_description], JsonResponse)
+            else if (Record.HasFields(JsonResponse, {"error"})) then
+                error Error.Record(JsonResponse[error], Extension.LoadString("error_login"), JsonResponse)
+            else
+                JsonResponse,
+    AuthHelpers.Refresh = (ResourceUrl, RefreshToken) =>
+        AuthHelpers.TokenMethod(ResourceUrl, RefreshToken, "refresh_token"),
+    ValidateUrlScheme = (url as text) as text =>
+        let
+            hasValidScheme = Uri.Parts(url)[Scheme] = "https"
+        in
+            if not hasValidScheme then
+                error
+                    [
+                        Reason = Extension.LoadString("error_reason_invalid_url"),
+                        Message = Extension.LoadString("error_message_url_scheme"),
+                        Detail = Extension.LoadString("error_detail_url") & url
+                    ]
+            else
+                url,
+    AuthHelpers.StartLogin = (DataSourcePath, State, Display) =>
+        let
+            CodeVerifier = Text.NewGuid() & Text.NewGuid(),
+            CodeChallenge = AuthHelpers.CreateSha256Hash(CodeVerifier),
+            AuthorizeUrl = ValidateUrlScheme(
+                DataSourcePath
+                    & OPENID_CONNECT
+                    & "/auth?"
+                    & Uri.BuildQueryString(
+                        [
+                            client_id = CLIENT_ID,
+                            response_type = "code",
+                            code_challenge_method = "S256",
+                            code_challenge = CodeChallenge,
+                            state = State,
+                            redirect_uri = REDIRECT_URL
+                        ]
+                    )
+            )
+        in
+            [
+                LoginUri = AuthorizeUrl,
+                CallbackUri = REDIRECT_URL,
+                WindowHeight = WINDOW_HEIGHT,
+                WindowWidth = WINDOW_WIDTH,
+                Context = CodeVerifier
+            ],
+    AuthHelpers.FinishLogin = (clientApplication, DataSourcePath, Context, CallbackUri, State) =>
+        let
+            Query = Uri.Parts(CallbackUri)[Query],
+            Result =
+                if (Record.HasFields(Query, {"error", "error_description"})) then
+                    error Error.Record(Query[error], Query[error_description], Query)
+                else if (Record.HasFields(Query, {"error"})) then
+                    error Error.Record(Query[error], Extension.LoadString("error_login"), Query)
+                else
+                    AuthHelpers.TokenMethod(DataSourcePath, Query[code], "authorization_code", Context)
+        in
+            Result,
+    AuthHepers.Logout = (ClientApplication, ResourceUrl, AccessToken) =>
+        let
+            LogoutUrl = ResourceUrl & OPENID_CONNECT & "/logout?"
+        in
+            LogoutUrl
+in
+    [
+        StartLogin = AuthHelpers.StartLogin,
+        FinishLogin = AuthHelpers.FinishLogin,
+        Refresh = AuthHelpers.Refresh,
+        Logout = AuthHepers.Logout
+    ]

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,19 +118,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>مكعبات AtScale</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>استورد/DirectQuery بيانات المكعب من AtScale.</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>مكعبات AtScale</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>استورد/DirectQuery بيانات المكعب من AtScale.</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
 إرجاع بيانات المكعب من AtScale على الخادم &lt;code&gt;الخادم&lt;/code&gt;. قد يتم تحديد معلمة سجل اختيارية، &lt;code&gt;خيارات&lt;/code&gt;، للتحكم في الخيارات التالية:
 &lt;ul&gt;
@@ -140,34 +141,34 @@
 &lt;/ul&gt;
 يتم تحديد معلمة السجل بالصيغة [option1 = value1, option2 = value2...].</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>اسرد بيانات المكعب في مكعب AtScale.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>الخادم</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>تحديد URL لخادم AtScale</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
-    <value>خيارات</value>
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
+    <value>الخيارات</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>تحديد الخيارات للاتصال بخادم AtScale</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>تم تحديد اسم خادم غير صالح. يجب أن يكون اسم الخادم بالتنسيق 'http(s)://contoso.atscale.com:10502/xmla/...'، حيث يكون رقم المنفذ اختياريًا.</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>'#{0}' ليس خيار AtScale صالحًا. الخيارات الصالحة هي: '#{1}'</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>لا تدعم دالة AtScale هذه الخيار '#{0}' بالقيمة '#{1}'</value>
   </data>
 </root>

@@ -124,13 +124,13 @@
     <value>Token</value>
   </data>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Access BI services from Luminis Information Grid</value>
+    <value>Access BI services from Luminis InformationGrid</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Information Grid</value>
+    <value>InformationGrid</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>Information Grid</value>
+    <value>InformationGrid</value>
   </data>
   <data name="ExampleCode1" xml:space="preserve">
     <value>InformationGrid.Contents("192.168.1.123", false)</value>
@@ -139,10 +139,10 @@
     <value>InformationGrid.Contents("igserver.somedomain.com", true){[Service="service-name"]}[Data]</value>
   </data>
   <data name="ExampleDescription1" xml:space="preserve">
-    <value>Returns a Navigation Table listing the available Information Grid BI services</value>
+    <value>Returns a Navigation Table listing the available InformationGrid BI services</value>
   </data>
   <data name="ExampleDescription2" xml:space="preserve">
-    <value>Returns information from a specific named Information Grid BI service using HTTP</value>
+    <value>Returns information from a specific named InformationGrid BI service using HTTP</value>
   </data>
   <data name="ExampleResult1" xml:space="preserve">
     <value>(Navigation table listing available BI services)</value>
@@ -154,7 +154,7 @@
     <value>Retrieves information from authorised BI services available on the given server</value>
   </data>
   <data name="FunctionName" xml:space="preserve">
-    <value>Information Grid BI Services</value>
+    <value>InformationGrid BI Services</value>
   </data>
   <data name="ServerFieldCaption" xml:space="preserve">
     <value>Server name</value>

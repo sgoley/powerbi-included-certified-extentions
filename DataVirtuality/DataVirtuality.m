@@ -1,5 +1,5 @@
 ﻿// This file contains the Data Virtuality Connector logic
-[Version = "1.0.0"]
+[Version = "3.0.0"]
 section DataVirtuality;
 
 DefaultPort = "35433";
@@ -23,7 +23,7 @@ DataVirtualityType = type function (
     ) 
     as table meta [
         Documentation.Name = Extension.LoadString("DataSourceLabel"),
-        Documentation.LongDescription = Extension.LoadString("Returns the list of tables returned from the ODBC driver"),
+        Documentation.LongDescription = Extension.LoadString("DataSourceLabel"),
         Documentation.Icon = Extension.Contents("DataVirtuality32.png")
     ];
     
@@ -84,20 +84,18 @@ DataVirtualityImpl = (server as text, database as text, optional options as reco
 
             SQLGetTypeInfo = SQLGetTypeInfo,
  	        SQLGetInfo =  [
+        	    // place custom overrides here
 	            SQL_SQL92_PREDICATES = ODBC[SQL_SP][All],
 	            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All],
                 // no covert, we don't understand { fn convert(<col>, SQL_DOUBLE) } (etc)
    	    	    SQL_CONVERT_FUNCTIONS = 0x2,
-                SQL_NUMERIC_FUNCTIONS = 0x3FFFFF,
+                SQL_NUMERIC_FUNCTIONS = 0x7FFFD,
                 SQL_STRING_FUNCTIONS = 0x7FFFF, 
                 SQL_SYSTEM_FUNCTIONS =  0x7,
                 SQL_TIMEDATE_FUNCTIONS = 0x1FFFFF, 
                 SQL_SQL92_NUMERIC_VALUE_FUNCTIONS = 0x0,
                 SQL_SQL92_STRING_FUNCTIONS = 0xAF,
                 SQL_SQL92_DATETIME_FUNCTIONS = 0x7,
-                SQL_TIMEDATE_DIFF_INTERVALS = 0x1FE,
-                // until DVCORE-6625 is fixed
-                SQL_TIMEDATE_ADD_INTERVALS = 0x1FE,
 
                 SQL_CONVERT_BIT            = Flags({BIT,TINYINT,SMALLINT,INTEGER,                                         CHAR,WCHAR,VARCHAR,WVARCHAR,LONGVARCHAR,WLONGVARCHAR                                                                                              }),
                 SQL_CONVERT_TINYINT        = Flags({BIT,TINYINT,SMALLINT,INTEGER,BIGINT,FLOAT,DOUBLE,REAL,DECIMAL,NUMERIC,CHAR,WCHAR,VARCHAR,WVARCHAR,LONGVARCHAR,WLONGVARCHAR,                    INTERVAL_DAY_TIME,INTERVAL_YEAR_MONTH                                    }),
@@ -139,13 +137,15 @@ DataVirtualityImpl = (server as text, database as text, optional options as reco
         Database = OdbcDataSource{[Name = database]}[Data],
         
         DataSourceMissingClientLibrary = "DataSource.MissingClientLibrary",
-        DriverDownloadUrl = "https://datavirtuality.com/download-driver/",
+        DriverDownloadUrl = "http://datavirtuality.com/download/",
 
         OnError = (errorRecord as record) =>
                 if Text.Contains(errorRecord[Message], "TEIID50072") then
                     error Extension.CredentialError(Credential.AccessDenied, errorRecord[Message])
                 else if encryptionEnabled and Text.Contains(errorRecord[Message], "server does not support SSL, but SSL was required") then
                     error Extension.CredentialError(Credential.EncryptionNotSupported, errorRecord[Message])
+               else if encryptionEnabled and Text.Contains(errorRecord[Message], "TEIID40124") then
+                    error Extension.CredentialError(Credential.EncryptionNotSupported, errorRecord[Message])					
                 else if errorRecord[Reason] = DataSourceMissingClientLibrary then
                     error Error.Record(DataSourceMissingClientLibrary, Text.Format("The Data Virtuality ODBC Driver is not installed. Please download the installer from #{0} and install the driver.", { DriverDownloadUrl }),DriverDownloadUrl)
                 else 
@@ -172,6 +172,7 @@ SQLGetTypeInfo =
                 {"clob", -10, 8190, "'", "'", null, 1, 1, 3, null, 0, null, null, null, null, -10, null, null, 0 },    
                 {"string", 12, 255, "'", "'", null, 1, 1, 3, null, 0, null, null, null, null, -9, null, null, 0 },
                 {"string", -9, 255, "'", "'", null, 1, 1, 3, null, 0, null, null, null, null, -9, null, null, 0 },
+                {"string", -10, 255, "'", "'", null, 1, 1, 3, null, 0, null, null, null, null, -10, null, null, 0 },				
                 { "lo", -9, -4, "'", "'", null, 1, 1, 3, null, 0, null, null, null, null, -9, null, null, 0 }
             }
         )
@@ -228,7 +229,7 @@ DataVirtuality = [
 DataVirtuality.Publish = [
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     Category = "Database",
-    Beta = true,
+    Beta = false,
     LearnMoreUrl = "http://datavirtuality.com/",
     SupportsDirectQuery = true,
     SourceImage = DataVirtuality.Icons,

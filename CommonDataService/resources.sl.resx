@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Ustvarite povezavo do storitve Dataverse prek njene končne točke SQL</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Domena okolja</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Domena okolja</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Navedite okolje Dataverse, s katerim želite vzpostaviti povezavo. To polje je izbirno in če ne določite vseh okolij Dataverse, ki so na voljo prijavljenega uporabnika, bodo prikazana na zaslonu »Izberi podatke«.</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Ustvarite povezavo do svojega primerka storitve Dataverse (Dynamics 365 in PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Priključek storitve Dataverse ne podpira domene za »#{0}«.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Nalaganje podatkov iz posredne tabele okolij ni podprto.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>»#{0}« niso veljavne možnosti. Veljavne možnosti so: »#{1}«</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Ta funkcija ne podpira možnosti »#{0}« z vrednostjo »#{1}«.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Oblika zapisa imena strežnika »#{0}« ni veljavna.  Odstranite shemo, kot je »https://«, iz imena strežnika.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Vključi stolpce relacije</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Možnosti</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Navedite možnosti za vzpostavitev povezave s primerkom storitve Dataverse</value>
   </data>
 </root>

@@ -1,0 +1,64 @@
+let
+
+    /**
+     * Calculate the duration, in fractional seconds, to wait before retry
+     * using exponential backoff with jitter.
+     */
+    Backoff = (Context as record, Retry as number) as number =>
+        let
+            Base = Context[Retry.Backoff.Base],
+            Multiplier = Context[Retry.Backoff.Multiplier],
+            RandomFactor = Context[Retry.Backoff.RandomFactor],
+            Jitter = 2 * (Number.Random() - 0.5) * RandomFactor
+        in
+            Base * Number.Power(Multiplier, Retry) + Jitter,
+
+    /**
+     * Make a network call and retry any potentially transient failures.
+     *
+     * @param Context Global parameters and constants.
+     * @param Request Parameters for the network call like headers, query parameters, etc.
+     * @param NullableRetryCount The total number of previous attempts. This should only be
+     *                           used by the function's recursive calls to itself.
+     * @returns The raw, unprocessed result of the network call.
+     * @raises A modeled error if the call permanently failed.
+     */
+    Retry = (Context as record, Request as record, optional Delay as nullable duration, optional NullableRetryCount as nullable number) =>
+        let
+            Samsara.Client.ErrorTranslation = Context[Extension.LoadFunction](Context, "Samsara.Client.ErrorTranslation.pqm"),
+
+            RetryCount = NullableRetryCount ?? 0,
+            IsRetry = RetryCount > 0,
+            SkipCache = IsRetry or (Request[Force]? ?? false),
+
+            Url = Request[Url],
+            Headers = Request[Headers],
+            Body = Request[Body]?,
+            Query = Request[Query]?,
+
+            Options = [
+                Headers = Headers,
+                Content = if Body = null then null else Json.FromValue(Body),
+                Timeout = #duration(0, 0, 0, Context[RequestTimeoutSeconds]),
+                IsRetry = SkipCache, // (IsRetry = true) causes PowerBI to skip its cache
+                Query = Query,
+                ManualStatusHandling = { 400..599 } // Basically, let us handle all errors
+            ],
+
+            Response = if Delay <> null 
+                then Function.InvokeAfter(() => Context[Web.Contents](Url, Options), Delay)
+                else Context[Web.Contents](Url, Options),
+            StatusCode = Value.Metadata(Response)[Response.Status],
+            ResponseHeaders = Value.Metadata(Response)[Headers],
+
+            CanRetry = RetryCount < Context[Retry.Max.Count] and (StatusCode >= 500 or StatusCode = 429),
+            RetryAfter.Text = ResponseHeaders[#"Retry-After"]?,
+            RetryAfter.Number = try Number.FromText(RetryAfter.Text) otherwise null,
+            ExponentialBackoff = Backoff(Context, RetryCount),
+            NextDelay = #duration(0, 0, 0, List.Max({ RetryAfter.Number, ExponentialBackoff }))
+        in
+            if StatusCode = 200 then Response
+            else if CanRetry then @Retry(Context, Request, NextDelay, RetryCount + 1)
+            else Samsara.Client.ErrorTranslation(Context, StatusCode, Response)
+in
+    Retry

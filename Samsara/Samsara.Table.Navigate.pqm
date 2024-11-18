@@ -1,0 +1,46 @@
+/**
+ * Creates a navigation table, basically a table of tables,
+ * that lets the customer pick what tables to load. Once
+ * they submit their selection, PowerBI will use the loader
+ * function column to fetch the tables in parallel. See the
+ * PowerBI docs for more information on navigation tables:
+ * https://learn.microsoft.com/en-us/power-query/handling-navigation-tables
+ *
+ * @param Context
+ * @param AvailableTables A list of {@link Samsara.Model.TableProperties}
+ *                        available to the customer.
+ * @returns A navigation table.
+ */
+(Context as record, AvailableTables as list) as table =>
+    let
+        Samsara.Table.Fetch = Context[Extension.LoadFunction](Context, "Samsara.Table.Fetch.pqm"),
+        
+        ToNavTableRow = (TableProperties as record) as list =>
+            let
+                Table.Name = TableProperties[DisplayName],
+                Table.Data = Samsara.Table.Fetch(Context, TableProperties),
+                Table.ItemKind = "Table",
+                Table.IsLeaf = true
+            in
+                {
+                    Table.Name,
+                    Table.Data,
+                    Table.ItemKind,
+                    Table.IsLeaf
+                },
+
+        NavigationTable.Columns = { "Name", "Data", "ItemKind", "IsLeaf" },
+        NavigationTable.Rows = List.Transform(AvailableTables, ToNavTableRow),
+        NavigationTable.RawTable = Table.FromRows(NavigationTable.Rows, NavigationTable.Columns),
+        NavigationTable.Type = Type.AddTableKey(
+            Value.Type(NavigationTable.RawTable),
+            { "Name" }, // Columns that form a unique key for each row of the nav table. Our names are unique so we're using that. 
+            true // isPrimary?
+        ) meta [
+            NavigationTable.NameColumn = "Name", // Column that gives the display name for each table.
+            NavigationTable.DataColumn = "Data", // Column that contains the data for the table.
+            NavigationTable.ItemKindColumn = "ItemKind", // Column that specifies the type for this resource. Affects which icon is shown in the UI.
+            NavigationTable.IsLeafColumn = "IsLeaf" // Column that specifies if this is a loadable resource or a "folder" of other resources.
+        ]
+    in
+        Value.ReplaceType(NavigationTable.RawTable, NavigationTable.Type)

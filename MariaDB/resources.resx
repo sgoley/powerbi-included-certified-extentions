@@ -132,6 +132,16 @@
   <data name="Error_CredentialsRequired" xml:space="preserve">
     <value>Username and Password credentials required.</value>
   </data>
+  <data name="GetData_CreateNavigationProperties_FieldCaption" xml:space="preserve">
+    <value>Auto-detect foreign key dependencies</value>
+  </data>
+  <data name="GetData_CreateNavigationProperties_FieldDescription" xml:space="preserve">
+    <value>A logical value that sets whether to generate navigation properties on the returned tables. Navigation properties are based on foreign key relationships reported by the driver. These properties show up as virtual columns that can be expanded in the query editor, creating the appropriate join.
+
+If calculating foreign key dependencies is an expensive operation for your driver, you may want to set this value to false.
+
+Default: TRUE</value>
+  </data>
   <data name="GetData_Database_FieldCaption" xml:space="preserve">
     <value>Database</value>
   </data>

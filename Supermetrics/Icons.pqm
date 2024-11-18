@@ -1,0 +1,18 @@
+let
+    _Icon16 = {
+        Extension.Contents("Supermetrics16.png"),
+        Extension.Contents("Supermetrics20.png"),
+        Extension.Contents("Supermetrics24.png"),
+        Extension.Contents("Supermetrics32.png")
+    },
+    _Icon32 = {
+        Extension.Contents("Supermetrics32.png"),
+        Extension.Contents("Supermetrics40.png"),
+        Extension.Contents("Supermetrics48.png"),
+        Extension.Contents("Supermetrics64.png")
+    }
+in
+    [
+        Icon16 = _Icon16,
+        Icon32 = _Icon32
+    ]

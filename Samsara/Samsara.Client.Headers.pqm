@@ -1,0 +1,22 @@
+/**
+ * @param Context Global parameters and constants. 
+ * @returns A record with the required headers to call our backend.
+ */
+(Context as record) =>
+    let
+        ClientVersion = Context[Version],
+        ConnectorType = "PowerBi",
+        Authorization = "Bearer " & Context[AccessToken],
+        CoreHeaders = [
+            #"X-Samsara-Connector-Version" = ClientVersion,
+            #"X-Samsara-Connector-Type" = ConnectorType,
+            Authorization = Authorization
+        ],
+
+        RunId = Context[RunId]?,
+        RunIdHeader = if RunId = null 
+            then [] // RunId is null if we're calling /start-run to get the run ID
+            else [ #"X-Samsara-Run-Id" = RunId ]
+    in
+        Record.Combine({ CoreHeaders, RunIdHeader })
+

@@ -121,7 +121,7 @@
     <value>MicroStrategy REST API URL</value>
   </data>
   <data name="ApiUrlDesc" xml:space="preserve">
-    <value>Din MicroStrategy REST API URL (t.ex. https://mycompany.microstrategy.com/MicroStrategyLibrary/)</value>
+    <value>Ange en giltig miljö-URL (som standard används Library-autentisering): https://.../MicroStrategyLibrary. För OIDC-autentisering, lägg till #OIDCMode-parametern till slutet av din giltiga miljö-URL: https://.../MicroStrategyLibrary/#OIDCMode.</value>
   </data>
   <data name="AuthMode" xml:space="preserve">
     <value>Verifieringsläge</value>
@@ -141,9 +141,6 @@
   <data name="ErrorContents" xml:space="preserve">
     <value>Det gick inte att hämta innehåll från</value>
   </data>
-  <data name="ErrorPrompted" xml:space="preserve">
-    <value>Promptrapporter stöds inte.</value>
-  </data>
   <data name="Locale" xml:space="preserve">
     <value>sv</value>
   </data>
@@ -151,10 +148,10 @@
     <value>LDAP</value>
   </data>
   <data name="LimitDesc" xml:space="preserve">
-    <value>Maximalt antal returnerade objekt per sida</value>
+    <value>Mottagna datarader per begäran</value>
   </data>
   <data name="LimitDescLong" xml:space="preserve">
-    <value>Maximalt antal objekt som returnerats för en enda begäran för att styra sökningsbeteende.</value>
+    <value>Maximalt antal rader returnerade i en enskild begäran. Används för att styra sidans beteende.</value>
   </data>
   <data name="PersonalObjects" xml:space="preserve">
     <value>Mina personliga objekt</value>
@@ -171,7 +168,34 @@
   <data name="TimeoutDescLong" xml:space="preserve">
     <value>Tidsinställningen för HTTP-begäran till REST API Server.</value>
   </data>
+  <data name="DefaultIs" xml:space="preserve">
+    <value>Standard är</value>
+  </data>
   <data name="AdvancedOptions" xml:space="preserve">
     <value>Avancerade alternativ</value>
+  </data>
+  <data name="ErrorPrivilege" xml:space="preserve">
+    <value>Du har inte UsePowerBI-behörighet för detta projekt.</value>
+  </data>
+  <data name="PromptsCloseAll" xml:space="preserve">
+    <value>Stäng alla prompter</value>
+  </data>
+  <data name="ErrorPromptedOldEnv" xml:space="preserve">
+    <value>Promptade rapporter stöds bara i MicroStrategy 11.1.3 och uppåt.</value>
+  </data>
+  <data name="AuthBasicName" xml:space="preserve">
+    <value>Standard/LDAP</value>
+  </data>
+  <data name="ErrorWrongTimeoutInput" xml:space="preserve">
+    <value>Timeout kan inte vara lägre än 0</value>
+  </data>
+  <data name="ErrorPrompted" xml:space="preserve">
+    <value>Promptrapporter stöds inte.</value>
+  </data>
+  <data name="AuthOAuthName" xml:space="preserve">
+    <value>Library/OIDC</value>
+  </data>
+  <data name="ApiUrlSample" xml:space="preserve">
+    <value>https://mycompany.microstrategy.com/MicroStrategyLibrary/</value>
   </data>
 </root>

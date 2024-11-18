@@ -1,0 +1,403 @@
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    // Diagnostics
+    Diagnostics = Extension.LoadFunction("Diagnostics.pqm"),
+    Diagnostics.LogValue = Diagnostics[LogValue],
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.EnableTraceOutput = Configuration[EnableTraceOutput],
+    Configuration.CcrtSubjectHeader =  Record.FieldOrDefault(Configuration, "CcrtSubjectHeader", null),
+    Configuration.BqlUrl = Configuration[BqlUrl],
+
+    // Like Table.GenerateByPage utility (https://learn.microsoft.com/en-us/power-query/helper-functions#tablegeneratebypage)
+    // But works for responses containing multiple tables; if there are multiple tables, returns a navigation table
+    Table.GenerateByPageMultiTable = (getNextPage as function) as table =>
+        let
+            listOfPageContents = List.Generate(
+                () => getNextPage(null),            // get the first page of data
+                (lastPage) => lastPage <> null,     // stop when the function returns null
+                (lastPage) => getNextPage(lastPage) // pass the previous page to the next function call
+            ), // { { [ tableId = <text>, data: <table> ], ... }, { [ tableId = <text>, data: <table> ], ... } }
+            // Flatten the list to { [ tableId = <text>, data: <table> ], ... } containing all the data
+            listOfTablesWithIds = List.Combine(listOfPageContents)
+        in
+            CombineTablesById(listOfTablesWithIds),
+
+    // Takes: { [ tableId: <test>, data: <table> ] ... }
+    // Returns: <combined table if there is only one tableId, navigation table of combined tables otherwise>
+    // See tests
+    CombineTablesById = (listOfTablesWithIds as list) =>
+        let
+            partialTablesRecord = List.Accumulate(listOfTablesWithIds, [], (state, tableInfo) =>
+                    if (Record.HasFields(state, tableInfo[tableId]))
+                        then Record.AddField(
+                            Record.RemoveFields(state, tableInfo[tableId]),
+                            tableInfo[tableId],
+                            List.Combine({
+                                Record.Field(state, tableInfo[tableId]),
+                                {tableInfo[data]}
+                            })
+
+                        )
+                    else
+                        Record.AddField(
+                            state,
+                            tableInfo[tableId],
+                            {tableInfo[data]}
+                        )
+            ),
+            finalTable = ToTableOrNavigationTable(partialTablesRecord)
+        in
+            finalTable,
+
+    // Multi table navigator
+    Table.ToNavigationTable = (
+        table as table,
+        keyColumns as list,
+        nameColumn as text,
+        dataColumn as text,
+        itemKindColumn as text,
+        itemNameColumn as text,
+        isLeafColumn as text
+    ) as table =>
+        let
+            tableType = Value.Type(table),
+            newTableType = Type.AddTableKey(tableType, keyColumns, true) meta
+            [
+                NavigationTable.NameColumn = nameColumn,
+                NavigationTable.DataColumn = dataColumn,
+                NavigationTable.ItemKindColumn = itemKindColumn,
+                Preview.DelayColumn = itemNameColumn,
+                NavigationTable.IsLeafColumn = isLeafColumn
+            ],
+            navigationTable = Value.ReplaceType(table, newTableType)
+        in
+            navigationTable,
+
+    // Polling helper function
+    Value.WaitFor = (producer as function, interval as function, optional count as number) as any =>
+            let
+                list = List.Generate(
+                    () => {0, null},
+                    (state) => state{0} <> null and (count = null or state{0} <= count),
+                    (state) => if state{1} <> null then {null, state{1}} else {1 + state{0}, Function.InvokeAfter(() => producer(state{0}), interval(state{0}))},
+                    (state) => state{1})
+            in
+                List.Last(list),
+
+    CheckGraphQLErrors = (response as record) =>
+        // Checks for "errors" attribute when Apollo errors are thrown by the service (as opposed to Error in the schema)
+        let
+            hasError = Record.HasFields(response, "errors") and List.Count(response[errors]) > 0,
+            hasCategory = hasError
+                and Record.HasFields(response[errors]{0}, "extensions")
+                and Record.HasFields(response[errors]{0}[extensions], "category"),
+            reason = if hasCategory
+                then response[errors]{0}[extensions][category]
+                else "Data source error",
+            resp = if hasError
+                then error Error.Record(reason, response[errors]{0}[message])
+                else response
+        in
+            resp,
+    LoadGqlQuery = (queryPath as text) => Text.FromBinary(Extension.Contents(queryPath)),
+
+    /* Check if the query is BQL or SQL or SQLDiscovery (show/describe etc.)
+     * We need to know this before we decide to apply query folding or not.
+     * Best-effort detection done locally to avoid needing to make an extra request.
+     */
+    GetQueryType = (query as text) as text =>
+        let
+            strippedQuery = RemoveQuotedStringsAndComments(query),
+            // We remove any comments or content inside quotes to make it less likely that we'll encounter strings
+            // that throw off the query type detection logic
+            strippedQuery_ = Diagnostics.LogValue("Stripped query:", strippedQuery),
+
+            // BQL keywords
+            getPosition = Text.PositionOf(strippedQuery_, "get", Occurrence.First, Comparer.OrdinalIgnoreCase),
+            forPosition = Text.PositionOf(strippedQuery_, "for", Occurrence.First, Comparer.OrdinalIgnoreCase),
+            withPosition = Text.PositionOf(strippedQuery_, "with", Occurrence.First, Comparer.OrdinalIgnoreCase),
+
+            // SQL keywords
+            selectPosition = Text.PositionOf(strippedQuery_, "select", Occurrence.First, Comparer.OrdinalIgnoreCase),
+            fromPosition = Text.PositionOf(strippedQuery_, "from", Occurrence.First, Comparer.OrdinalIgnoreCase),
+
+            // SQL Discovery keywords
+            showPosition = Text.PositionOf(strippedQuery_, "show", Occurrence.First, Comparer.OrdinalIgnoreCase),
+            describePosition = Text.PositionOf(strippedQuery_, "describe", Occurrence.First, Comparer.OrdinalIgnoreCase),
+            explainPosition = Text.PositionOf(strippedQuery_, "analyze", Occurrence.First, Comparer.OrdinalIgnoreCase),
+            analyzePosition = Text.PositionOf(strippedQuery_, "explain", Occurrence.First, Comparer.OrdinalIgnoreCase),
+
+            keywordPositions = {
+                { "Get", getPosition },
+                { "For", forPosition },
+
+                { "Select", selectPosition },
+                { "From", fromPosition },
+                { "With", withPosition },
+
+                { "Show", showPosition },
+                { "Describe", describePosition },
+                { "Explain", explainPosition },
+                { "Analyze", analyzePosition }
+            },
+
+            foundKeywords = List.Select(keywordPositions, (keyword) => keyword{1} <> -1),
+            sortedKeywords = Diagnostics.LogValue(
+                "Sorted keywords",
+                List.Sort(foundKeywords, (a, b) => Value.Compare(a{1}, b{1}))
+            ),
+            firstKeyword = sortedKeywords{0}?,
+            // select...from -> SQL
+            queryType = if firstKeyword <> null and firstKeyword{0} = "Select" and fromPosition > selectPosition
+                    then "SQL"
+                // with...select...from... -> SQL
+                else if firstKeyword <> null
+                    and firstKeyword{0} = "With"
+                    and selectPosition <> -1
+                    and fromPosition <> -1
+                    and fromPosition > selectPosition
+                    then "SQL"
+                else if  firstKeyword <> null
+                    and List.Contains({"Show", "Describe", "Explain", "Analyze"}, firstKeyword{0})
+                    then "SQLDiscovery"
+                else
+                    "BQL"
+        in
+            queryType,
+
+    RemoveQuotedStringsAndComments = (query as text) as text =>
+        let
+            indices = List.Generate(() => 0, each _ < Text.Length(query), each _ + 1),
+            /* Loop through the query string, keeping track of when we're inside comments or quoted strings
+             * Then we build up the list of chars for the new string without the characters that we want to omit. */
+            resultState = List.Accumulate(
+                indices,
+                [chars={}, blockStart=null],
+                (state, idx) =>
+                    let
+                        currChar = Text.At(query, idx),
+                        prevAndCurrChar = if idx > 0
+                            then Text.Range(query, idx - 1, 2)
+                            else currChar,
+                        currAndNextChar = if idx < Text.Length(query) - 1
+                            then Text.Range(query, idx, 2)
+                            else currChar,
+                        nextState = 
+                            // end of an omittable block
+                            if (state[blockStart] = "--" or state[blockStart] = "##")
+                                and (currChar = "#(lf)" or currChar ="#(cr)")
+                                then [
+                                    // leave newlines ending comments
+                                    chars = List.Combine({ state[chars], { currChar }}),
+                                    blockStart = null
+                                ]
+                            else if state[blockStart] = "/*" and prevAndCurrChar = "*/"
+                                then [
+                                    chars = state[chars],
+                                    blockStart = null
+                                ]
+                            else if state[blockStart] = "'" and currChar = "'"
+                                then [
+                                    // leave quote markers
+                                    chars = List.Combine({ state[chars], { currChar }}),
+                                    blockStart = null
+                                ]
+                            else if state[blockStart] = """" and currChar = """"
+                                then [
+                                    chars = List.Combine({ state[chars], { currChar }}),
+                                    blockStart = null
+                                ]
+                            // inside an omittable block
+                            else if state[blockStart] <> null
+                                then state
+                            // start of an ommitable block
+                            else if currAndNextChar = "--"
+                                then [ chars = state[chars], blockStart = "--" ]
+                            else if currAndNextChar = "##"
+                                then [ chars = state[chars], blockStart = "##" ]
+                            else if currAndNextChar = "/*"
+                                then [ chars = state[chars], blockStart = "/*" ]
+                            else if currChar = "'"
+                                then [
+                                    // leave quote markers
+                                    chars = List.Combine({ state[chars], { currChar }}),
+                                    blockStart = "'"
+                                ]
+                            else if currChar = """"
+                                then [
+                                    chars = List.Combine({ state[chars], { currChar }}),
+                                    blockStart = """"
+                                ]
+                            // outside an omittable block
+                            else
+                                [
+                                    chars = List.Combine({ state[chars], { currChar }}),
+                                    blockStart = null
+                                ]
+
+                    in
+                        nextState
+            ),
+            newQuery = Text.Combine(resultState[chars])
+        in
+            newQuery,
+
+    // Takes: [ <tableId as text> = { <partial tables for that tableId> }, ...  ]
+    // Returns: <combined table if there is only one tableId, navigation table of combined tables otherwise>
+    ToTableOrNavigationTable = (partialTablesRecord as record) =>
+        let
+            objects = #table(
+                {"Name",  "Key",   "Data", "ItemKind", "ItemName", "IsLeaf"},
+                List.Transform(
+                    Record.FieldNames(partialTablesRecord),
+                    (tableName) => {
+                        tableName,
+                        tableName,
+                        Table.Combine(Record.Field(partialTablesRecord, tableName)),
+                        "Table",
+                        "Table",
+                        true
+                    }
+                )
+            ),
+            table = if List.Count(Record.FieldNames(partialTablesRecord)) = 1
+                    // single table
+                    then Table.Combine(Record.FieldValues(partialTablesRecord){0})
+                    // multiple tables -> create navigation table
+                    else Table.ToNavigationTable(objects, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+        in
+            table,
+
+    // Create table using column metadata in the format specified in the paginated schema:
+    // https://bbgithub.dev.bloomberg.com/OfficeTools/bi-graph-svc/blob/c8c1ae3da7230b1ca6632291bc291588cac37182/src/service-modules/data-query/schema.graphql#L29
+    CreateTypedTable = (colmetadata as list, rows as list) =>
+        let
+
+            GetColumnType = (columnType as text) =>
+                let
+                    typeName =      if (columnType = "STRING")   then type text
+                            else if (columnType = "INT")      then type number
+                            else if (columnType = "FLOAT")    then type number
+                            else if (columnType = "BOOLEAN")  then type logical
+                            else if (columnType = "DATE")     then type date
+                            else if (columnType = "DATETIME") then type datetime
+                            else error Error.Record("Get column type error", "Unknown input data type.")
+                in
+                    typeName,
+            columnsNames = List.Transform(colmetadata, (i) => i[name]),
+            columnsTypes = List.Transform(colmetadata, (i) => GetColumnType(i[type])),
+            finalTable = Table.FromRows(
+                rows,
+                columnsNames
+            ),
+            typeTransformList =  List.Zip({columnsNames, columnsTypes}),
+            tableWithTypes = Table.TransformColumnTypes(
+                finalTable,
+                typeTransformList,
+                "en-US"
+            )
+        in
+            tableWithTypes,
+    ParseToTables =  (metadata as list, data as list) as list =>
+        // Takes
+        //   metadata: { [tableId = <text> , columns = { <column definitions as records> } ] ... }
+        //   data: { [ tableId = <text>, rows = { <rows of data as lists> } ] ... }
+        // Returns: { [ tableId = <text>, data = <table> ] ... }
+        let
+            tablesWithIdList = List.Transform(data, (dataForTable) =>
+                let
+                    matchingMetadata = List.Select(
+                        metadata,
+                        (metadataElement) => metadataElement[tableId] = dataForTable[tableId]
+                    ),
+                    metadataForTable = if List.Count(matchingMetadata) = 1 then matchingMetadata{0}
+                        else error Error.Record("Metadata error", "Expected to find metadata match for table")
+                in
+                    [
+                        tableId = dataForTable[tableId],
+                        data = CreateTypedTable(metadataForTable[columns], dataForTable[rows])
+                    ]
+            )
+        in
+            tablesWithIdList,
+    GenerateTraceParentId = () =>
+        let
+            RandomHexDigit = () => Text.From(Number.ToText(Number.RoundDown(Number.RandomBetween(0, 15)), "X")),
+            CreateUUIDPart = (length as number) as text => Text.Lower(Text.Combine(List.Transform({1..length}, each RandomHexDigit()), "")),
+            TraceId = () => CreateUUIDPart(32),
+            SpanId = () => CreateUUIDPart(16),
+            traceParent = "00-" & TraceId() & "-" & SpanId() & "-01"
+        in
+            traceParent,
+    SendPostQuery = (body as text, traceParentId as text) =>
+        let
+            headers = [
+                #"Accept" = "text/json",
+                #"Accept-Encoding" = "gzip",
+                #"Content-type" = "application/json",
+                #"traceparent" = traceParentId
+            ],
+            headersWithCcrtSubject =
+                if Configuration.CcrtSubjectHeader <> null
+                then Record.AddField(headers, "CCRT-Subject", Configuration.CcrtSubjectHeader)
+                else headers,
+            rawResult = Web.Contents(Configuration.BqlUrl,
+            [
+                Headers = headersWithCcrtSubject,
+                Content = Text.ToBinary(body),
+                IsRetry = true,
+                Timeout = #duration(0, 0, 1, 0)
+            ])
+        in
+            rawResult,
+
+        CheckForErrorResponse =  (response as record, getInnerResponse as function) =>
+        // Checks for Error types defined in the schema here:
+        // https://bbgithub.dev.bloomberg.com/OfficeTools/bi-graph-svc/blob/c8c1ae3da7230b1ca6632291bc291588cac37182/src/service-modules/data-query/schema.graphql#L48
+        // queryName: e.g., "queryCheck" in the response { "queryCheck": { "errorCategory": ... } }
+        let
+            withAttributeCheck = if response[data] <> null
+                    and getInnerResponse(response[data]) <> null
+                then response
+                else error Error.Record("Invalid Response", "Response lacks expected attributes."),
+            innerResponse = getInnerResponse(response[data]),
+            withErrorResponseCheck = if Record.HasFields(
+                    innerResponse,
+                    "errorCategory"
+                )
+                then error Error.Record(
+                    innerResponse[errorCategory],
+                    innerResponse[errorMessage]
+                )
+                else withAttributeCheck
+        in
+            withErrorResponseCheck
+in
+    [
+        WaitFor = Value.WaitFor,
+        ToNavigationTable = Table.ToNavigationTable,
+        GenerateByPageMultiTable = Table.GenerateByPageMultiTable,
+
+        LoadGqlQuery = LoadGqlQuery,
+        CheckGraphQLErrors = CheckGraphQLErrors,
+
+        SendPostQuery = SendPostQuery,
+
+        RemoveQuotedStringsAndComments = RemoveQuotedStringsAndComments,
+        GetQueryType = GetQueryType,
+        ParseToTables = ParseToTables,
+        CheckForErrorResponse = CheckForErrorResponse,
+
+        CreateTypedTable = CreateTypedTable,
+
+        GenerateTraceParentId = GenerateTraceParentId,
+        CombineTablesById = CombineTablesById
+    ]

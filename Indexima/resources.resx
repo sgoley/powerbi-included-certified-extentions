@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Connect to Indexima</value>
+    <value>Connect to Indexima Data Hub</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
     <value>Indexima</value>
@@ -128,25 +128,56 @@
     <value>Indexima</value>
   </data>
   <data name="Function_Description" xml:space="preserve">
-    <value>Connect to Indexima Data Hub</value>
+    <value>Connection to Indexima Data Hub</value>
   </data>
   <data name="Function_Name" xml:space="preserve">
-    <value>Indexima v1.5</value>
+    <value>Indexima v1.7.5</value>
     <comment>DSN Dialog Name</comment>
   </data>
-  <data name="ParamDatabase_Caption" xml:space="preserve">
-    <value>Indexima JDBC Port number</value>
-    <comment>editable</comment>
+  <data name="KerberosHost_Caption" xml:space="preserve">
+    <value>Kerberos Authentication Server Address</value>
+    <comment>Kerberos server</comment>
   </data>
-  <data name="ParamDatabase_Description" xml:space="preserve">
+  <data name="KerberosHost_Description" xml:space="preserve">
+    <value>Kerberos Authentication Server Address</value>
+  </data>
+  <data name="KerberosRealm_Caption" xml:space="preserve">
+    <value>Enter you Kerberos realm</value>
+    <comment>Kerberos realm such as indexima.com</comment>
+  </data>
+  <data name="KerberosRealm_Description" xml:space="preserve">
+    <value>Indexima Kerberos realm</value>
+  </data>
+  <data name="KerberosService_Caption" xml:space="preserve">
+    <value>Kerberos Service Name</value>
+    <comment>service hive or indexima</comment>
+  </data>
+  <data name="KerberosService_Description" xml:space="preserve">
+    <value>Kerberos Service Name</value>
+  </data>
+  <data name="ParamAuth_Caption" xml:space="preserve">
+    <value>Select Authentication Method</value>
+  </data>
+  <data name="ParamAuth_Description" xml:space="preserve">
+    <value>Select an Authentication Method</value>
+  </data>
+  <data name="ParamOptions_Caption" xml:space="preserve">
+    <value />
+    <comment>option of the connection string (can be blank for no option)</comment>
+  </data>
+  <data name="ParamPort_Caption" xml:space="preserve">
+    <value>Indexima JDBC Port Number</value>
+    <comment>Get JDBC Port number</comment>
+  </data>
+  <data name="ParamPort_Description" xml:space="preserve">
     <value>Indexima JDBC Port Number</value>
   </data>
   <data name="ParamServer_Caption" xml:space="preserve">
-    <value>Indexima Data Hub Address or DSN (add "DNS=" prefix)</value>
-    <comment>editable</comment>
+    <value>DSN connected to a Indexima cluster</value>
+    <comment>Get IP or DSN</comment>
   </data>
   <data name="ParamServer_Description" xml:space="preserve">
-    <value>Indexima Data Hub DSN or Address</value>
+    <value>Indexima Data Hub Address</value>
     <comment>DSN= for PowerBI desktop</comment>
   </data>
 </root>

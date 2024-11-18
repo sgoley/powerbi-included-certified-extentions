@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Dataverse қызметіне оның SQL соңғы нүктесі арқылы қосылу</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Орта домені</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Орта домені</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Қосылу үшін Dataverse ортасын көрсетіңіз. Бұл өріс міндетті емес және ол көрсетілмесе, кірген пайдаланушыға қолжетімді барлық Dataverse орталары, "Деректерді таңдау" экранында көрсетілетін болады</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Dataverse нұсқасына қосылу (Dynamics 365 және PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Dataverse қосқышы "#{0}" доменіне қолдау көрсетпейді.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Орталардың жанама кестесінен деректерді жүктеуге қолдау көрсетілмейді.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>«#{0}» жарамды параметрлер емес. Жарамды параметрлер: «#{1}»</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Бұл функция '#{0}' мәні бар '#{1}' параметрін қолдамайды.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Сервер атауының пішімі ('#{0}') дұрыс емес. Сервер атауынан "https://" сияқты бөлігін өшіріп тастаңыз.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Қатынас бағандарын қосу</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Параметрлер</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Dataverse үлгісіне қосылу параметрлерін көрсету</value>
   </data>
 </root>

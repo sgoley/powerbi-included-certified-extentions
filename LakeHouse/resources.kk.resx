@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Лейкхаустан деректерді импорттау</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Лейкхаус</value>
+  </data>
+  <data name="lakehouse.caption" errorCode="003" xml:space="preserve">
+    <value>Лейкхаустан деректерді импорттау</value>
+  </data>
+  <data name="lakehouse.longDescription" errorCode="004" xml:space="preserve">
+    <value>Қатынасыңыз бар барлық лейкхаустарға қосылыңыз және пайдаланғыңыз келетін нысандарды таңдаңыз</value>
+  </data>
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
+    <value>Лейкхаус</value>
+  </data>
+  <data name="lakehouse.description" errorCode="006" xml:space="preserve">
+    <value>Лейкхаустан деректерді импорттау</value>
+  </data>
+  <data name="Workspaces" errorCode="007" xml:space="preserve">
+    <value>Жұмыс кеңістіктері</value>
+  </data>
+  <data name="WorkspaceId" errorCode="008" xml:space="preserve">
+    <value>WorkspaceId</value>
+  </data>
+  <data name="LakeHouseArtifactId" errorCode="009" xml:space="preserve">
+    <value>LakehouseArtifactId</value>
+  </data>
+  <data name="LakeHouses" errorCode="010" xml:space="preserve">
+    <value>Лейкхаустар</value>
+  </data>
+  <data name="Files" errorCode="011" xml:space="preserve">
+    <value>Файлдар</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="012" xml:space="preserve">
+    <value>«#{0}» жарамды параметрлер емес. Жарамды параметрлер: «#{1}»</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="013" xml:space="preserve">
+    <value>Бұл функция '#{0}' мәні бар '#{1}' параметрін қолдамайды.</value>
+  </data>
+  <data name="DeltaModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Бұл деректерді жүктеу мүмкін болмады, өйткені ол DELTA пішімінде сақталған</value>
+  </data>
+  <data name="MultiTableInsertNotSupported" errorCode="015" xml:space="preserve">
+    <value>Көп кестені кірістіруге Lakehouse қосқышы қолдау көрсетпейді</value>
+  </data>
+  <data name="MultiTableDeleteInVersionNotSupported" errorCode="016" xml:space="preserve">
+    <value>Нұсқада көп кестені жоюға Lakehouse қосқышы қолдау көрсетпейді</value>
+  </data>
+  <data name="MultiTableInsertInVersionNotSupported" errorCode="017" xml:space="preserve">
+    <value>Нұсқада көп кестені кірістіруге Lakehouse қосқышы қолдау көрсетпейді</value>
+  </data>
+  <data name="MultipleVersionsWithSameGuid" errorCode="018" xml:space="preserve">
+    <value>Бір GUID идентификаторына ие бірнеше нұсқа бар немесе GUID идентификаторы "#{0}" селектор функциясына сәйкес келмейді. Бұл операцияны өңдеу мүмкін емес!</value>
+  </data>
+  <data name="InvalidTableName" errorCode="019" xml:space="preserve">
+    <value>Кестелерде тек бас әріптер немесе кіші әріптер, сандар немесе асты сызылған таңба болуы мүмкін.</value>
+  </data>
+  <data name="CannotDeletePublishedVersion" errorCode="020" xml:space="preserve">
+    <value>Жарияланған нұсқаны жою мүмкін емес.</value>
+  </data>
+  <data name="VersionedLakehouseTableInsertError" errorCode="021" xml:space="preserve">
+    <value>Нұсқада лейкхаус кестесін жасау кезіндегі қате.</value>
+  </data>
+  <data name="VersionedLakehouseDeleteExistingTableError" errorCode="022" xml:space="preserve">
+    <value>Нұсқадағы бар лейкхаус кестесін жою кезіндегі қате.</value>
+  </data>
+  <data name="LakehouseOldDfeVersionCommitError" errorCode="023" xml:space="preserve">
+    <value>Нұсқаны бекіту кезіндегі қате.</value>
+  </data>
+  <data name="VersionedLakehouseTableDeleteError" errorCode="024" xml:space="preserve">
+    <value>Нұсқадағы кесте деректерін жою кезіндегі қате.</value>
+  </data>
+  <data name="LakehouseVersionDeleteError" errorCode="025" xml:space="preserve">
+    <value>Нұсқаны жою кезіндегі қате.</value>
+  </data>
+  <data name="LakehouseVersionCommitError" errorCode="026" xml:space="preserve">
+    <value>Нұсқаны бекіту кезіндегі қате.</value>
+  </data>
+  <data name="LakehouseVersionInsertError" errorCode="027" xml:space="preserve">
+    <value>Нұсқаны кірістіру кезіндегі қате.</value>
+  </data>
+  <data name="LakehouseNonVersionedDeleteError" errorCode="028" xml:space="preserve">
+    <value>Жолдарды жою сәтсіз аяқталды.</value>
+  </data>
+  <data name="LakehouseNonVersionedInsertError" errorCode="029" xml:space="preserve">
+    <value>Кестені кірістіру сәтсіз аяқталды.</value>
+  </data>
+  <data name="VersionedLakehouseTableReplaceError" errorCode="030" xml:space="preserve">
+    <value>Нұсқада кесте мазмұнын жаңа деректермен ауыстыру кезіндегі қате: #{0}.</value>
+  </data>
+  <data name="VersionedLakehouseTableCreateError" errorCode="031" xml:space="preserve">
+    <value>Нұсқада лейкхаус кестесін жасау кезіндегі қате</value>
+  </data>
+  <data name="MetadataRefreshError" errorCode="032" xml:space="preserve">
+    <value>Метадеректерді жаңарту сәтсіз аяқталды: #{0}, күй #{1}</value>
+  </data>
+  <data name="TraceMessageWithDetails" errorCode="033" xml:space="preserve">
+    <value>#{0}, InnerException: #{1}</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="034" xml:space="preserve">
+    <value>“#{0}” URL мекенжайына төмен ағындық қызметінің қоңырауы #{1} күй кодымен сәтсіз аяқталды.</value>
+  </data>
+  <data name="DownstreamServiceCallFailureWithErrorCode" errorCode="035" xml:space="preserve">
+    <value>“#{0}” URL мекенжайына төмен ағындық қызметінің қоңырауы #{1} күй кодымен сәтсіз аяқталды. Қате коды: #{2}</value>
+  </data>
+  <data name="FinalErrorMessageWithDetails" errorCode="036" xml:space="preserve">
+    <value>#{0}, Негізгі қате: #{1}</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="037" xml:space="preserve">
+    <value>Ерекшелікті талдаудың веб-қызмет жіберген “#{0}” қате туралы жауабы.</value>
+  </data>
+  <data name="MetadataRefreshErrorWithDetail" errorCode="038" xml:space="preserve">
+    <value>Метадеректерді жаңарту сәтсіздігіне байланысты #{0} Lakehouse идентификаторы үшін және #{1} жиынтық идентификаторы үшін Lakehouse SQL каталогінде кесте жасау мүмкін емес (#{2} қатесі)</value>
+  </data>
+  <data name="DownstreamServiceCallError" errorCode="039" xml:space="preserve">
+    <value>"#{0}" URL мекенжайына төмен ағынды қызмет қоңырауын шалу сәтсіз аяқталды. Қате коды: "#{1}" және қате туралы хабар: "#{2}".</value>
+  </data>
+  <data name="TableCreationFailureError" errorCode="040" xml:space="preserve">
+    <value>Кесте жасау мүмкін емес. Негізгі қате: "#{0}".</value>
+  </data>
+  <data name="MetadataRefreshParseResponseError" errorCode="041" xml:space="preserve">
+    <value>Метадеректерді синхрондау қызметінің жарамсыз жауабы. "Қойма және дерек көлі" гибридті шешімінің идентификаторы: #{0} және жиынтық идентификаторы: #{1}. Негізгі қате: '#{2}'.</value>
+  </data>
+  <data name="StagingLakehouseInInvalidState" errorCode="042" xml:space="preserve">
+    <value>Аралық сақтау қойма және дерек көлі дұрыс конфигурацияланбаған. Қойма және дерек көлі идентификаторы: №{0}. Осы қате туралы есеппен қолдау көрсету билетін жасаңыз. aka.ms/fabricstaginglakehousefix бетінен қараңыз</value>
+  </data>
+  <data name="MetadataRefreshUnableToSyncTable" errorCode="043" xml:space="preserve">
+    <value>Ең көп қайталау әрекеттерінен кейін "қойма және дерек көлі" гибридті шешімі SQL каталогында кесте жасау мүмкін емес, "қойма және дерек көлі" гибридті шешімі идентификаторы: #{0} және жиынтық идентификаторы: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshNothingInProgress" errorCode="044" xml:space="preserve">
+    <value>Ең көп қайталау әрекеттерінен кейін "қойма және дерек көлі" гибридті шешімі SQL каталогында кесте жасау мүмкін емес, себебі ештеңе орындалмады, "қойма және дерек көлі" гибридті шешімі идентификаторы: #{0} және TableName: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshBatchError" errorCode="045" xml:space="preserve">
+    <value>Метадеректерді жаңарту сәтсіздігіне байланысты #{0} Lakehouse идентификаторы үшін және #{1} жиынтық идентификаторы үшін Lakehouse SQL каталогында кесте жасау мүмкін емес. Негізгі қате коды: "#{2}", қате: #{3}</value>
+  </data>
+  <data name="ArtifactInInvalidState" errorCode="046" xml:space="preserve">
+    <value>#{0} артефакты #{1} #{2} идентификаторы менен дұрыс емес күйде. Күй: №{3}, күй №{4}.</value>
+  </data>
+  <data name="NoSqlEndPoint" errorCode="047" xml:space="preserve">
+    <value>SQL соңғы нүктесін табу мүмкін емес</value>
+  </data>
+</root>

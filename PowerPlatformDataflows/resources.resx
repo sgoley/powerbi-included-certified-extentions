@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,43 +118,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Import data from a dataflow</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataflows</value>
   </data>
-  <data name="dataflows.caption" xml:space="preserve">
+  <data name="dataflows.caption" errorCode="003" xml:space="preserve">
     <value>Import data from a dataflow</value>
   </data>
-  <data name="dataflows.longDescription" xml:space="preserve">
+  <data name="dataflows.longDescription" errorCode="004" xml:space="preserve">
     <value>Connect to all the dataflows you have access to, and choose the entities you'd like to use</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
     <value>Dataflows</value>
   </data>
-  <data name="dataflows.description" xml:space="preserve">
+  <data name="dataflows.description" errorCode="006" xml:space="preserve">
     <value>Import data from a dataflow</value>
   </data>
-  <data name="Environments" xml:space="preserve">
+  <data name="Environments" errorCode="007" xml:space="preserve">
     <value>Environments</value>
   </data>
-  <data name="Workspaces" xml:space="preserve">
+  <data name="Workspaces" errorCode="008" xml:space="preserve">
     <value>Workspaces</value>
   </data>
-  <data name="EnvironmentError" xml:space="preserve">
+  <data name="EnvironmentError" errorCode="009" xml:space="preserve">
     <value>Error found in environment discovery response</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="010" xml:space="preserve">
     <value>'#{0}' are not valid options. Valid options are: '#{1}'</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="011" xml:space="preserve">
     <value>This function does not support the option '#{0}' with value '#{1}'.</value>
   </data>
-  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityHotDataSuffix" errorCode="012" xml:space="preserve">
     <value>_StreamingData_Hot</value>
   </data>
-  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityArchivedDataSuffix" errorCode="013" xml:space="preserve">
     <value>_ArchivedData_Cold</value>
+  </data>
+  <data name="ParquetModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>We couldn't load this data because it was stored in the Parquet format</value>
+  </data>
+  <data name="Errors.NoErrorCodeFormat" errorCode="015" xml:space="preserve">
+    <value>#{0} (Response Code: #{1})</value>
+  </data>
+  <data name="Errors.UnspecifiedError" errorCode="016" xml:space="preserve">
+    <value>Underlying service reported an error response</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="017" xml:space="preserve">
+    <value>Encountered Exception parsing error response from web service: '#{0}'.</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="018" xml:space="preserve">
+    <value>Downstream service call failed with status code '#{0}'.</value>
   </data>
 </root>

@@ -1,0 +1,13 @@
+﻿(table as table) as table => 
+let
+
+#"Expanded subTaskIds" = Table.ExpandListColumn(table, "subTaskIds"),
+#"Filtered Rows" = Table.SelectRows(#"Expanded subTaskIds", each ([subTaskIds] <> null)),
+#"Removed Columns" = Table.SelectColumns(#"Filtered Rows",{"subTaskIds"}),
+         
+#"Added Custom" = Table.AddColumn(#"Removed Columns", "t", each Wrike.GetTaskDetails([subTaskIds])),
+#"Removed Columns1" = Table.RemoveColumns(#"Added Custom",{"subTaskIds"}),
+#"Expanded t" = Table.ExpandTableColumn(#"Removed Columns1", "t", {"id", "accountId", "title", "description", "briefDescription", "parentIds", "superParentIds", "sharedIds", "responsibleIds", "status", "importance", "createdDate", "updatedDate", "dates", "scope", "authorIds", "customStatusId", "hasAttachments", "permalink", "priority", "followedByMe", "followerIds", "superTaskIds", "subTaskIds", "dependencyIds", "metadata", "customFields","inheritedCustomColumnIds"}, {"id", "accountId", "title", "description", "briefDescription", "parentIds", "superParentIds", "sharedIds", "responsibleIds", "status", "importance", "createdDate", "updatedDate", "dates", "scope", "authorIds", "customStatusId", "hasAttachments", "permalink", "priority", "followedByMe", "followerIds", "superTaskIds", "subTaskIds", "dependencyIds", "metadata", "customFields","inheritedCustomColumnIds"})
+
+in
+   #"Expanded t" 

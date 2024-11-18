@@ -1,0 +1,85 @@
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.EnableTraceOutput = Configuration[EnableTraceOutput],
+
+    // Multi table navigator
+    Table.ToNavigationTable = (
+        table as table,
+        keyColumns as list,
+        nameColumn as text,
+        dataColumn as text,
+        itemKindColumn as text,
+        itemNameColumn as text,
+        isLeafColumn as text
+    ) as table =>
+        let
+            tableType = Value.Type(table),
+            newTableType = Type.AddTableKey(tableType, keyColumns, true) meta
+            [
+                NavigationTable.NameColumn = nameColumn,
+                NavigationTable.DataColumn = dataColumn,
+                NavigationTable.ItemKindColumn = itemKindColumn,
+                Preview.DelayColumn = itemNameColumn,
+                NavigationTable.IsLeafColumn = isLeafColumn
+            ],
+            navigationTable = Value.ReplaceType(table, newTableType)
+        in
+            navigationTable,
+
+    // Polling helper function
+    Value.WaitFor = (producer as function, interval as function, optional count as number) as any =>
+            let
+                list = List.Generate(
+                    () => {0, null},
+                    (state) => state{0} <> null and (count = null or state{0} <= count),
+                    (state) => if state{1} <> null then {null, state{1}} else {1 + state{0}, Function.InvokeAfter(() => producer(state{0}), interval(state{0}))},
+                    (state) => state{1})
+            in
+                List.Last(list),
+
+    // Diagnostics module contains multiple functions. We can take the ones we need.
+    Diagnostics = Extension.LoadFunction("Diagnostics.pqm"),
+    Diagnostics.LogTrace = if Configuration.EnableTraceOutput then Diagnostics.Trace else (level, message, value) => value,
+    Diagnostics.LogValue = if Configuration.EnableTraceOutput then Diagnostics[LogValue] else (prefix, value) => value,
+
+    //clean BQL query before sent it to Back End
+    EscapeQuery = (query as text) =>
+        let
+            tabsReplacement = Text.Replace(query,"#(tab)",""),
+            quotesReplacement = Text.Replace(tabsReplacement,"""","\\\"""),
+            lineBreakerReplacement = Text.Replace(quotesReplacement,"#(lf)", ""),
+            carriageReturnReplacement = Text.Replace(lineBreakerReplacement,"#(cr)", "")
+        in
+            carriageReturnReplacement,
+    CheckGraphQLErrors = (response as record) =>
+        // Checks for "errors" attribute when Apollo errors are thrown by the service (as opposed to Error in the schema)
+        let
+            hasError = Record.HasFields(response, "errors") and List.Count(response[errors]) > 0,
+            hasCategory = hasError
+                and Record.HasFields(response[errors]{0}, "extensions")
+                and Record.HasFields(response[errors]{0}[extensions], "category"),
+            reason = if hasCategory
+                then response[errors]{0}[extensions][category]
+                else "Data source error",
+            resp = if hasError
+                then error Error.Record(reason, response[errors]{0}[message])
+                else response
+        in
+            resp
+in
+    [
+        WaitFor = Value.WaitFor,
+        ToNavigationTable = Table.ToNavigationTable,
+        LogTrace = Diagnostics.LogTrace,
+        LogValue = Diagnostics.LogValue,
+        EscapeQuery = EscapeQuery,
+        CheckGraphQLErrors = CheckGraphQLErrors
+    ]

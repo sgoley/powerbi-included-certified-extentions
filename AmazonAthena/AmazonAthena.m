@@ -6,7 +6,7 @@
 ///  Copyright (C) 2021 Simba Technologies Incorporated.
 //==================================================================================================
 
-[Version = "1.2.5"] 
+[Version = "1.2.6"] 
 section AmazonAthena;
 Config_SqlConformance = SQL_SC[SQL_SC_SQL92_FULL];  // null, 1, 2, 4, 8
 
@@ -26,14 +26,19 @@ AthenaType = type function (
    optional role as (type text meta [
    Documentation.FieldCaption = "Role",
    Documentation.FieldDescription = "The role value to be used while connecting through AAD."
-   ])
+   ]),
+
+   optional options as (type [
+    ] meta [
+            Documentation.FieldCaption = "Advanced options"
+        ])
    )
    as table meta [
    Documentation.Name = "Amazon Athena",
    Documentation.LongDescription = "This function sends basic authentication info"
    ];
    
-AthenaImpl = (DSN as text, optional role as nullable text) =>
+AthenaImpl = (DSN as text, optional role as nullable text,optional options as record) =>
     let
         // For a complex data source configuration that requires a fully customizable configuration 
         // dialog, pre-configure a system DSN, and have the function take in the DSN name as a text 
@@ -113,7 +118,9 @@ AthenaImpl = (DSN as text, optional role as nullable text) =>
                         SQL_CONVERT_FUNCTIONS = 0x2 /* SQL_FN_CVT_CAST */,
                         SQL_API_SQLBINDPARAMETER = false
                     ],
-        OdbcDatasource = Odbc.DataSource(ConnectionString, [
+
+         Connect = 
+            Odbc.DataSource(ConnectionString, [
             // A logical value that sets whether to view the tables grouped by their schema names. 
             // When set to false, tables will be displayed in a flat list under each database.
             HierarchicalNavigation = true,
@@ -159,7 +166,8 @@ AthenaImpl = (DSN as text, optional role as nullable text) =>
                 // A logical value that indicates the driver supports the TOP clause to limit the 
                 // number of returned rows.
                 SupportsTop = false,
-
+                
+                //This SQL dialect supports a LIMIT specifier to limit the number of rows returned.
                 LimitClauseKind = LimitClauseKind.Limit,
 
                 // Conformance level is set to SQL_SC_SQL92_FULL 
@@ -184,13 +192,18 @@ AthenaImpl = (DSN as text, optional role as nullable text) =>
                 // A logical value that indicates whether the generated SQL should include 
                 // timestamp literals values. When set to false, timestamp values will always be 
                 // specified using Parameter Binding.
-                SupportsOdbcTimestampLiterals = true
+                SupportsOdbcTimestampLiterals = true,
+
+                FractionalSecondsScale = 3,
+
+                Sql92Translation = "PassThrough"
             
             ],
-            SQLGetInfo = SQLGetInfo
+            SupportsIncrementalNavigation = true,
+            SQLGetInfo = SQLGetInfo            
         ] & Options )
     in
-        OdbcDatasource;
+        Connect;
 
 ResourcePathSeparator = ";";
 // Data Source Kind description
@@ -202,9 +215,8 @@ AmazonAthena = [
             then DSN
             else DSN  & ResourcePathSeparator & role,
         ParseResourcePath = (resourcePath as text) => Text.Split(resourcePath, ResourcePathSeparator),
-        ParseResourcePathTC = (resourcePath as text) => let parts = Text.Split(resourcePath, ResourcePathSeparator)
-            in if List.Count(parts) = 1 then parts else {parts{0}, [Role=parts{1}]},
-        TestConnection = (resourcePath as text) => {  "AmazonAthena.Databases" } & ParseResourcePathTC(resourcePath),
+       ParseResourcePathTC = (resourcePath as text) => Text.Split(resourcePath, ResourcePathSeparator),
+       TestConnection = (resourcePath as text) => {  "AmazonAthena.Databases" } & ParseResourcePathTC(resourcePath),
 
     // An extension can support one or more kinds of Authentication. Each authentication kind is a 
     // different type of credential. The authentication UI displayed to end users in Power Query is 
@@ -239,7 +251,25 @@ AmazonAthena.UI = [
     // ODBC extensions.
     SupportsDirectQuery = true,
        SourceImage = AmazonAthena.Icons,
-   SourceTypeImage = AmazonAthena.Icons
+   SourceTypeImage = AmazonAthena.Icons,
+    NativeQueryProperties = [
+    navigationSteps = {
+        [
+            indices = {
+                   [     
+                        displayName = "Database",
+                        indexName = "Kind"
+                    ]
+                    },
+            access = "Data"
+            
+        ]        
+    }
+   ,
+    nativeQueryOptions = [
+            EnableFolding = true
+        ]
+]
 ];
 
 
@@ -265,4 +295,3 @@ Odbc.Flags= ODBC[Flags];
 SQL_SC = ODBC[SQL_SC];
 SQL_GB = ODBC[SQL_GB];
 SQL_TSI= ODBC[SQL_TSI];
-

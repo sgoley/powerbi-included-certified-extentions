@@ -1,0 +1,9 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "accountId", "title", "parentIds", "superParentIds", "sharedIds", "responsibleIds", "status", "importance", "createdDate", "updatedDate", "dates", "scope", "authorIds", "customStatusId", "hasAttachments", "permalink", "priority", "superTaskIds", "subTaskIds", "dependencyIds", "metadata", "customFields","inheritedCustomColumnIds","briefDescription","effortAllocation", "billingType","customItemTypeId" }, {"id", "accountId", "title", "parentIds", "superParentIds", "sharedIds", "responsibleIds", "status", "importance", "createdDate", "updatedDate", "dates", "scope", "authorIds", "customStatusId", "hasAttachments", "permalink", "priority", "superTaskIds", "subTaskIds", "dependencyIds", "metadata", "customFields","inheritedCustomColumnIds","briefDescription","effortAllocation", "billingType","customItemTypeId" }),
+    #"Expanded dates" = Table.ExpandRecordColumn(#"Expanded Column1", "dates", {"type", "duration", "start", "due"}, {"type", "duration", "start", "due"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded dates",{{"id", type text}, {"accountId", type text}, {"title", type text}, {"status", type text}, {"importance", type text}, {"createdDate", type datetime}, {"updatedDate", type datetime}, {"duration", type number}, {"start", type datetime}, {"due", type datetime}, {"scope", type text}, {"customStatusId", type text}, {"hasAttachments", type logical}, {"customItemTypeId", type text}})
+  
+   in
+   #"Changed Type"

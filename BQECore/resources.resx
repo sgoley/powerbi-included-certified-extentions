@@ -121,10 +121,10 @@
     <value>https://api.bqecore.com/api/</value>
   </data>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Connect to BQE Core</value>
+    <value>Connect to BQE CORE</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>BQE Core</value>
+    <value>BQE CORE</value>
   </data>
   <data name="ClientId" xml:space="preserve">
     <value>SaYIZ8Cj8qGCyLQuMjdXvaBHwm8Om__h.apps.bqe.com</value>
@@ -133,7 +133,7 @@
     <value>jGzEFb6SWpAdLnani7W7jyd_9ynXDVxAd33NJEWTJZPM13Y1NOvH64Iw0K4BZnnr</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>BQE Core</value>
+    <value>BQE CORE</value>
   </data>
   <data name="RedirectURI" xml:space="preserve">
     <value>https://preview.powerbi.com/views/oauthredirect.html</value>

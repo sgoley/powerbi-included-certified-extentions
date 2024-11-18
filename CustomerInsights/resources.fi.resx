@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Yhdistä Dynamics 365 Customer Insightsiin</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dynamics 365 Customer Insights</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>Dynamics 365 Customer Insights -sisäänkirjautuminen</value>
   </data>
-  <data name="Entities" xml:space="preserve">
+  <data name="Enrichments" errorCode="004" xml:space="preserve">
+    <value>Rikastamiset</value>
+  </data>
+  <data name="Entities" errorCode="005" xml:space="preserve">
     <value>Entiteetit</value>
   </data>
-  <data name="Measures" xml:space="preserve">
+  <data name="Measures" errorCode="006" xml:space="preserve">
     <value>Mittayksiköt</value>
   </data>
-  <data name="Segments" xml:space="preserve">
+  <data name="Segments" errorCode="007" xml:space="preserve">
     <value>Segmentit</value>
   </data>
-  <data name="UnifiedActivity" xml:space="preserve">
+  <data name="UnifiedActivity" errorCode="008" xml:space="preserve">
     <value>UnifiedActivity</value>
   </data>
 </root>

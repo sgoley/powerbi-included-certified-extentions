@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Разширени опции</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Обобщени данни</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Грануларност на данните</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Изберете данни на ниво ред, за да заредите необработени резултати от заявки или Обобщени данни, за да насочите заявките към базата данни и да получите обобщени резултати. За най-добри резултати изберете Данни на ниво ред само ако изберете режим на Импортиран Режим на свързване на данни.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Данни на ниво ред</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Организационен акаунт</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Свързване с данни от Workplace Analytics</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Свързване към данни на Прозрения на Viva</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Прозрения на Viva</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Онлайн услуги</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Име на таблица</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Свързване с данни от Workplace Analytics</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Ако разширената заявка за прозрения извежда повече от една таблица, укажете към коя таблица да се свържете.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Прозрения на Viva</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Свързване към данни на Прозрения на Viva</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Обобщената грануларност на данните в момента не се поддържа при свързване с резултатите от заявката чрез указване на име или идентификатор на заявка. Изберете грануларност на данните на ниво ред, за да се свържете с резултатите от заявката.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Грануларността на данните на ниво ред в момента се поддържа само при свързване с резултатите от заявката. Изберете Обобщена грануларност на данни, за да се свържете с общ набор от лични метрики или да укажете име или идентификатор на заявка.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Неочакван формат или стойност на заглавката на WWW-Authenticate по време на удостоверяване.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Неочакван отговор от сървъра по време на удостоверяване.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Грануларността на данните на ниво редове не се поддържа за този източник на данни. Вместо това изберете Обобщена грануларност на данните.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Връща таблица с видими атрибути и метрики от всяка седмица за всеки измерен служител в дяла.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Идентификатор на заявка</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Идентификатори на заявки</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Намерете това в Workplace Analytics, като отворите резултатите от заявката, копирате желаната връзка за заявка и извлечете последния 32-цифрен ИД (GUID), който се показва в URL адреса.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>В приложението за разширени аналитични данни отидете на „Анализ &gt; Резултати от заявка“, намерете заявката си и изберете :Връзка“, за да получите идентификатора на заявката.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Име на заявка</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Въведете името на заявката точно както се намира в раздела с резултати от заявка на Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Въведете името на заявката, както е намерено на страницата с резултати на „Анализ &gt; Резултати от заявка“ в приложението за разширени аналитични данни.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Импортирайте седмични метрики и данни на атрибута от Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Метрики на лицето на Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Тип схема</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Изберете Обобщени, за да заредите организационните атрибути като отделни колони, или Необобщени, за да заредите организационните атрибути като двойки ключови стойности, като например Име на атрибут = Организация, Стойност на атрибут = Финанси.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Обобщен</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>С премахнато обобщение</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Идентификатор на дял</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Намерете това в Workplace Analytics, като отворите потребителския си профил и изберете „Моята информация“</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>В приложението за разширени аналитични данни отидете на „Анализ &gt; Резултати от заявка“, намерете заявката си и изберете :Връзка“, за да получите идентификатора на дяла.</value>
   </data>
 </root>

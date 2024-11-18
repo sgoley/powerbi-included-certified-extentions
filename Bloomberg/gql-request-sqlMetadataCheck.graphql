@@ -1,0 +1,22 @@
+query q($requestId: String!) {
+  sqlMetadataCheck(requestId: $requestId) {
+    ... on QueryStartResponse {
+      requestId
+      status
+    }
+    ... on SqlMetadataDataResponse {
+        metadata {
+            columns {
+                name
+                type
+            }
+            tableId
+        }
+        status
+    }
+    ... on Error {
+      errorCategory
+      errorMessage
+    }
+  }
+}

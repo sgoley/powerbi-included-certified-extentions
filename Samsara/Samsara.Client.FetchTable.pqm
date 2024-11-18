@@ -1,0 +1,22 @@
+(Context as record, TableMetadata as record, optional PageLimit as number) =>
+    let
+        Samsara.Client.Headers = Context[Extension.LoadFunction](Context, "Samsara.Client.Headers.pqm"),
+        Samsara.Client.Depage = Context[Extension.LoadFunction](Context, "Samsara.Client.Depage.pqm"),
+
+        HoursOffset = DateTimeZone.ZoneHours(Context[Start]),
+        DateFormattingOpts = if HoursOffset = 0 // No one in GMT has a minute offset, thankfully
+            then [ Format = "yyyy-MM-ddTHH:mm:ssZ" ]
+            else [ Format = "yyyy-MM-ddTHH:mm:sszzz" ],
+        Request = [
+            Url = Context[BaseUrl] & "/data",
+            Headers = Samsara.Client.Headers(Context),
+            Query = [
+                tableId = TableMetadata[TableId],
+                tableType = TableMetadata[TableType],
+                startDate = DateTimeZone.ToText(Context[Start], DateFormattingOpts),
+                endDate = DateTimeZone.ToText(Context[End], DateFormattingOpts)
+            ],
+            Limit = PageLimit
+        ]
+    in
+        Samsara.Client.Depage(Context, Request)

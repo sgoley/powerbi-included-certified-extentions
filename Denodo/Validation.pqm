@@ -1,0 +1,107 @@
+﻿/*
+ * =============================================================================
+ *
+ *   This software is part of the DenodoConnect component collection.
+ *
+ *   Copyright (c) 2018-2022, denodo technologies (http://www.denodo.com)
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ * =============================================================================
+ */
+
+let
+    //
+    // Validation and processing of the DSN / Connection String involves:
+    //    1. Checking whether input contains a ';', in which case it is considered a connection string (DSN otherwise).
+    //    2. If Connection String:
+    //       2.1. Checking that the "SERVER", "PORT" and "DATABASE" properties are (mandatorily) present.
+    //       2.2. Checking whether the "SSLMODE" property is (optionally) present in the connection string.
+    //       2.3. Checking that NO OTHER property is present (only the above are allowed).
+    //       2.4. Adding the "DRIVER" property, which will be set to a fixed value (Denodo ODBC Driver)
+    //
+    Config_CS_DriverName = "DRIVER",
+    Config_CS_ServerName = "SERVER",
+    Config_CS_PortName = "PORT",
+    Config_CS_DatabaseName = "DATABASE",
+    Config_CS_SSLmodeName = "SSLMODE",
+    Config_CS_RequiredNames = { Config_CS_ServerName, Config_CS_PortName, Config_CS_DatabaseName },
+    Config_CS_OptionalNames = { Config_CS_SSLmodeName },
+    Config_CS_DriverValue = "DenodoODBC Unicode(x64)",
+
+
+    Validation.SplitConnectionItem = (item as text) =>
+        let
+            Item_Tokens = Text.Split(item, "="),
+            Result = 
+                if (List.Count(Item_Tokens) = 2) then 
+                    [ key = Text.Upper(Item_Tokens{0}), value = Item_Tokens{1} ]
+                else 
+                    error Error.Record("InvalidConnectionString", "Connection String does not have a valid format. Allowed properties: SERVER, PORT, DATABASE, SSLMODE.", item)
+        in
+            Result,
+
+    Validation.RemoveFieldFromConnectionStringRecord = (CSR as record, name as text, required as logical) =>
+        let
+            Result = 
+                if (Record.HasFields(CSR, name)) then 
+                    Record.RemoveFields(CSR, name) 
+                else 
+                    if (required = false) then
+                        CSR
+                    else
+                        error Error.Record("InvalidConnectionString", "Connection String contains a field not allowed. Allowed properties: SERVER, PORT, DATABASE, SSLMODE.", name)
+        in
+            Result,
+
+   Validation.ValidateConnectionStringRecord = (CSR as record) =>
+        let     
+            CSR_Empty_Required = List.Accumulate(Config_CS_RequiredNames, CSR, (state, current) => Validation.RemoveFieldFromConnectionStringRecord(state, current, true)),
+            CSR_Empty = List.Accumulate(Config_CS_OptionalNames, CSR_Empty_Required, (state, current) => Validation.RemoveFieldFromConnectionStringRecord(state, current, false)),
+            Result = 
+                if (Record.FieldCount(CSR_Empty) = 0) then
+                    CSR
+                else
+                    error Error.Record("InvalidConnectionString", "Connection String contains a field not allowed. Allowed properties: SERVER, PORT, DATABASE, SSLMODE.", CSR)
+        in
+            Result,
+
+    Validation.ProcessConnectionString = (cs as text) => 
+        let
+            CS_Tokens = Text.Split(cs,";"),
+            CS_Items = List.Transform(CS_Tokens, each Validation.SplitConnectionItem(_)),
+            CSR = List.Accumulate(CS_Items, [], (state, current) => Record.AddField(state, current[key], current[value])),
+            Valid_CSR = Validation.ValidateConnectionStringRecord(CSR),
+            Result = Record.AddField(Valid_CSR, Config_CS_DriverName, Config_CS_DriverValue)
+        in 
+            Result,
+
+    Validation.IsConnectionString = (DSN as text) =>
+        let
+            Result = Text.Contains(DSN, ";")
+        in
+            Result,
+
+    Validation.ProcessDSNParameter = (DSN as text) =>
+        let
+            ResultProcess = 
+                if (Validation.IsConnectionString(DSN)) then
+                    Validation.ProcessConnectionString(DSN)
+                else
+                    [ DSN = DSN ]
+        in
+            ResultProcess
+
+in [ProcessDSNParameter = Validation.ProcessDSNParameter]
+
+

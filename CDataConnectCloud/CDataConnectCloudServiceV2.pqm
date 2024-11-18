@@ -1,0 +1,504 @@
+let
+    CDataConnectCloudServiceV2.NavImpl = (optional options as record) as table =>
+        let
+            InputOptions = if options <> null then options else [],
+            ResultTable =
+                if Utilities.HasQuery(InputOptions) then
+                    CDataConnectCloudRestV2.ExecuteQuery(InputOptions[Query])
+                else
+                let 
+                    rootNavTable = #table(
+                    {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"},
+                    {
+                        {
+                            "Connections",
+                            "Connections",
+                            CDataConnectCloudServiceV2.CreateConnectionNav(),
+                            "Folder",
+                            "Folder",
+                            false
+                        },
+                        {
+                            "Derived Views",
+                            "Derived Views",
+                            CDataConnectCloudServiceV2.CreateDerivedViewNav(),
+                            "Folder",
+                            "Folder",
+                            false
+                        },
+                        {
+                            "Virtual Datasets",
+                            "Virtual Datasets",
+                            CDataConnectCloudServiceV2.CreateWorkspaceNav(),
+                            "Folder",
+                            "Folder",
+                            false
+                        }
+                    }
+                ),
+                NavTable = Utilities.ToNavigationTable(
+                    rootNavTable, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+                    )
+                in
+                    NavTable
+        in
+            ResultTable,
+
+    CDataConnectCloudServiceV2.CreateWorkspaceNav = () as table =>
+        let
+            workspaces = CDataConnectCloudRestV2.GetWorkspaces(),
+            #"Added Name Column" = Table.AddColumn(workspaces, "Name", each [name]),
+            #"Added Key Column" = Table.AddColumn(#"Added Name Column", "Key", each [id]),
+            #"Added Data Column" = Table.AddColumn(
+                #"Added Key Column",
+                "Data",
+                each 
+                    let 
+                        WorkspaceNav =  
+                            if(Table.IsEmpty(workspaces)) then
+                                workspaces
+                            else
+                                CDataConnectCloudServiceV2.GetWorkspaceTablesNav([name])
+                    in
+                        WorkspaceNav,
+                        type table
+            ),
+            #"Added ItemKind Column" = Table.AddColumn(#"Added Data Column", "ItemKind", each "Database"),
+            #"Added ItemName Column" = Table.AddColumn(#"Added ItemKind Column", "ItemName", each "Database"),
+            #"Added IsLeaf Column" = Table.AddColumn(#"Added ItemName Column", "IsLeaf", each false),
+            #"Removed Columns" = Table.RemoveColumns(#"Added IsLeaf Column", {"name"}),
+            NavTable = Utilities.ToNavigationTable(
+                #"Removed Columns", {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            )
+        in
+            NavTable,
+    CDataConnectCloudServiceV2.CreateConnectionNav = () as table =>
+        let
+            catalogs = CDataConnectCloudRestV2.GetCatalogs(),
+            #"Added Name Column" = Table.AddColumn(catalogs, "Name", each [TABLE_CATALOG]),
+            #"Added Key Column" = Table.AddColumn(#"Added Name Column", "Key", each [TABLE_CATALOG]),
+            #"Added Data Column" = Table.AddColumn(
+                #"Added Key Column",
+                "Data",
+                each let catalogName = [TABLE_CATALOG] in CDataConnectCloudServiceV2.CreateSchemaNav(catalogName),
+                type table
+            ),
+            #"Added ItemKind Column" = Table.AddColumn(#"Added Data Column", "ItemKind", each "Database"),
+            #"Added ItemName Column" = Table.AddColumn(#"Added ItemKind Column", "ItemName", each "Database"),
+            #"Added IsLeaf Column" = Table.AddColumn(#"Added ItemName Column", "IsLeaf", each false),
+            #"Removed Columns" = Table.RemoveColumns(#"Added IsLeaf Column", {"TABLE_CATALOG"}),
+            NavTable = Utilities.ToNavigationTable(
+                #"Removed Columns", {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            )
+        in
+            NavTable,
+    CDataConnectCloudServiceV2.CreateDerivedViewNav = () as table =>
+        let
+            catalogName = "CData",
+            schemaName = "DerivedViews",
+            tables = CDataConnectCloudRestV2.GetTables(catalogName, schemaName),
+            Result = CDataConnectCloudServiceV2.CreateNavTable(
+                tables,
+                catalogName,
+                schemaName
+            )
+        in
+            Result,
+    CDataConnectCloudServiceV2.CreateSchemaNav = (catalogName as text, optional workspaceName as text) as table =>
+        let
+            schemas = CDataConnectCloudRestV2.GetSchemas(catalogName, workspaceName),
+            schemasFiltered = Table.SelectRows(schemas, each [TABLE_SCHEMA] <> "ROOT"),
+            #"Added Name Column" = Table.AddColumn(schemasFiltered, "Name", each [TABLE_SCHEMA]),
+            #"Added Key Column" = Table.AddColumn(#"Added Name Column", "Key", each catalogName & "." & [TABLE_SCHEMA]),
+            #"Added Data Column" = Table.AddColumn(
+                #"Added Key Column",
+                "Data",
+                each 
+                    let
+                        TablesAndStoredProceduresNavTable = 
+                            if(Table.IsEmpty(schemasFiltered)) then
+                                schemasFiltered
+                            else
+                                CDataConnectCloudServiceV2.GetSchemaTablesNav(catalogName, [TABLE_SCHEMA], workspaceName)
+                    in
+                        TablesAndStoredProceduresNavTable,
+                        type table
+            ),
+            #"Added ItemKind Column" = Table.AddColumn(#"Added Data Column", "ItemKind", each "Folder"),
+            #"Added ItemName Column" = Table.AddColumn(#"Added ItemKind Column", "ItemName", each "Folder"),
+            #"Added IsLeaf Column" = Table.AddColumn(#"Added ItemName Column", "IsLeaf", each false),
+            #"Removed Columns" = Table.RemoveColumns(#"Added IsLeaf Column", {"TABLE_CATALOG", "TABLE_SCHEMA"}),
+            NavTable = Utilities.ToNavigationTable(
+                #"Removed Columns", {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            )
+        in
+            NavTable,
+    CDataConnectCloudServiceV2.GetSchemaTablesNav = (catalogName as text, schemaName as text, optional workspaceName as text) as table =>
+        let
+            tables = CDataConnectCloudRestV2.GetTables(catalogName, schemaName, workspaceName),
+            LeafTable =
+                if (Table.IsEmpty(tables)) then
+                    tables
+                else
+                    CDataConnectCloudServiceV2.CreateNavTable( // Tables and Views only
+                        tables,
+                        catalogName,
+                        schemaName,
+                        workspaceName
+                    ),
+            ProceduresTable = CDataConnectCloudServiceV2.CreateNavFunctionTable(catalogName, schemaName, workspaceName),
+            Result = Table.Combine({LeafTable, ProceduresTable}),
+            NavTable = Utilities.ToNavigationTable(
+                Result, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            )
+        in
+            NavTable,
+    CDataConnectCloudServiceV2.GetWorkspaceTablesNav = (workspaceName as text) as table =>
+        let
+            SchemasResult = CDataConnectCloudServiceV2.CreateSchemaNav(workspaceName, workspaceName),
+            rootTables = CDataConnectCloudRestV2.GetTables(workspaceName, "ROOT", workspaceName),
+            NavTable = 
+                if (Table.IsEmpty(rootTables) and Table.IsEmpty(SchemasResult)) then
+                    SchemasResult
+                else
+                    CDataConnectCloudServiceV2.CreateWorkspaceTablesNav(SchemasResult, rootTables, workspaceName)
+        in 
+            NavTable,
+    CDataConnectCloudServiceV2.CreateWorkspaceTablesNav = (schemaTables as table, rootTables as table, workspaceName as text) as table =>
+        let
+            LeafTable = CDataConnectCloudServiceV2.CreateNavTable( 
+                rootTables,
+                workspaceName,
+                "ROOT",
+                workspaceName
+            ),
+            Result = Table.Combine({schemaTables, LeafTable}),
+            SortedResult = Table.Sort(Result, {"IsLeaf", "Name"}),
+            NavTable = Utilities.ToNavigationTable(
+                SortedResult, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            )
+        in
+            NavTable,
+    CDataConnectCloudServiceV2.CreateNavTable = (tables as table, catalogName as text, schemaName as text, optional workspaceName as text) as table =>
+        let
+            #"Added Key Column" = Table.AddColumn(tables, "Key", each catalogName & "." & schemaName & "." & [TABLE_NAME]),
+            #"Added Data Column" = Table.AddColumn(
+                #"Added Key Column", "Data", each CDataConnectCloudServiceV2.View(catalogName, schemaName, [TABLE_NAME], workspaceName), type table
+            ),
+            #"Renamed Columns" = Table.RenameColumns(#"Added Data Column", {{"TABLE_NAME", "Name"}}),
+            #"Add Item Kind Column" = Table.AddColumn(#"Renamed Columns", "ItemKind", each Text.Proper([TABLE_TYPE])),
+            #"Duplicated Column" = Table.DuplicateColumn(#"Add Item Kind Column", "ItemKind", "ItemName"),
+            #"Added IsLeaf Column" = Table.AddColumn(#"Duplicated Column", "IsLeaf", each true),
+            #"Removed Columns" = Table.RemoveColumns(
+                #"Added IsLeaf Column", {"TABLE_CATALOG", "TABLE_SCHEMA", "TABLE_TYPE", "REMARKS"}
+            ),
+            NavTable = Utilities.ToNavigationTable(
+                #"Removed Columns", {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            ),
+            SortedNavTable = Table.Sort(NavTable, {"Name"})
+        in
+            SortedNavTable,
+    CDataConnectCloudServiceV2.CreateNavFunctionTable = (catalogName as text, schemaName as text, optional workspaceName as text) as table =>
+        let
+            procedures = CDataConnectCloudRestV2.GetProcedures(catalogName, schemaName, workspaceName),
+            proceduresFiltered = Table.SelectRows(procedures, each [PROCEDURE_NAME] <> "SYS_CLEARMETADATACACHE"),
+            #"Added Custom" = Table.AddColumn(
+                proceduresFiltered, "Key", each catalogName & "." & schemaName & "." & [PROCEDURE_NAME]
+            ),
+            #"Renamed Columns" = Table.RenameColumns(#"Added Custom", {{"PROCEDURE_NAME", "Name"}}),
+            #"Reordered Columns" = Table.ReorderColumns(
+                #"Renamed Columns", {"PROCEDURE_CATALOG", "PROCEDURE_SCHEMA", "REMARKS", "PROCEDURE_TYPE", "Key", "Name"}
+            ),
+            #"Added Custom1" = Table.AddColumn(
+                #"Reordered Columns",
+                "Data",
+                each
+                    let
+                        procedureName = [Name],
+                        procedureDescription = if [REMARKS] = null then "" else [REMARKS],
+                        function = CDataConnectCloudServiceV2.ConvertStoredProcedureToPowerBiFunction(
+                            catalogName, schemaName, procedureName, procedureDescription
+                        )
+                    in
+                        function
+            ),
+            #"Added Custom2" = Table.AddColumn(#"Added Custom1", "ItemKind", each "Function"),
+            #"Duplicated Column" = Table.DuplicateColumn(#"Added Custom2", "Data", "ItemName"), // this is to match the schema name in the CreateNavTable function, as they get unioned
+            #"Added Custom4" = Table.AddColumn(#"Duplicated Column", "IsLeaf", each true),
+            #"Removed Columns" = Table.RemoveColumns(
+                #"Added Custom4", {"PROCEDURE_CATALOG", "PROCEDURE_SCHEMA", "REMARKS", "PROCEDURE_TYPE"}
+            ),
+            NavFunction = Utilities.ToNavigationTable(
+                #"Removed Columns", {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf"
+            )
+        in
+            NavFunction,
+    CDataConnectCloudServiceV2.ConvertStoredProcedureToPowerBiFunction = (
+        catalogName as text, schemaName as text, procedureName as text, procedureDescription as text) as function =>
+        let
+            CreateDynamicFunctionType = () as type =>
+                let
+                    tableWithPowerBiTypeColumn = Table.AddColumn(
+                        inputParametersTable,
+                        "POWER_BI_TYPE",
+                        each
+                            let
+                                PowerBiType = CDataConnectCloudRestV2.MapCDataTypesToPowerBiTypes(
+                                    [DATA_TYPE], [IS_NULLABLE]
+                                )
+                            in
+                                Value.ReplaceMetadata(
+                                    PowerBiType,
+                                    [
+                                        Documentation.FieldCaption = [PARAM_NAME],
+                                        Documentation.FieldDescription = if [REMARKS] = null then "" else [REMARKS],
+                                        Documentation.SampleValues = {},
+                                        Formatting.IsMultiLine = Type.Is(PowerBiType, Text.Type)
+                                    ]
+                                )
+                    ),
+                    inputParametersRecord = Record.FromList(
+                        tableWithPowerBiTypeColumn[POWER_BI_TYPE], tableWithPowerBiTypeColumn[PARAM_NAME]
+                    ),
+                    functionType = Type.ForFunction(
+                        [
+                            ReturnType = type table,
+                            Parameters = inputParametersRecord
+                        ],
+                        Table.RowCount(Table.SelectRows(inputParametersTable, each [IS_REQUIRED]))
+                    )
+                in
+                    functionType
+            //                         meta
+            //                         [
+            //                             Documentation.Name = procedureName,
+            //                             Documentation.LongDescription = procedureDescription,
+            //                             Documentation.Description = procedureDescription
+            //                         ]
+            ,
+            DynamicFunctionImpl = (arguments as list) as table =>
+                CDataConnectCloudRestV2.ExecuteProcedure(
+                    catalogName, schemaName, procedureName, inputParametersTable, arguments
+                ),
+            procedureParameters = CDataConnectCloudRestV2.GetProcedureParameters(catalogName, schemaName, procedureName),
+            inputParametersTable = Table.Sort(
+                /*
+                        Make sure we normalize the input parameters in order to create a correct Power Bi function signature.
+                        Power Bi does not allow function signatures where an optional parameter is specified before the required parameter.
+                        We MUST sort the input parameters so the required ones are shown in the first rows of the table and if there is more than one required 
+                        parameter sort them based on the ORDINAL_POSITION.
+                        */
+                Table.SelectRows(procedureParameters, each [PARAM_TYPE] = 1),
+                {{"IS_REQUIRED", Order.Descending}, {"ORDINAL_POSITION", Order.Ascending}}
+            ),
+            dynamicFunction = Function.From(CreateDynamicFunctionType(), DynamicFunctionImpl)
+        in
+            dynamicFunction,
+    CDataConnectCloudServiceV2.View = (catalogName as text, schemaName as text, tableName as text, optional workspaceName as text) as table =>
+        let
+            View = (state as record) as table =>
+                Table.View(
+                    null,
+                    [
+                        OnTake = (count as number) => @View(state & [
+                            NestedQuery = BuildSqlQuery(state & [
+                                LIMIT = count
+                            ])
+                        ]),
+                        OnSkip = (count as number) =>
+                            @View(state & [
+                                NestedQuery = BuildSqlQuery(state & [
+                                    OFFSET = count
+                                ])
+                            ]),
+                        OnSelectColumns = (columns as list) => @View(state & [
+                            SelectColumns = columns
+                        ]),
+                        OnSort = (order as list) =>
+                            let
+                                sorting = List.Transform(
+                                    order,
+                                    (o) =>
+                                        let
+                                            column = o[Name],
+                                            order = o[Order],
+                                            orderText = if (order = Order.Ascending) then "ASC" else "DESC"
+                                        in
+                                            "["
+                                                & state[CatalogName]
+                                                & "].["
+                                                & state[SchemaName]
+                                                & "].["
+                                                & state[TableName]
+                                                & "].["
+                                                & Utilities.EscapeColName(column)
+                                                & "] "
+                                                & orderText
+                                ),
+                                orderBy = Text.Combine(sorting, ", ")
+                            in
+                                @View(state & [
+                                    NestedQuery = BuildSqlQuery(state & [
+                                        OrderBy = orderBy
+                                    ])
+                                ]),
+                        OnRenameColumns = (renames as list) => @View(state & [
+                            Renames = renames
+                        ]),
+                        GetRowCount = () as number =>
+                            let
+                                newState = state & [
+                                    GetRowCount = true
+                                ],
+                                count = Table.FirstValue(CDataConnectCloudRestV2.ExecuteQuery(BuildSqlQuery(newState), workspaceName))
+                            in
+                                count,
+                        // Returns the table type returned by GetRows()
+                        GetType = () => CDataConnectCloudRestV2.GetQuerySchemaTableType(BuildSqlQuery(state), workspaceName),
+                        // Called last - retrieves the data
+                        GetRows = () =>
+                            CDataConnectCloudRestV2.ExecuteQuery(
+                                Diagnostics.LogValue(
+                                    "[SQL Query]", BuildSqlQuery(Diagnostics.LogValue("[State Record]", state))
+                                ),
+                                workspaceName
+                            ),
+                        // Helper functions
+                        BuildSqlQuery = (state as record) as text =>
+                            let
+                                query =
+                                    if (state[NestedQuery]? <> null) then
+                                        let
+                                            nestedQueryProjection =
+                                                if (state[SelectColumns]? <> null) then
+                                                    Text.Combine(state[SelectColumns], ",")
+                                                else
+                                                    "*",
+                                            nestedQuery = "SELECT "
+                                                & nestedQueryProjection
+                                                & " FROM ("
+                                                & state[NestedQuery]
+                                                & ")"
+                                        in
+                                            nestedQuery
+                                    else
+                                        "SELECT "
+                                            & BuildSelectProjection(state)
+                                            & " FROM "
+                                            & "["
+                                            & state[CatalogName]
+                                            & "].["
+                                            & state[SchemaName]
+                                            & "].["
+                                            & state[TableName]
+                                            & "]",
+                                queryWithOrderBy =
+                                    if (state[OrderBy]? <> null) then
+                                        query & " ORDER BY " & state[OrderBy]
+                                    else
+                                        query,
+                                queryWithLimit =
+                                    if (state[LIMIT]? <> null) then
+                                        queryWithOrderBy & " LIMIT " & Number.ToText(state[LIMIT])
+                                    else
+                                        queryWithOrderBy,
+                                queryWithOffset =
+                                    if (state[OFFSET]? <> null) then
+                                        queryWithLimit & " OFFSET " & Number.ToText(state[OFFSET])
+                                    else
+                                        queryWithLimit
+                            in
+                                queryWithOffset,
+                        BuildSelectProjection = (state as record) as text =>
+                            let
+                                selectProjection =
+                                    if (state[GetRowCount]? <> null and state[GetRowCount]) then
+                                        "COUNT(*)"
+                                    else
+                                        Text.Combine(
+                                            List.Transform(
+                                                BuildSelectProjectionList(state),
+                                                (column) =>
+                                                    "["
+                                                        & state[CatalogName]
+                                                        & "].["
+                                                        & state[SchemaName]
+                                                        & "].["
+                                                        & state[TableName]
+                                                        & "].["
+                                                        & Utilities.EscapeColName(column)
+                                                        & "] AS ["
+                                                        & FindAlias(state[Renames]?, Utilities.EscapeColName(column))
+                                                        & "]"
+                                            ),
+                                            ","
+                                        )
+                            in
+                                selectProjection,
+                        BuildSelectProjectionList = (state as record) as list =>
+                            if (state[SelectColumns]? <> null) then
+                                state[SelectColumns]
+                            else
+                                tableColumns[COLUMN_NAME],
+                        FindAlias = (renames, column as text) as text =>
+                            let
+                                aliasList =
+                                    if (renames <> null) then
+                                        List.Select(renames, (rec as record) as logical => rec[OldName] = column)
+                                    else
+                                        {},
+                                alias = if (List.IsEmpty(aliasList)) then column else List.First(aliasList)[NewName]
+                            in
+                                alias
+                    ]
+                ),
+            tableColumns = CDataConnectCloudRestV2.GetColumns(catalogName, schemaName, tableName, workspaceName),
+            viewWithPrimaryKeys = Table.AddKey(
+                View([
+                    CatalogName = catalogName,
+                    SchemaName = schemaName,
+                    TableName = tableName
+                ]),
+                Table.SelectRows(tableColumns, each [IS_KEY] = true)[COLUMN_NAME],
+                true
+            )
+        in
+            viewWithPrimaryKeys,
+
+    // Load utility functions
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name), asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    CDataConnectCloudRestV2 = Extension.LoadFunction("CDataConnectCloudRestV2.pqm"),
+    CDataConnectCloudRestV2.GetWorkspaces = CDataConnectCloudRestV2[GetWorkspaces],
+    CDataConnectCloudRestV2.GetCatalogs = CDataConnectCloudRestV2[GetCatalogs],
+    CDataConnectCloudRestV2.GetSchemas = CDataConnectCloudRestV2[GetSchemas],
+    CDataConnectCloudRestV2.GetTables = CDataConnectCloudRestV2[GetTables],
+    CDataConnectCloudRestV2.GetColumns = CDataConnectCloudRestV2[GetColumns],
+    CDataConnectCloudRestV2.GetProcedures = CDataConnectCloudRestV2[GetProcedures],
+    CDataConnectCloudRestV2.GetProcedureParameters = CDataConnectCloudRestV2[GetProcedureParameters],
+    CDataConnectCloudRestV2.MapCDataTypesToPowerBiTypes = CDataConnectCloudRestV2[MapCDataTypesToPowerBiTypes],
+    CDataConnectCloudRestV2.ExecuteQuery = CDataConnectCloudRestV2[ExecuteQuery],
+    CDataConnectCloudRestV2.GetQuerySchemaTableType = CDataConnectCloudRestV2[GetQuerySchemaTableType],
+    CDataConnectCloudRestV2.ExecuteProcedure = CDataConnectCloudRestV2[ExecuteProcedure],
+
+    Utilities = Extension.LoadFunction("Utilities.pqm"),
+    Utilities.ToNavigationTable = Utilities[ToNavigationTable],
+    Utilities.EscapeColName = Utilities[EscapeColName],
+    Utilities.HasQuery = Utilities[HasQuery],
+
+    Diagnostics = Extension.LoadFunction("Diagnostics.pqm"),
+    Diagnostics.LogValue = Diagnostics[LogValue],
+    Diagnostics.LogFailure = Diagnostics[LogFailure],
+
+    OAuth = Extension.LoadFunction("OAuth.pqm"),
+    OAuth.StartLogin = OAuth[StartLogin],
+    OAuth.FinishLogin = OAuth[FinishLogin],
+    OAuth.Refresh = OAuth[Refresh]
+in
+    [
+        NavImpl = CDataConnectCloudServiceV2.NavImpl
+    ]

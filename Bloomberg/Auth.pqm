@@ -1,0 +1,115 @@
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    // JWT module
+    JWT = Extension.LoadFunction("JWT.pqm"),
+    JWT.DecodeJWT = JWT[DecodeJWT],
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.OAuthBaseUrl = Configuration[OAuthBaseUrl],
+    Configuration.RedirectUri = Configuration[RedirectUri],
+    Configuration.ClientId = Configuration[ClientId],
+
+    SendTokenRequest = (query as record) =>
+        Web.Contents(Configuration.OAuthBaseUrl & "/as/token.oauth2", [
+            Content = Text.ToBinary(Uri.BuildQueryString(query)),
+            Headers = [
+                #"Content-type" = "application/x-www-form-urlencoded",
+                #"Accept" = "application/json"
+            ],
+            IsRetry = true
+        ]),
+
+    TokenMethod = (code, grantType, sendTokenRequestFn as function, clientCreds as record, optional verifier) =>
+        let
+            codeVerifier = if (verifier <> null) then [code_verifier = verifier] else [],
+            codeParameter = if (grantType = "authorization_code") then [ code = code ] else [ refresh_token = code ],
+            query = codeVerifier & codeParameter & [
+                client_id = clientCreds[clientId],
+                grant_type = grantType,
+                redirect_uri = Configuration.RedirectUri
+            ],
+            response = sendTokenRequestFn(query),
+            // The outer JSON that contains access_token
+            credential = Json.Document(response),
+            // check for error in response
+            validatedCredential = if (credential[error]? <> null) then
+                error Error.Record("TokenResponseError", credential[error], credential[message]?)
+            else
+                credential,
+            // access_token itself decoded and parsed
+            decodedAccessToken = try JWT.DecodeJWT(validatedCredential[access_token])
+                otherwise error Error.Record("Authentication Error","Could not decode access token."),
+
+            ParseAdminCredential = (adminTokenString) => try Json.Document(adminTokenString)
+                otherwise error Error.Record("Admin Authentication Error", "Could not parse admin token."),
+            // If the decoded access_token has an inner adminToken attribute, use that as the access token.
+            adminCredential = if (Record.HasFields(decodedAccessToken, "adminToken") and decodedAccessToken[adminToken] <> "")
+                then ParseAdminCredential(decodedAccessToken[adminToken])
+                else null,
+            validatedAdminCredential = if (adminCredential <> null and Record.HasFields(adminCredential, "error_msg"))
+                then error Error.Record("Admin Authentication Error", adminCredential[error_msg])
+                else adminCredential,
+            finalCredential = if (validatedAdminCredential <> null)
+                then validatedAdminCredential
+                else validatedCredential
+        in
+        finalCredential,
+
+    StartLogin = (resourceUrl, state, display) =>
+        let
+            // we'll generate our code verifier using Guids
+            codeVerifier = Text.NewGuid() & Text.NewGuid(),
+            authorizeUrl = Configuration.OAuthBaseUrl & "/as/authorization.oauth2?" & Uri.BuildQueryString([
+                client_id = Configuration.ClientId,
+                response_type = "code",
+                code_challenge_method = "plain",
+                code_challenge = codeVerifier,
+                state = state,
+                redirect_uri = Configuration.RedirectUri,
+                scope = "bloomberg:bi:bql-query"
+            ])
+        in
+            [
+                LoginUri = authorizeUrl,
+                CallbackUri = Configuration.RedirectUri,
+                WindowWidth = 1024,
+                WindowHeight = 768,
+                Context = codeVerifier  // need to roundtrip this
+            ],
+
+    FinishLogin = (context, callbackUri, state) =>
+        let
+            parts = Uri.Parts(callbackUri)[Query],
+            err = if Record.HasFields(parts, "error")
+                then "Authentication failed with a status: """ & parts[error] & """"
+                else "code query param was not provided",
+            code = if Record.HasFields(parts, "code")
+                then parts[code]
+                else error Error.Record("AuthenticationError", err),
+            clientCreds = [ clientId = Configuration.ClientId ]
+        in
+            TokenMethod(code, "authorization_code", SendTokenRequest, clientCreds, context),
+
+    Refresh = (clientApplication, dataSourcePath, oldCredential) =>
+        let
+            refreshToken = oldCredential[refresh_token],
+            decodedAccessToken = try JWT.DecodeJWT(oldCredential[access_token])
+                otherwise error Error.Record("Authentication Error","Could not decode access token."),
+            // Could be the admin token client ID if an admin token is being used instead of the regular client ID
+            clientId = decodedAccessToken[client_id],
+            newCredential = TokenMethod(refreshToken, "refresh_token", SendTokenRequest, [clientId = clientId])
+        in
+            newCredential
+in
+    [
+        StartLogin = StartLogin,
+        FinishLogin = FinishLogin,
+        Refresh = Refresh
+    ]

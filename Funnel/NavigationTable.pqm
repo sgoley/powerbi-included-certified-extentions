@@ -1,0 +1,123 @@
+let
+    Extension.LoadFunction = (name as text) =>
+    let
+        binary = Extension.Contents(name),
+        asText = Text.FromBinary(binary)
+    in
+        Expression.Evaluate(asText, #shared),
+
+    DataLoading = Extension.LoadFunction("DataLoading.pqm"),
+    DataLoading.LoadData = DataLoading[LoadData],
+    DataLoading.GetAccounts = DataLoading[GetAccounts],
+    DataLoading.DefaultNumberOfMonths = DataLoading[DefaultNumberOfMonths],
+	NavigationTableType = type function ()
+		as table meta [
+			Documentation.Name = Extension.LoadString("NavigationTableName"), // Shown in Connector dialog as Title
+			Documentation.LongDescription = Extension.LoadString("NavigationTableLongDescription")
+	],
+
+	PeriodType = type function (
+		optional numberOfMonths as (type number meta [
+			DataSource.Path = false, // Prevents parameter from being part of Credentials.
+			Documentation.FieldCaption =  Text.Format(Extension.LoadString("NumberOfMonthsFieldCaption"), {DataLoading.DefaultNumberOfMonths}),
+			Documentation.FieldDescription =  Extension.LoadString("NumberOfMonthsFieldDescription"),
+			Documentation.SampleValues = {DataLoading.DefaultNumberOfMonths}
+		])
+	)
+    as table meta [
+        Documentation.Name = Extension.LoadString("DataFunctionName"), // Shown in Connector dialog as Title
+        Documentation.LongDescription = Extension.LoadString("DataFunctionLongDescription")//,
+//         Documentation.Examples = {[
+//             Description = "Returns a table with 'Hello world' repeated 2 times",
+//              Code = "InternalFunction(#date(2020,01,01), #date(2020,31,12))",
+//             Result = "#table([{Power BI formatted columns}], {Values})"
+//         ]}
+    ],
+	
+	BuildViewsNavTable = (instanceId as text, accountId as text, views) => 
+    let 
+        // Todo: Check if views is empty.
+        navTable = if List.IsEmpty(views) then 
+            let
+               objects = #table(
+                {"Name",  "Key",   "Data", "ItemKind", "ItemName", "IsLeaf"},{
+                {Extension.LoadString("NoViewsLabel"), "Item1", Extension.LoadString("NavigationTableNoViewsForAccount"), "Function",    "Function",    false}
+                })
+            in
+                Table.ToNavigationTable(objects, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf", true)
+//         [field1 = Extension.LoadString("NavigationTableNoViewsForAccount")]
+        else let
+            viewsTable = Table.FromRecords(views),
+            withData = Table.AddColumn(viewsTable, "Data", each Value.ReplaceType((optional numberOfMonths as number) as table =>
+                    DataLoading.LoadData(instanceId, accountId, [viewId], numberOfMonths), PeriodType), type table),
+         
+            // Add ItemKind and ItemName as fixed text values
+            withItemKind = Table.AddColumn(withData, "ItemKind", each "View", type text),
+            withItemName = Table.AddColumn(withItemKind, "ItemName", each "View", type text),
+            // Indicate that the node should not be expandable
+            withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each true, type logical)
+            // Generate the nav table
+            in Table.ToNavigationTable(withIsLeaf, {"viewId"}, "name", "Data", "ItemKind", "ItemName", "IsLeaf", false)
+    in
+        navTable,
+
+	BuildNavigationWorkspaceTable = () =>
+		let
+			accountsJsonEU = try DataLoading.GetAccounts("EU") otherwise {},
+            accountsEUTable = Table.FromRecords(accountsJsonEU),
+            euTableWithInstance = Table.AddColumn(accountsEUTable, "instanceId", each "EU", type text),
+            
+			accountsJsonUS = try DataLoading.GetAccounts("US") otherwise {},
+            accountsUSTable = Table.FromRecords(accountsJsonUS),
+            usTableWithInstance = Table.AddColumn(accountsUSTable, "instanceId", each "US", type text),        
+
+			accountsTable = Table.Combine({ euTableWithInstance, usTableWithInstance }),
+
+            accountsTableOrWarning = if Table.IsEmpty(accountsTable) then error Error.Record("Error", "No workspaces found", "Check your credentials to Funnel") else accountsTable,
+
+            // Add Data as a calculated column
+            withData = Table.AddColumn(accountsTableOrWarning, "Data", each BuildViewsNavTable([instanceId], [accountId], [views]), type table),
+            // Add ItemKind and ItemName as fixed text values
+            withItemKind = Table.AddColumn(withData, "ItemKind", each "Folder", type text),
+            withItemName = Table.AddColumn(withItemKind, "ItemName", each "Folder", type text),
+            // Indicate that the node should not be expandable
+            withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each false, type logical),
+            removedViewsColumn = Table.RemoveColumns(withIsLeaf, "views", MissingField.Ignore),
+            navTable = Table.ToNavigationTable(removedViewsColumn, {"accountId"}, "name", "Data", "ItemKind", "ItemName", "IsLeaf", true)
+		in
+			navTable,
+
+            //
+        // Common functions
+        //
+        Table.ToNavigationTable = (
+            table as table,
+            keyColumns as list,
+            nameColumn as text,
+            dataColumn as text,
+            itemKindColumn as text,
+            itemNameColumn as text,
+            isLeafColumn as text,
+            shouldDelayPreview as logical
+        ) as table =>
+            let 
+                metaRecord = [
+                    NavigationTable.NameColumn = nameColumn, 
+                    NavigationTable.DataColumn = dataColumn,
+                    NavigationTable.ItemKindColumn = itemKindColumn, 
+                    NavigationTable.IsLeafColumn = isLeafColumn
+                ],
+                metaFinal = if shouldDelayPreview then Record.AddField(metaRecord, "Preview.DelayColumn", itemNameColumn) else metaRecord,
+
+                tableType = Value.Type(table),
+                newTableType = Type.AddTableKey(tableType, keyColumns, true) meta metaFinal,
+        
+                navigationTable = Value.ReplaceType(table, newTableType)
+            in
+                navigationTable
+	
+in
+    [
+		NavigationTableType = NavigationTableType,
+		BuildNavigationTable = BuildNavigationWorkspaceTable
+    ]

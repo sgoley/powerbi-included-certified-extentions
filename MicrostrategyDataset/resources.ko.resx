@@ -121,7 +121,7 @@
     <value>MicroStrategy REST API URL</value>
   </data>
   <data name="ApiUrlDesc" xml:space="preserve">
-    <value>MicroStrategy REST API URL(예: https://mycompany.microstrategy.com/MicroStrategyLibrary/)</value>
+    <value>유효한 환경 URL(기본적으로 Library 인증이 사용됨)을 입력하십시오. https://.../MicroStrategyLibrary. OIDC 인증의 경우 유효한 환경 URL 끝에 #OIDCMode 매개 변수를 추가합니다. https://.../MicroStrategyLibrary/#OIDCMode.</value>
   </data>
   <data name="AuthMode" xml:space="preserve">
     <value>인증 모드</value>
@@ -133,16 +133,13 @@
     <value>MicroStrategy 데이터 세트에서 데이터 가져오기</value>
   </data>
   <data name="DataSourceName" xml:space="preserve">
-    <value>MicroStrategy for Power BI</value>
+    <value>Power BI용 MicroStrategy</value>
   </data>
   <data name="DefaultMark" xml:space="preserve">
     <value>(기본값)</value>
   </data>
   <data name="ErrorContents" xml:space="preserve">
     <value>다음 경로에서 콘텐츠를 가져오지 못함.</value>
-  </data>
-  <data name="ErrorPrompted" xml:space="preserve">
-    <value>프롬프트된 리포트는 지원되지 않습니다.</value>
   </data>
   <data name="Locale" xml:space="preserve">
     <value>ko</value>
@@ -151,10 +148,10 @@
     <value>LDAP</value>
   </data>
   <data name="LimitDesc" xml:space="preserve">
-    <value>페이지 당 반환되는 최대 항목 수</value>
+    <value>요청당 검색되는 데이터 행 수</value>
   </data>
   <data name="LimitDescLong" xml:space="preserve">
-    <value>페이징 동작 제어 요청 1회당 반환되는 최대 항목 수입니다.</value>
+    <value>단일 요청에서 반환되는 최대 행 수 페이징 동작을 제어하는 데 사용됩니다.</value>
   </data>
   <data name="PersonalObjects" xml:space="preserve">
     <value>내 개인 개체</value>
@@ -171,7 +168,34 @@
   <data name="TimeoutDescLong" xml:space="preserve">
     <value>REST API 서버에 대한 HTTP 요청의 제한 시간 설정입니다.</value>
   </data>
+  <data name="DefaultIs" xml:space="preserve">
+    <value>기본값은입니다.</value>
+  </data>
   <data name="AdvancedOptions" xml:space="preserve">
     <value>고급 옵션</value>
+  </data>
+  <data name="ErrorPrivilege" xml:space="preserve">
+    <value>이 프로젝트에 대한 UsePowerBI 권한이 없습니다.</value>
+  </data>
+  <data name="PromptsCloseAll" xml:space="preserve">
+    <value>모든 프롬프트 닫기</value>
+  </data>
+  <data name="ErrorPromptedOldEnv" xml:space="preserve">
+    <value>프롬프트된 리포트는 MicroStrategy 11.1.3 이상에서만 지원됩니다.</value>
+  </data>
+  <data name="AuthBasicName" xml:space="preserve">
+    <value>표준/LDAP</value>
+  </data>
+  <data name="ErrorWrongTimeoutInput" xml:space="preserve">
+    <value>시간 제한은 0보다 작을 수 없습니다.</value>
+  </data>
+  <data name="ErrorPrompted" xml:space="preserve">
+    <value>프롬프트된 리포트는 지원되지 않습니다.</value>
+  </data>
+  <data name="AuthOAuthName" xml:space="preserve">
+    <value>Library/OIDC</value>
+  </data>
+  <data name="ApiUrlSample" xml:space="preserve">
+    <value>https://mycompany.microstrategy.com/MicroStrategyLibrary/</value>
   </data>
 </root>

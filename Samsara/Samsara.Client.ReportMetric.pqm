@@ -1,0 +1,22 @@
+/**
+ * Report a metric to our backend.
+ * 
+ * @param Context Global parameters and constants.
+ * @param Metrics The list of metrics to report.
+ * @returns The server response. This value shouldn't be used since the server
+ *          responds with an empty body.
+ * @raises A modeled exception if the metric couldn't be reported.
+ */
+(Context as record, Metrics as list) =>
+    let
+        Samsara.Client.Retry = Context[Extension.LoadFunction](Context, "Samsara.Client.Retry.pqm"),
+        Samsara.Client.Headers = Context[Extension.LoadFunction](Context, "Samsara.Client.Headers.pqm"),
+
+        Request = [
+            Url = Context[BaseUrl] & "/log-events",
+            Headers = Samsara.Client.Headers(Context),
+            Body = [ events = Metrics ],
+            Force = true
+        ]
+    in
+        Samsara.Client.Retry(Context, Request) 

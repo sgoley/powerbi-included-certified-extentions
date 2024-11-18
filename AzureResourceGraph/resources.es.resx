@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Conectarse a Azure Resource Graph</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Azure Resource Graph</value>
+  </data>
+  <data name="QueryFieldCaption" errorCode="003" xml:space="preserve">
+    <value>Consulta</value>
+  </data>
+  <data name="ScopeFieldCaption" errorCode="004" xml:space="preserve">
+    <value>Ámbito</value>
+  </data>
+  <data name="SubscriptionFieldCaption" errorCode="005" xml:space="preserve">
+    <value>Id. de suscripción</value>
+  </data>
+  <data name="ManagementGroupFieldCaption" errorCode="006" xml:space="preserve">
+    <value>Id. de grupo de administración</value>
+  </data>
+  <data name="resultTruncatedFieldCaption" errorCode="007" xml:space="preserve">
+    <value>$resultTruncated</value>
+  </data>
+  <data name="SubscriptionDescription" errorCode="008" xml:space="preserve">
+    <value>Si ha seleccionado un ámbito de suscripción, escriba las suscripciones de Azure en las que se va a ejecutar la consulta.</value>
+  </data>
+  <data name="ManagementGroupsDescription" errorCode="009" xml:space="preserve">
+    <value>Si ha seleccionado un ámbito de grupo de administración, escriba los grupos de administración de Azure en los que se va a ejecutar la consulta.</value>
+  </data>
+  <data name="QueryDescription" errorCode="010" xml:space="preserve">
+    <value>Consulta de recursos. Ver consultas de ejemplo: https://learn.microsoft.com/es-es/azure/governance/resource-graph/samples/starter?tabs=azure-cli</value>
+  </data>
+  <data name="ScopeDescription" errorCode="011" xml:space="preserve">
+    <value>Seleccione el ámbito de la consulta de selección. Si no se selecciona un grupo de administración o una suscripción, el ámbito de la consulta será todos los recursos.</value>
+  </data>
+  <data name="SampleQuery" errorCode="012" xml:space="preserve">
+    <value>Recursos 
+    | nombre del proyecto, tipo
+    | límite 5
+    | ordenar por nombre asc</value>
+  </data>
+  <data name="SubscriptionInputSample" errorCode="013" xml:space="preserve">
+    <value>suscripción 1, suscripción 2</value>
+  </data>
+  <data name="ManagementGroupInputSample" errorCode="014" xml:space="preserve">
+    <value>Grupo de administración 1, Grupo de administración 2</value>
+  </data>
+  <data name="AdvancedOptionsLabel" errorCode="015" xml:space="preserve">
+    <value>Opciones avanzadas</value>
+  </data>
+  <data name="SkipDescription" errorCode="016" xml:space="preserve">
+    <value>Número de filas que se omitirán desde el principio de los resultados. Invalida el desplazamiento a la página siguiente cuando la propiedad de $skipToken está presente.</value>
+  </data>
+  <data name="TopDescription" errorCode="017" xml:space="preserve">
+    <value>Número máximo de filas que debe devolver la consulta. Invalida el tamaño de página cuando está presente la propiedad $skipToken.</value>
+  </data>
+  <data name="allowPartialScopes" errorCode="018" xml:space="preserve">
+    <value>Solo es aplicable a consultas de nivel de grupo de administración y espacios empresariales para decidir si se permiten ámbitos parciales para el resultado en caso de que el número de suscripciones supere los límites permitidos.</value>
+  </data>
+  <data name="resultTruncated" errorCode="019" xml:space="preserve">
+    <value>Si desea que los resultados de la consulta no se trunquen, establezca este valor en false. De forma predeterminada, se establece en true y devuelve hasta 1000 registros.</value>
+  </data>
+  <data name="docExampleDescription" errorCode="020" xml:space="preserve">
+    <value>Devolver una tabla con los resultados de la consulta de usuario "recursos"</value>
+  </data>
+  <data name="docExampleProcessedResult" errorCode="021" xml:space="preserve">
+    <value>#table({""Column1""}, {{""result""}})</value>
+  </data>
+  <data name="scopeCheckErrorMessage" errorCode="022" xml:space="preserve">
+    <value>Al realizar consultas en el inquilino, no debe proporcionar suscripciones ni grupos de administración.</value>
+  </data>
+  <data name="expectedScopeParameters" errorCode="023" xml:space="preserve">
+    <value>Proporcione los valores de ámbito seleccionados para la consulta.</value>
+  </data>
+  <data name="LongerDescription" errorCode="024" xml:space="preserve">
+    <value>Vea ejemplos de consultas de inicio: https://learn.microsoft.com/es-es/azure/governance/resource-graph/samples/starter?tabs=azure-cli.</value>
+  </data>
+  <data name="ScopeSubscriptionMismatch" errorCode="025" xml:space="preserve">
+    <value>Se ha seleccionado el ámbito de suscripción, pero se han pasado grupos de administración. Escriba solo las suscripciones.</value>
+  </data>
+  <data name="ScopeManagementGroupMismatch" errorCode="026" xml:space="preserve">
+    <value>Se ha seleccionado el ámbito de grupo de administración, pero se han pasado suscripciones. Escriba solo los grupos de administración.</value>
+  </data>
+</root>

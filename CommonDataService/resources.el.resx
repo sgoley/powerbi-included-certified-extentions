@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Σύνδεση στο Dataverse μέσω του τελικού σημείου SQL</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Τομέας περιβάλλοντος</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Τομέας περιβάλλοντος</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Καθορίστε ένα περιβάλλον Dataverse στο οποίο θα συνδεθείτε. Αυτό το πεδίο είναι προαιρετικό και όταν δεν καθορίζεται, όλα τα περιβάλλοντα Dataverse που είναι διαθέσιμα στον συνδεδεμένο χρήστη θα εμφανίζονται στην οθόνη "Επιλογή δεδομένων"</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Συνδεθείτε στην παρουσία σας Dataverse (Dynamics 365 και PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Ο τομέας για το "#{0}" δεν υποστηρίζεται από τη σύνδεση Dataverse.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Η φόρτωση δεδομένων από έμμεσο πίνακα περιβάλλοντων δεν υποστηρίζεται.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>Οι '#{0}' δεν είναι έγκυρες επιλογές. Οι έγκυρες επιλογές είναι: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Αυτή η συνάρτηση δεν υποστηρίζει την επιλογή '#{0}' με τιμή '#{1}'.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Η μορφή ονόματος διακομιστή '#{0}' δεν είναι έγκυρη.  Καταργήστε ένα σχήμα όπως το "https://" από το όνομα του διακομιστή.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Συμπερίληψη στηλών σχέσης</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Επιλογές</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Καθορίστε τις επιλογές σύνδεσης στην παρουσία Dataverse</value>
   </data>
 </root>

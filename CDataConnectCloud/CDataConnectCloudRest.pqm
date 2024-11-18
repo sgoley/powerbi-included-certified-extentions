@@ -1,0 +1,232 @@
+let
+    url = "https://cloud.cdata.com/api/",
+    CDataConnectCloudRest.ExecuteRequest = (url as text, queryParameters as record, postdata) as table =>
+        let
+            commonHeaders = [
+                #"Accept" = "application/json;",
+                #"Connect-Cloud-Client" = "PowerBI Connector for Connect Cloud - "
+                    & Extension.LoadString("ProductVersion")
+            ],
+            options =
+                if (postdata <> null) then
+                    [
+                        Headers = commonHeaders & [
+                            #"Content-Type" = "application/json;"
+                        ],
+                        Content = postdata
+                    ]
+                else
+                    [
+                        Headers = commonHeaders
+                    ],
+            content = Web.Contents(
+                url,
+                Diagnostics.LogValue(
+                    "[Web Contents Options]",
+                    options
+                        & [
+                            Timeout = #duration(0, 0, 10, 0),
+                            Query = queryParameters,
+                            ManualStatusHandling = {400}
+                        ]
+                )
+            ),
+            jsonResponse = Json.Document(content),
+            validJsonResponse =
+                if (jsonResponse[#"error"]? <> null) then
+                    error Error.Record(jsonResponse[#"error"][code], jsonResponse[#"error"][message])
+                else
+                    jsonResponse,
+            ResultSetSchemaTable = Table.FromRecords(validJsonResponse[results]{0}[schema]),
+            ResultSetTable = Table.FromRows(
+                validJsonResponse[results]{0}[rows], GetTableTypeFromSchemaTable(ResultSetSchemaTable)
+            ),
+            ResultSetTableEnforcedColumns =
+                if (Table.IsEmpty(ResultSetTable)) then
+                    ResultSetTable
+                else
+                    EnforceColumnTypes(ResultSetTable, ResultSetSchemaTable)
+        in
+            ResultSetTableEnforcedColumns,
+    CDataConnectCloudRest.GetCatalogs = () as table =>
+        CDataConnectCloudRest.ExecuteRequest(Uri.Combine(url, "catalogs"), [], null),
+    CDataConnectCloudRest.GetSchemas = (catalogName as text) as table =>
+        CDataConnectCloudRest.ExecuteRequest(Uri.Combine(url, "schemas"), [catalogName = catalogName], null),
+    CDataConnectCloudRest.GetTables = (catalogName as text, schemaName as text) as table =>
+        CDataConnectCloudRest.ExecuteRequest(
+            Uri.Combine(url, "tables"), [
+                catalogName = catalogName,
+                schemaName = schemaName
+            ], null
+        ),
+    CDataConnectCloudRest.GetColumns = (catalogName as text, schemaName as text, tableName as text) as table =>
+        CDataConnectCloudRest.ExecuteRequest(
+            Uri.Combine(url, "columns"),
+            [
+                catalogName = catalogName,
+                schemaName = schemaName,
+                tableName = tableName
+            ],
+            null
+        ),
+    CDataConnectCloudRest.GetProcedures = (catalogName as text, schemaName as text) as table =>
+        CDataConnectCloudRest.ExecuteRequest(
+            Uri.Combine(url, "procedures"), [
+                catalogName = catalogName,
+                schemaName = schemaName
+            ], null
+        ),
+    CDataConnectCloudRest.GetProcedureParameters = (catalogName as text, schemaName as text, procedureName as text) as table =>
+        Diagnostics.LogValue(
+            "[Parameters of the "
+                & """"
+                & catalogName
+                & """."""
+                & schemaName
+                & """."""
+                & procedureName
+                & """ stored procedure]",
+            CDataConnectCloudRest.ExecuteRequest(
+                Uri.Combine(url, "procedureParameters"),
+                [
+                    catalogName = catalogName,
+                    schemaName = schemaName,
+                    procedureName = procedureName
+                ],
+                null
+            )
+        ),
+    CDataConnectCloudRest.MapCDataTypesToPowerBiTypes = (cdataType as number, isNullable as logical) =>
+        let
+            powerBiType =
+                if cdataType = 6 then
+                    Int8.Type
+                else if cdataType = 7 then
+                    Int16.Type
+                else if cdataType = 8 then
+                    Int32.Type
+                else if cdataType = 9 then
+                    Int64.Type
+                else if cdataType = 10 then
+                    Single.Type
+                else if cdataType = 11 then
+                    Double.Type
+                else if cdataType = 12 then
+                    Decimal.Type
+                else if cdataType = 13 then
+                    Number.Type
+                else if cdataType = 14 then
+                    Logical.Type
+                else if cdataType = 15 then
+                    Date.Type
+                else if cdataType = 16 then
+                    Time.Type
+                else if cdataType = 17 then
+                    DateTimeZone.Type
+                else
+                    Text.Type
+        in
+            if isNullable then
+                type nullable powerBiType
+            else
+                powerBiType,
+    CDataConnectCloudRest.ExecuteQuery = (query as text) as table =>
+        CDataConnectCloudRest.ExecuteRequest(Uri.Combine(url, "query"), [], Json.FromValue([query = query])),
+    CDataConnectCloudRest.GetQuerySchemaTableType = (query as text) as type =>
+        Diagnostics.LogValue(
+            "[The schema for the SQL query """ & query & """]",
+            Value.Type(
+                CDataConnectCloudRest.ExecuteRequest(
+                    Uri.Combine(url, "query"), [], Json.FromValue([
+                        query = query,
+                        schemaOnly = true
+                    ])
+                )
+            )
+        ),
+    CDataConnectCloudRest.ExecuteProcedure = (
+        catalogName as text, schemaName as text, procedureName as text, inputParametersTable as table, arguments as list
+    ) as table =>
+        let
+            BuildJsonPostData = () as binary =>
+                let
+                    tableWithIndexColumn = Table.AddIndexColumn(inputParametersTable, "INDEX", 0, 1),
+                    tableWithValueColumn = Table.AddColumn(
+                        tableWithIndexColumn, "VALUE", each arguments{[INDEX]}, Text.Type
+                    ),
+                    tableWithRecordColumn = Table.AddColumn(
+                        tableWithValueColumn,
+                        "RECORD",
+                        each [
+                            dataType = [DATA_TYPE],
+                            direction = 1,
+                            value = [VALUE]
+                        ],
+                        Record.Type
+                    ),
+                    tableWithCustomParameterName = Table.AddColumn(
+                        tableWithRecordColumn, "CUSTOM_PARAMETER_NAME", each "@" & [PARAM_NAME], Text.Type
+                    ),
+                    parametersRecord = Record.FromList(
+                        tableWithCustomParameterName[RECORD], tableWithCustomParameterName[CUSTOM_PARAMETER_NAME]
+                    ),
+                    postDataRecord = [
+                        procedure = "[" & catalogName & "].[" & schemaName & "].[" & procedureName & "]",
+                        parameters = parametersRecord
+                    ]
+                in
+                    Json.FromValue(postDataRecord)
+        in
+            CDataConnectCloudRest.ExecuteRequest(Uri.Combine(url, "exec"), [], BuildJsonPostData()),
+    EnforceColumnTypes = (ResultSetTable as table, ResultSetSchemaTable as table) as table =>
+        let
+            resultSetResultSetSchemaTableWithTypeColumn = Table.AddColumn(
+                ResultSetSchemaTable,
+                "Type",
+                each CDataConnectCloudRest.MapCDataTypesToPowerBiTypes([dataType], [nullable])
+            ),
+            primativeTransforms = Table.ToRows(
+                Table.SelectColumns(resultSetResultSetSchemaTableWithTypeColumn, {"columnLabel", "Type"})
+            ),
+            changedPrimatives = Table.TransformColumnTypes(ResultSetTable, primativeTransforms)
+        in
+            changedPrimatives,
+    GetTableTypeFromSchemaTable = (ResultSetSchemaTable as table) as type =>
+        let
+            ResultSetSchemaTableWithTypeRecordColumn = Table.AddColumn(
+                ResultSetSchemaTable,
+                "Type",
+                each
+                    [
+                        Type = CDataConnectCloudRest.MapCDataTypesToPowerBiTypes([dataType], [nullable]),
+                        Optional = false
+                    ]
+            ),
+            toRecord = Record.FromList(
+                ResultSetSchemaTableWithTypeRecordColumn[Type], ResultSetSchemaTable[columnLabel]
+            ),
+            toType = Type.ForRecord(toRecord, false),
+            tableType = type table (toType)
+        in
+            tableType,
+    // Load utility functions
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name), asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+    Diagnostics = Extension.LoadFunction("Diagnostics.pqm"),
+    Diagnostics.LogValue = Diagnostics[LogValue]
+in
+    [
+        GetCatalogs = CDataConnectCloudRest.GetCatalogs,
+        GetSchemas = CDataConnectCloudRest.GetSchemas,
+        GetTables = CDataConnectCloudRest.GetTables,
+        GetColumns = CDataConnectCloudRest.GetColumns,
+        GetProcedures = CDataConnectCloudRest.GetProcedures,
+        GetProcedureParameters = CDataConnectCloudRest.GetProcedureParameters,
+        ExecuteQuery = CDataConnectCloudRest.ExecuteQuery,
+        GetQuerySchemaTableType = CDataConnectCloudRest.GetQuerySchemaTableType,
+        ExecuteProcedure = CDataConnectCloudRest.ExecuteProcedure,
+        MapCDataTypesToPowerBiTypes = CDataConnectCloudRest.MapCDataTypesToPowerBiTypes
+    ]

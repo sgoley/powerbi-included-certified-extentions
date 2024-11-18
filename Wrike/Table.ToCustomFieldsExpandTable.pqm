@@ -1,0 +1,10 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "accountId", "title", "type", "sharedIds", "settings", "spaceId"}, {"id", "accountId", "title", "type", "sharedIds", "settings", "spaceId"}),
+    #"Removed Columns1" = Table.RemoveColumns(#"Expanded Column1",{"sharedIds"}),
+    #"Expanded settings" = Table.ExpandRecordColumn(#"Removed Columns1", "settings", {"inheritanceType", "decimalPlaces", "useThousandsSeparator", "aggregation", "readOnly", "values", "allowOtherValues", "currency", "allowTime"}, {"inheritanceType", "decimalPlaces", "useThousandsSeparator", "aggregation", "readOnly", "values", "allowOtherValues", "currency", "allowTime"}),
+    #"Expanded values" = Table.ExpandListColumn(#"Expanded settings", "values"),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded values",{{"id", type text}, {"accountId", type text}, {"title", type text}, {"type", type text}, {"inheritanceType", type text}, {"decimalPlaces", Int64.Type}, {"useThousandsSeparator", type logical}, {"aggregation", type text}, {"readOnly", type logical}, {"values", type text}, {"allowOtherValues", type logical}, {"currency", type text}, {"allowTime", type logical}, {"spaceId", type text}})
+in
+ #"Changed Type"

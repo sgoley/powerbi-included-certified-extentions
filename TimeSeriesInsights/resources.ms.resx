@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,67 +118,67 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AzureTimeSeriesInsights.ButtonTitle" xml:space="preserve">
+  <data name="AzureTimeSeriesInsights.ButtonTitle" errorCode="001" xml:space="preserve">
     <value>Wawasan Siri Masa Azure</value>
   </data>
-  <data name="AzureTimeSeriesInsights.ResourceLabel" xml:space="preserve">
+  <data name="AzureTimeSeriesInsights.ResourceLabel" errorCode="002" xml:space="preserve">
     <value>Log masuk ke Cerapan Siri Masa Azure.</value>
   </data>
-  <data name="AzureTsiConnector" xml:space="preserve">
+  <data name="AzureTsiConnector" errorCode="003" xml:space="preserve">
     <value>AzureTimeSeriesInsightsConnector</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="004" xml:space="preserve">
     <value>Sambung ke Wawasan Siri Masa Azure</value>
   </data>
-  <data name="Contents" xml:space="preserve">
+  <data name="Contents" errorCode="005" xml:space="preserve">
     <value>Cerapan Siri Masa</value>
   </data>
-  <data name="CustomQuery" xml:space="preserve">
+  <data name="CustomQuery" errorCode="006" xml:space="preserve">
     <value>Cipta pertanyaan tersuai</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="007" xml:space="preserve">
     <value>Wawasan Siri Masa Azure</value>
   </data>
-  <data name="Errors.InvalidEnvironmentFqdn" xml:space="preserve">
+  <data name="Errors.InvalidEnvironmentFqdn" errorCode="008" xml:space="preserve">
     <value>"environmentFqdn" yang tidak sah. Nilai tidak boleh nol. kosong atau ruang putih.</value>
   </data>
-  <data name="Errors.InvalidJsonPayload" xml:space="preserve">
+  <data name="Errors.InvalidJsonPayload" errorCode="009" xml:space="preserve">
     <value>Muat beban JSON yang tidak sah. Nilai tidak boleh nol. kosong atau ruang putih.</value>
   </data>
-  <data name="Errors.WwwAuthenticateNotFound" xml:space="preserve">
+  <data name="Errors.WwwAuthenticateNotFound" errorCode="010" xml:space="preserve">
     <value>"WWW-Authenticate tidak ditemui dalam pengepala respons."</value>
   </data>
-  <data name="FuncType.JsonPayload.Caption" xml:space="preserve">
+  <data name="FuncType.JsonPayload.Caption" errorCode="011" xml:space="preserve">
     <value>Parameter PowerBI</value>
   </data>
-  <data name="FuncType.JsonPayload.Description" xml:space="preserve">
+  <data name="FuncType.JsonPayload.Description" errorCode="012" xml:space="preserve">
     <value>Masukkan parameter yang disalin daripada Penjelajah Wawasan Siri Masa</value>
   </data>
-  <data name="FuncType.JsonPayload.Sample" xml:space="preserve">
+  <data name="FuncType.JsonPayload.Sample" errorCode="013" xml:space="preserve">
     <value>{"storeType":"WarmStore","isSearchSpanRelative":true,"clientDataType":"RDX_20200713_Q","environmentFqdn":"12a34b56-1a2b-3c4d-5e6f-78g912h3ij45.env.timeseries.azure.com", "queries": [{"aggregateSeries": ...}]}</value>
   </data>
-  <data name="IncorrectApiErrorMessage" xml:space="preserve">
+  <data name="IncorrectApiErrorMessage" errorCode="014" xml:space="preserve">
     <value>API salah. Api yang disokong ialah getEvents, getSeries dan aggregateSeries.</value>
   </data>
-  <data name="InvalidQueryPayloadVersion" xml:space="preserve">
+  <data name="InvalidQueryPayloadVersion" errorCode="015" xml:space="preserve">
     <value>Versi "clientDataType" yang tidak sah. Versi yang disokong ialah "RDX_20200713_Q" dan "RDX_20181120_Q".</value>
   </data>
-  <data name="InvalidStoreType" xml:space="preserve">
+  <data name="InvalidStoreType" errorCode="016" xml:space="preserve">
     <value>"storeType” yang tidak sah. Jenis stor yang disokong ialah "WarmStore" dan "ColdStore".</value>
   </data>
-  <data name="InvalidUrl" xml:space="preserve">
+  <data name="InvalidUrl" errorCode="017" xml:space="preserve">
     <value>Skema Url mestilah HTTPS atau hos("environmentFqdn") mestilah sah.</value>
   </data>
-  <data name="TimeSeriesInsights.ButtonTitle" xml:space="preserve">
+  <data name="TimeSeriesInsights.ButtonTitle" errorCode="018" xml:space="preserve">
     <value>Cerapan Siri Masa Azure (penyambung LEGACY)</value>
   </data>
-  <data name="TimeSeriesInsights.ResourceLabel" xml:space="preserve">
+  <data name="TimeSeriesInsights.ResourceLabel" errorCode="019" xml:space="preserve">
     <value>Log masuk ke Cerapan Siri Masa Azure (penyambung LEGACY).</value>
   </data>
-  <data name="TimeSeriesInsightsConnector.QueryRecord.Caption" xml:space="preserve">
+  <data name="TimeSeriesInsightsConnector.QueryRecord.Caption" errorCode="020" xml:space="preserve">
     <value>Pertanyaan Tersuai</value>
   </data>
-  <data name="TsiConnector" xml:space="preserve">
+  <data name="TsiConnector" errorCode="021" xml:space="preserve">
     <value>TimeSeriesInsightsConnector</value>
   </data>
 </root>

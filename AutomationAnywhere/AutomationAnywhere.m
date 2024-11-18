@@ -1,16 +1,16 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.2"]
+[Version = "1.0.4"]
 section AutomationAnywhere;
 
 [DataSource.Kind="AutomationAnywhere", Publish="AutomationAnywhere.Publish"]
 shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, AutomationAnywhereType);
 
-  //declare custom data types with metadata for parameters
-                       
+  //function to declare custom data types with metadata for parameters
+
   AutomationAnywhereType = type function (
     CRVersion as (type text meta [
         Documentation.FieldCaption = "Control Room Version",
-        Documentation.FieldDescription = "Control room version, 10.x/11.x OR Automation 360. 
+        Documentation.FieldDescription = "Control room version, 10.x/11.x OR Automation 360.
         Automation 360 customers need not mention the BI host as Bot Insight is an integral part of Control Room",
         Documentation.AllowedValues = {Extension.LoadString("ElevenxVersion"), Extension.LoadString("A2019Version"), Extension.LoadString("ElevenThreeFiveOneVersion")}
     ]),
@@ -19,16 +19,16 @@ shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, Auto
         Documentation.FieldDescription = "HostName/IpAddress of server where Control Room Service is running",
         Documentation.SampleValues = {"http://localhost", "https://www.example.com:80"}
     ]))
-    
+
     as table meta [
         Documentation.Name = "Automation Anywhere - Login",
         Documentation.LongDescription = "Automation Anywhere - Login"
     ];
-    
-  
 
+
+  // core function with connector logic
   AutomationAnywhereImpl = (CRVersion as text, CRHostName as text) =>
-               let 
+               let
                     // step1: Login to get the auth token
 
                     CRusername = Extension.CurrentCredential()[Username],
@@ -41,11 +41,11 @@ shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, Auto
                                     Content = body
                                 ],
                     // Build the authentication URL
-                    AuthenticationUrl = 
+                    AuthenticationUrl =
                                 if CRVersion = Extension.LoadString("A2019Version")
-                                    then CRHostName & "/v1/authentication"
-                                else 
-                                    CRHostName & "/v1/authentication", 
+                                    then CRHostName & "/v2/authentication"
+                                else
+                                    CRHostName & "/v1/authentication",
                     tokenResonse = Json.Document(Web.Contents(AuthenticationUrl, options)),
 
                     // step2: Set the access token as part of API request header with additional options
@@ -53,7 +53,7 @@ shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, Auto
                     DefaultRequestHeader = [
                              #"X-Authorization" =  tokenResonse[token]  // assign the token value obtained from step1
                     ],
-                    DefaultOptions = [ 
+                    DefaultOptions = [
                                 // The built-in credential handling for OpenApi.Document only works
                                 // with Basic (UsernamePassword) auth. All other types should be handled
                                 // explicitly using the ManualCredentials option.
@@ -63,7 +63,7 @@ shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, Auto
                                 // not setting any additional request headers/parameters.
                                 //
                                 ManualCredentials = true,
-                                // The returned data will match the schema defined in the swagger file. 
+                                // The returned data will match the schema defined in the swagger file.
                                 // This means that additional fields and object types that don't have explicit
                                 // properties defined will be ignored. To see all results, we set the IncludeMoreColumns
                                 // option to true. Any fields found in the response that aren't found in the schema will
@@ -79,8 +79,8 @@ shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, Auto
                                 Headers = DefaultRequestHeader
                             ],
 
-                    // step 3: Pull the latest swagger definition from the site 
-                    
+                    // step 3: Pull the latest swagger definition from the site
+
                     swagger =   if List.MatchesAny(tokenResonse[user][roles], each [name] = Extension.LoadString("SuperAdmin")) and CRVersion = Extension.LoadString("A2019Version")
                                     then Json.Document(Extension.Contents("swaggerA2019Admin.json"))
                                 else if List.MatchesAny(tokenResonse[user][roles], each [name] = Extension.LoadString("SuperAdmin")) and CRVersion = Extension.LoadString("ElevenxVersion")
@@ -95,19 +95,19 @@ shared AutomationAnywhere.Feed  = Value.ReplaceType(AutomationAnywhereImpl, Auto
                                     Json.Document(Extension.Contents(Extension.LoadString("SwaggerFile"))),
 
                     biHostArray = Text.Split(CRHostName, Extension.LoadString("HostSplitterExpr")),
-                                     
+
                     biScheme = List.First(biHostArray),
                     biHostName = List.Last(biHostArray),
                     swaggerRecord = Record.AddField(swagger, "host", biHostName),
                     schemes = {biScheme},
                     swaggerRecordWithScheme = Record.AddField(swaggerRecord, "schemes", schemes),
-          
+
                     // OpenApi.Document will return a navigation table with list of API names and API functions
                     apiFunctionTable = OpenApi.Document
                                               (Binary.From
                                                      (Json.FromValue(swaggerRecordWithScheme)), DefaultOptions),
 
-                    RoleBasedApiFunctionTable =  
+                    RoleBasedApiFunctionTable =
                                 if List.MatchesAny(tokenResonse[user][roles], each [name] = Extension.LoadString("SuperAdmin"))
                                      then apiFunctionTable
                                 else if List.MatchesAny(tokenResonse[user][roles], each [name] = Extension.LoadString("BotInsightCoeAdminRole"))

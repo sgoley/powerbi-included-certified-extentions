@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,43 +118,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>データフローからデータをインポートします</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>データフロー</value>
   </data>
-  <data name="dataflows.caption" xml:space="preserve">
+  <data name="dataflows.caption" errorCode="003" xml:space="preserve">
     <value>データフローからデータをインポートします</value>
   </data>
-  <data name="dataflows.longDescription" xml:space="preserve">
+  <data name="dataflows.longDescription" errorCode="004" xml:space="preserve">
     <value>アクセスできるすべてのデータフローに接続して、使用するエンティティを選択します</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
     <value>データフロー</value>
   </data>
-  <data name="dataflows.description" xml:space="preserve">
+  <data name="dataflows.description" errorCode="006" xml:space="preserve">
     <value>データフローからデータをインポートします</value>
   </data>
-  <data name="Environments" xml:space="preserve">
+  <data name="Environments" errorCode="007" xml:space="preserve">
     <value>環境</value>
   </data>
-  <data name="Workspaces" xml:space="preserve">
+  <data name="Workspaces" errorCode="008" xml:space="preserve">
     <value>ワークスペース</value>
   </data>
-  <data name="EnvironmentError" xml:space="preserve">
+  <data name="EnvironmentError" errorCode="009" xml:space="preserve">
     <value>環境検出応答でエラーが見つかりました</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="010" xml:space="preserve">
     <value>'#{0}' は有効なオプションではありません。有効なオプションは次のとおりです: '#{1}'</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="011" xml:space="preserve">
     <value>この関数は、値 '#{1}' のオプション '#{0}' をサポートしていません。</value>
   </data>
-  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityHotDataSuffix" errorCode="012" xml:space="preserve">
     <value>_StreamingData_Hot</value>
   </data>
-  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityArchivedDataSuffix" errorCode="013" xml:space="preserve">
     <value>_ArchivedData_Cold</value>
+  </data>
+  <data name="ParquetModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Parquet 形式で格納されていたため、このデータを読み込めませんでした</value>
+  </data>
+  <data name="Errors.NoErrorCodeFormat" errorCode="015" xml:space="preserve">
+    <value>#{0} (応答コード: #{1})</value>
+  </data>
+  <data name="Errors.UnspecifiedError" errorCode="016" xml:space="preserve">
+    <value>基になるサービスがエラー応答を報告しました</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="017" xml:space="preserve">
+    <value>Web サービスからのエラー応答の解析で例外が発生しました: '#{0}'。</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="018" xml:space="preserve">
+    <value>ダウンストリーム サービスの呼び出しは、状態コード '#{0}' で失敗しました。</value>
   </data>
 </root>

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,16 +118,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>เชื่อมต่อกับการวิเคราะห์ส่วนบุคคลของ Microsoft Teams</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>การวิเคราะห์ส่วนบุคคลของ Microsoft Teams</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>การวิเคราะห์ส่วนบุคคลของ Microsoft Teams</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="004" xml:space="preserve">
     <value>&lt;p&gt;ตัวเชื่อมต่อ Teams Analytics ช่วยให้คุณสามารถรับข้อมูลเชิงลึกเกี่ยวกับการใช้งาน Teams ของคุณได้ ข้อมูลจะพร้อมใช้งานสำหรับทั้งกิจกรรมส่วนตัวของคุณใน Teams ตลอดจนกิจกรรมใน Teams ที่คุณเป็นสมาชิกอยู่&lt;/p&gt;
 &lt;p&gt;ข้อมูลจะมีให้ก่อน 90 วัน &lt;/p&gt;
 &lt;p&gt; สำหรับรายละเอียดของชนิดข้อมูลที่พร้อมใช้งาน โปรดดูที่เอกสารวิธีใช้ต่อไปนี้: &lt;/p&gt;
@@ -135,13 +136,13 @@
 &lt;li&gt;&lt;b&gt;กิจกรรมของผู้ใช้ Teams:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
 &lt;/ul&gt;</value>
   </data>
-  <data name="TeamsActivityLabel" xml:space="preserve">
+  <data name="TeamsActivityLabel" errorCode="005" xml:space="preserve">
     <value>การใช้งาน Teams</value>
   </data>
-  <data name="TeamsSummaryActivityLabel" xml:space="preserve">
+  <data name="TeamsSummaryActivityLabel" errorCode="006" xml:space="preserve">
     <value>สรุปการใช้งาน Teams</value>
   </data>
-  <data name="UserActivityLabel" xml:space="preserve">
+  <data name="UserActivityLabel" errorCode="007" xml:space="preserve">
     <value>กิจกรรมของผู้ใช้ Teams</value>
   </data>
 </root>

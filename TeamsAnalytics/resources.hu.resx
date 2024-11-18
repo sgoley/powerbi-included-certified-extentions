@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,16 +118,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Csatlakozás a Microsoft Teams Personal Analyticshez</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Microsoft Teams Personal Analytics</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>Microsoft Teams Personal Analytics</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="004" xml:space="preserve">
     <value>&lt;p&gt;A Teams Analytics-összekötő révén betekintést nyerhet a Teams használati információiba. Adatokat kaphat a Teamsben végzett személyes tevékenységeire, valamint az olyan Teams-csatornákra vonatkozóan is, amelyeknek Ön a tagja.&lt;/p&gt;
 &lt;p&gt;Az elmúlt 90 napra vonatkozóan érhetők el adatok. &lt;/p&gt;
 &lt;p&gt; Az elérhető adatok típusairól a következő súgódokumentációban talál információt: &lt;/p&gt;
@@ -135,13 +136,13 @@
 &lt;li&gt;&lt;b&gt;Teams-felhasználói tevékenység:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
 &lt;/ul&gt;</value>
   </data>
-  <data name="TeamsActivityLabel" xml:space="preserve">
+  <data name="TeamsActivityLabel" errorCode="005" xml:space="preserve">
     <value>Teams-használat</value>
   </data>
-  <data name="TeamsSummaryActivityLabel" xml:space="preserve">
+  <data name="TeamsSummaryActivityLabel" errorCode="006" xml:space="preserve">
     <value>Teams-használat összegzése</value>
   </data>
-  <data name="UserActivityLabel" xml:space="preserve">
+  <data name="UserActivityLabel" errorCode="007" xml:space="preserve">
     <value>Teams-felhasználói tevékenység</value>
   </data>
 </root>

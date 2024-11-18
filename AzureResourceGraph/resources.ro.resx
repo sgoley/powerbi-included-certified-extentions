@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Conectare la graficul de resurse Azure</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Grafic de resurse Azure</value>
+  </data>
+  <data name="QueryFieldCaption" errorCode="003" xml:space="preserve">
+    <value>Interogare</value>
+  </data>
+  <data name="ScopeFieldCaption" errorCode="004" xml:space="preserve">
+    <value>Domeniu de aplicare</value>
+  </data>
+  <data name="SubscriptionFieldCaption" errorCode="005" xml:space="preserve">
+    <value>ID-urile abonamentelor</value>
+  </data>
+  <data name="ManagementGroupFieldCaption" errorCode="006" xml:space="preserve">
+    <value>ID-urile grupurilor de gestionare</value>
+  </data>
+  <data name="resultTruncatedFieldCaption" errorCode="007" xml:space="preserve">
+    <value>$resultTruncated</value>
+  </data>
+  <data name="SubscriptionDescription" errorCode="008" xml:space="preserve">
+    <value>Dacă ați selectat un domeniu de aplicare a abonamentului, introduceți abonamentele Azure pentru care se execută interogarea.</value>
+  </data>
+  <data name="ManagementGroupsDescription" errorCode="009" xml:space="preserve">
+    <value>Dacă ați selectat un domeniu de aplicare pentru grupul de gestionare, introduceți grupurile de gestionare Azure pentru a executa interogarea.</value>
+  </data>
+  <data name="QueryDescription" errorCode="010" xml:space="preserve">
+    <value>Interogarea resurselor. Vedeți exemple de interogări: https://learn.microsoft.com/azure/governance/resource-graph/samples/starter?tabs=azure-cli</value>
+  </data>
+  <data name="ScopeDescription" errorCode="011" xml:space="preserve">
+    <value>Selectați domeniul de aplicare al interogării. Dacă un grup de gestionare sau un abonament nu este selectat, domeniul de aplicare al interogării îl reprezintă toate resursele.</value>
+  </data>
+  <data name="SampleQuery" errorCode="012" xml:space="preserve">
+    <value>Resurse 
+    | numele proiectului, tastați
+    | limită de 5
+    | ordine crescătoare după nume</value>
+  </data>
+  <data name="SubscriptionInputSample" errorCode="013" xml:space="preserve">
+    <value>abonament 1, abonament 2</value>
+  </data>
+  <data name="ManagementGroupInputSample" errorCode="014" xml:space="preserve">
+    <value>Grup de gestionare 1, Grup de gestionare 2</value>
+  </data>
+  <data name="AdvancedOptionsLabel" errorCode="015" xml:space="preserve">
+    <value>Opțiuni complexe</value>
+  </data>
+  <data name="SkipDescription" errorCode="016" xml:space="preserve">
+    <value>Numărul de rânduri de omis de la începutul rezultatelor. Suprascrie deplasarea paginii următoare atunci când este prezentă proprietatea $skipToken.</value>
+  </data>
+  <data name="TopDescription" errorCode="017" xml:space="preserve">
+    <value>Numărul maxim de rânduri pe care ar trebui să le returneze interogarea. Suprascrie dimensiunea paginii atunci când este prezentă proprietatea $skipToken.</value>
+  </data>
+  <data name="allowPartialScopes" errorCode="018" xml:space="preserve">
+    <value>Aplicabil doar pentru interogările la nivel de entitate găzduită și de grup de gestionare, pentru a decide dacă se permit domenii de aplicare parțiale pentru rezultat, în cazul în care numărul de abonamente depășește limitele permise.</value>
+  </data>
+  <data name="resultTruncated" errorCode="019" xml:space="preserve">
+    <value>Dacă doriți ca rezultatele interogării să nu fie trunchiate, setați această valoare la False. În mod implicit, aceasta este setată la True și returnează maximum 1.000 de înregistrări.</value>
+  </data>
+  <data name="docExampleDescription" errorCode="020" xml:space="preserve">
+    <value>Returnați un tabel cu rezultatele de interogare pentru interogarea utilizatorului „resurse”</value>
+  </data>
+  <data name="docExampleProcessedResult" errorCode="021" xml:space="preserve">
+    <value>#table({""Column1""}, {{""result""}})</value>
+  </data>
+  <data name="scopeCheckErrorMessage" errorCode="022" xml:space="preserve">
+    <value>Atunci când interogați entitatea găzduită, nu trebuie să furnizați abonamente sau grupuri de gestionare.</value>
+  </data>
+  <data name="expectedScopeParameters" errorCode="023" xml:space="preserve">
+    <value>Furnizați valorile domeniului de aplicare selectate pentru interogare.</value>
+  </data>
+  <data name="LongerDescription" errorCode="024" xml:space="preserve">
+    <value>Consultați https://learn.microsoft.com/azure/governance/resource-graph/samples/starter?tabs=azure-cli pentru eșantioane de interogare de pornire.</value>
+  </data>
+  <data name="ScopeSubscriptionMismatch" errorCode="025" xml:space="preserve">
+    <value>Domeniul abonamentului a fost selectat, dar grupurile de gestionare au fost transmise. Introduceți doar abonamentele.</value>
+  </data>
+  <data name="ScopeManagementGroupMismatch" errorCode="026" xml:space="preserve">
+    <value>Domeniul de aplicare al grupurilor de gestionare a fost selectat, dar abonamentele au fost transmise. Introduceți doar grupurile de gestionare.</value>
+  </data>
+</root>

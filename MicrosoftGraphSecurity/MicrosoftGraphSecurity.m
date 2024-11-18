@@ -1,4 +1,4 @@
-﻿[Version="1.0.0"]				 
+﻿[Version="1.0.2"]
 section MicrosoftGraphSecurity;
 
 client_id = Text.FromBinary(Extension.Contents("client_id"));
@@ -46,7 +46,7 @@ NavTable = #table(
         { "beta", "Secure score control profiles", "secureScoreControlProfiles", "Table", "Table", true }
     });
 
-[DataSource.Kind="MicrosoftGraphSecurity", Publish="MicrosoftGraphSecurity.UI"]
+[DataSource.Kind="MicrosoftGraphSecurity"]
 shared MicrosoftGraphSecurity.Contents = Value.ReplaceType(MicrosoftGraphSecurityImpl, MicrosoftGraphSecurityType);
 
 MicrosoftGraphSecurityImpl = (version as text, optional options as record) as table =>

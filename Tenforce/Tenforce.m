@@ -1,12 +1,12 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.3"]
+[Version = "1.0.4"]
 section Tenforce;
 
 // DEFINITION
 EnableTraceOutput = false;
 
 [DataSource.Kind="Tenforce", Publish="Tenforce.Publish"]
-shared Tenforce.Contents = Value.ReplaceType(TenforceConnector.NavTable, SelectionData.Parameters);
+shared Tenforce.Contents = Value.ReplaceType(Tenforce.NavTable, SelectionData.Parameters);
 
 // Data Source Kind description
 Tenforce = [
@@ -34,14 +34,14 @@ Tenforce.Publish = [
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = Extension.LoadString("TenforceUrl"),
-    SourceImage = TenforceConnector.Icons,
-    SourceTypeImage = TenforceConnector.Icons
+    SourceImage = Tenforce.Icons,
+    SourceTypeImage = Tenforce.Icons
 ];
 
 // References to icons that will be used when displaying connector
-TenforceConnector.Icons = [
-    Icon16 = { Extension.Contents("TenforceConnector16.png"), Extension.Contents("TenforceConnector20.png"), Extension.Contents("TenforceConnector24.png"), Extension.Contents("TenforceConnector32.png") },
-    Icon32 = { Extension.Contents("TenforceConnector32.png"), Extension.Contents("TenforceConnector40.png"), Extension.Contents("TenforceConnector48.png"), Extension.Contents("TenforceConnector64.png") }
+Tenforce.Icons = [
+    Icon16 = { Extension.Contents("Tenforce16.png"), Extension.Contents("Tenforce20.png"), Extension.Contents("Tenforce24.png"), Extension.Contents("Tenforce32.png") },
+    Icon32 = { Extension.Contents("Tenforce32.png"), Extension.Contents("Tenforce40.png"), Extension.Contents("Tenforce48.png"), Extension.Contents("Tenforce64.png") }
 ];
 
 // IMPLEMENTATION
@@ -75,24 +75,24 @@ SelectionData.Parameters = type function (
     ];
 
 
-TenforceConnector.NavTable = (ApplicationUrl as text, ListId as text, DataType as text) as table =>
+Tenforce.NavTable = (ApplicationUrl as text, ListId as text, DataType as text) as table =>
     let
-        Items = Table.Buffer(TenforceConnector.ItemsTable(ApplicationUrl, ListId, DataType)),
+        Items = Table.Buffer(Tenforce.ItemsTable(ApplicationUrl, ListId, DataType)),
 
         source = #table(
             {"Name"         , "Data"                                    , "ItemKind", "ItemName", "IsLeaf"}, {
-            {Extension.LoadString("Items")       , TenforceConnector.ItemsNavTable(Items)    , "Folder"  , "Table"   , false   },
-            {Extension.LoadString("Relationships"), TenforceConnector.RelationsNavTable(Items), "Folder"  , "Table"   , false   }
+            {Extension.LoadString("Items")       , Tenforce.ItemsNavTable(Items)    , "Folder"  , "Table"   , false   },
+            {Extension.LoadString("Relationships"), Tenforce.RelationsNavTable(Items), "Folder"  , "Table"   , false   }
         }),
         navTable = Table.ToNavigationTable(source, {"Name"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
     in
         navTable;
 
-TenforceConnector.ItemsNavTable = (Items as table) =>
+Tenforce.ItemsNavTable = (Items as table) =>
     let
         items = Table.RemoveColumns(Items, {"ParentId", "ItemRelations"}), // The fields "ParentId" and "ItemRelations" are only used to create the different kind of relation tables
-        ExtractedItems = TenforceConnector.ItemsTableExtracted(items),     // Multi-value fields are comma-separated extracted
-        multiValueFields = TenforceConnector.MultiValueFields(Items),      // Multi-value fields are expanded
+        ExtractedItems = Tenforce.ItemsTableExtracted(items),     // Multi-value fields are comma-separated extracted
+        multiValueFields = Tenforce.MultiValueFields(Items),      // Multi-value fields are expanded
 
         source = #table(
             {"Name"            , "Data"          , "ItemKind", "ItemName", "IsLeaf"}, {
@@ -103,10 +103,10 @@ TenforceConnector.ItemsNavTable = (Items as table) =>
     in
         navTable;
 
-TenforceConnector.RelationsNavTable = (Items as table) =>
+Tenforce.RelationsNavTable = (Items as table) =>
     let
-        Hierarchy = TenforceConnector.HierarchyTable(Items),
-        ItemRelations = TenforceConnector.ItemRelationsTable(Items),
+        Hierarchy = Tenforce.HierarchyTable(Items),
+        ItemRelations = Tenforce.ItemRelationsTable(Items),
 
         source = #table(
             {"Name"         , "Data"              , "ItemKind", "ItemName", "IsLeaf"}, {
@@ -118,7 +118,7 @@ TenforceConnector.RelationsNavTable = (Items as table) =>
         navTable;
 
 // Table with all data received from request (items, schema, ..)
-TenforceConnector.Data = (ApplicationUrl as text, ListId as text, DataType as text) => 
+Tenforce.Data = (ApplicationUrl as text, ListId as text, DataType as text) => 
     let
         _url = Diagnostics.LogValue("Accessing url:", SelectionData.GetUrlData(ApplicationUrl, ListId, DataType)),
         source = Web.Contents(_url, [Headers = DefaultRequestHeaders, Timeout=#duration(0,0,30,0)]),
@@ -127,13 +127,13 @@ TenforceConnector.Data = (ApplicationUrl as text, ListId as text, DataType as te
         json;
 
 // Data set: All Items transformed in a flat table
-TenforceConnector.ItemsTable = (ApplicationUrl as text, ListId as text, DataType as text) as table => 
+Tenforce.ItemsTable = (ApplicationUrl as text, ListId as text, DataType as text) as table => 
     let
-        #"Raw data" = TenforceConnector.Data(ApplicationUrl, ListId, DataType),
+        #"Raw data" = Tenforce.Data(ApplicationUrl, ListId, DataType),
         #"List of item records" = #"Raw data"[Items],
         #"Table of item records" = Table.FromList(#"List of item records", Splitter.SplitByNothing(), {"Records"}, null, ExtraValues.Error),
 
-        SchemaAsTable = TenforceConnector.SchemaAsTable(#"Raw data"),
+        SchemaAsTable = Tenforce.SchemaAsTable(#"Raw data"),
         
         Items =
             if (SchemaAsTable = null) then
@@ -151,19 +151,19 @@ TenforceConnector.ItemsTable = (ApplicationUrl as text, ListId as text, DataType
     in
         #"Rename columns Items";
 
-TenforceConnector.SchemaAsTable = (jsonData as any) as table =>
+Tenforce.SchemaAsTable = (jsonData as any) as table =>
     let
         #"Selected Schema" = jsonData[Schema],
         #"Converted to Table1" = Record.ToTable(#"Selected Schema"),
         #"Renamed Columns" = Table.RenameColumns(#"Converted to Table1",{{"Name", "Column name"}, {"Value", "Column type"}}),
         #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"Column type", type text}}),
-        #"map Power BI types onto Tenforce types" = Table.Join(#"Changed Type", "Column type",TypeMappingTable, "Tenforce field type" ,JoinKind.LeftOuter),
-        Schema = Table.SelectColumns(#"map Power BI types onto Tenforce types",{"Column name", "Power Bi column type"})
+        #"map Power BI types onto Tenforce types" = Table.Join(#"Changed Type", "Column type", TypeMappingTable, "Tenforce field type" ,JoinKind.LeftOuter),
+        Schema = Table.SelectColumns(#"map Power BI types onto Tenforce types", {"Column name", "Power Bi column type"})
     in
         Schema;
 
 // Table with all the possible hierarchical relations between an item and its descendants and ancestors
-TenforceConnector.HierarchyTable = (Items as table) as table =>
+Tenforce.HierarchyTable = (Items as table) as table =>
     let
         InitialParentChild = Table.Buffer(
                                 Table.RenameColumns(
@@ -206,9 +206,9 @@ TenforceConnector.HierarchyTable = (Items as table) as table =>
         Relations;
 
 // Table with all the possible item relations between items 
-TenforceConnector.ItemRelationsTable = (Items as table) as table =>
+Tenforce.ItemRelationsTable = (Items as table) as table =>
     let
-        data = Table.SelectColumns(Items,{"ItemId", "ItemRelations"}),
+        data = Table.SelectColumns(Items, {"ItemId", "ItemRelations"}),
         #"Expanded Item relations0" = Table.ExpandListColumn(data, "ItemRelations"),
         #"Remove items without item relations" = Table.RemoveMatchingRows(
                                                     #"Expanded Item relations0",
@@ -223,7 +223,7 @@ TenforceConnector.ItemRelationsTable = (Items as table) as table =>
         #"Changed Type";
 
 // Table with expanded values of multi-value fields
-TenforceConnector.MultiValueFields = (Items as table) as table =>
+Tenforce.MultiValueFields = (Items as table) as table =>
     let
         TableSchema = Table.Schema(Items),
         #"Multi-value fields" = Table.Column(
@@ -231,19 +231,20 @@ TenforceConnector.MultiValueFields = (Items as table) as table =>
                                    "Name"
                                 ),
         #"items with only fields of type list" = Table.SelectColumns(Items, List.InsertRange(#"Multi-value fields", 0, {"ItemId"})),
-        #"Multi-value fields expanded" = List.Accumulate(#"Multi-value fields", #"items with only fields of type list", (Table, Field) => Table.ExpandListColumn(Table, Field))
+
+        #"Multi-value fields expanded" = List.Accumulate(#"Multi-value fields", #"items with only fields of type list", (Table, Field) => SelectionData.ExpandMultiValue(Table, Field))
     in
         #"Multi-value fields expanded";
 
 // Data set: All Items transformed in a flat table AND their multi-value fields extracted (comma separated)
-TenforceConnector.ItemsTableExtracted = (Items as table) as table => 
+Tenforce.ItemsTableExtracted = (Items as table) as table => 
     let
         Schema = Table.Schema(Items),
         #"Multi-value fields" = Table.Column(
                                    Table.SelectRows(Schema, each [Kind] = "list"),
                                    "Name"
                                 ),
-        result = List.Accumulate(#"Multi-value fields", Items, (Table, Field) => Table.TransformColumns(Table, {Field, each Text.Combine(List.Transform(_, Text.From), ","), type text}))
+        result = List.Accumulate(#"Multi-value fields", Items, (Table, Field) => Table.TransformColumns(Table, {Field, each Text.Combine(List.Transform(_, each SelectionData.TransformMultiValue(_)[Value]), ","), type text}))
     in
         result;
 
@@ -255,7 +256,8 @@ SelectionData.GetUrlData = (ApplicationUrl as text, ListId as text, loadType as 
         url = ApplicationUrl & 
         "connectapi/powerbi/serializewithschema?" &
         "selection=" & ListId & 
-        "&full=" & SelectionData.SetLoadtype(loadType)
+        "&full=" & SelectionData.SetLoadtype(loadType) &
+        "&extraColumn=true"
     in 
         url;
 
@@ -276,6 +278,35 @@ Schema.SchemaToTableType = (schema as table) as type =>
         toType = Type.ForRecord(toRecord, false)
     in
         type table (toType);
+
+// Expands multivalue column into two if it contains records with picker ids
+SelectionData.ExpandMultiValue = (Items as table, column as text) as table =>
+    let
+        extendedColumn = column & ".ItemId",
+        expanded = Table.ExpandListColumn(Items, column),
+        schema = Table.Schema(expanded),
+        columnType = Table.SelectRows(schema, each [Name] = column)[Kind]{0},
+        transformed = Table.TransformColumns(expanded, { column, SelectionData.TransformMultiValue }),
+        transformedRecords = Table.ExpandRecordColumn(transformed, column, {"Value", "Key"}, {column, extendedColumn}),
+        transformedColumns = Table.TransformColumnTypes(transformedRecords, {{column, type text}, {extendedColumn, Int64.Type}}),
+        result = if (columnType <> "record")
+                    then
+                        Table.RemoveColumns(transformedColumns, extendedColumn)
+                    else
+                        transformedColumns
+    in
+        result;
+
+// Make record from any value (string or null)
+SelectionData.TransformMultiValue = (value as any) as record => 
+    let
+        result = if Value.Is( value, type record ) 
+                    then value 
+                    else if value = null 
+                        then [Key = null, Value = value] 
+                        else [Key = -1, Value = value]
+    in
+        result;
 
 // LOAD COMMON LIBRARY FUNCTIONS
 // TEMPORARY WORKAROUND until it's able to reference other M modules

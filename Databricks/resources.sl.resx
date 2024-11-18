@@ -1,0 +1,257 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdvancedOptionsLabel" xml:space="preserve">
+    <value>Dodatne možnosti</value>
+  </data>
+  <data name="AzureActiveDirectoryLabel" xml:space="preserve">
+    <value>Azure Active Directory</value>
+  </data>
+  <data name="BatchSizeHelp" xml:space="preserve">
+    <value>Velikost paketa, uporabljena za pridobivanje, kot največje število vrstic</value>
+  </data>
+  <data name="BatchSizeLabel" xml:space="preserve">
+    <value>Velikost paketa (vrstice)</value>
+  </data>
+  <data name="ButtonHelp" xml:space="preserve">
+    <value>Uvozite podatke iz Azure Databricks</value>
+  </data>
+  <data name="ButtonTitle" xml:space="preserve">
+    <value>Azure Databricks</value>
+  </data>
+  <data name="MultiCloudButtonHelp" xml:space="preserve">
+    <value>Uvozite podatke iz Databricks</value>
+  </data>
+  <data name="MultiCloudButtonTitle" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="CatalogHelp" xml:space="preserve">
+    <value>Izberite privzeti katalog za povezavo.</value>
+  </data>
+  <data name="CatalogLabel" xml:space="preserve">
+    <value>Privzeti katalog</value>
+  </data>
+  <data name="DatabaseHelp" xml:space="preserve">
+    <value>Omejite povezavo z izbrano zbirko podatkov. Seznam tabel bo morda hitrejši, vendar pa boste s tem preprečili pregibanje poizvedb za poizvedbe, ki so naletele na več različnih zbirk podatkov.</value>
+  </data>
+  <data name="DatabaseLabel" xml:space="preserve">
+    <value>Zbirka podatkov</value>
+  </data>
+  <data name="DataSourceLabel" xml:space="preserve">
+    <value>Azure Databricks</value>
+  </data>
+  <data name="DataSourceName" xml:space="preserve">
+    <value>Azure Databricks</value>
+  </data>
+  <data name="MultiCloudDataSourceLabel" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="MultiCloudDataSourceName" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="EnableAutomaticProxyDiscoveryFlagsHelp" xml:space="preserve">
+    <value>S tem omogočite samodejno odkrivanje strežnika proxy v celotnem sistemu Windows.</value>
+  </data>
+  <data name="EnableAutomaticProxyDiscoveryFlagsLabel" xml:space="preserve">
+    <value>Samodejno odkrivanje strežnika proxy</value>
+  </data>
+  <data name="ErrorAadInvalidDomain" xml:space="preserve">
+    <value>AAD ni podprt za domeno: #{0}.</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorAadInvalidLocation" xml:space="preserve">
+    <value>Nepričakovana končna točka pooblastila, prejeta s strežnika</value>
+  </data>
+  <data name="ErrorAadRedirectFailed" xml:space="preserve">
+    <value>Končne točke pooblastila za organizacijo ni bilo mogoče pridobiti.</value>
+  </data>
+  <data name="ErrorAdvancedOptionValue" xml:space="preserve">
+    <value>Neveljavna vrednost »#{0}« za polje #{1}.</value>
+    <comment>#{0}: Field value, #{1}: Field name</comment>
+  </data>
+  <data name="ErrorExpectedSqlString" xml:space="preserve">
+    <value>Pričakovana SQL poizvedba, vendar je bila vrednost »null« ali prazna.</value>
+  </data>
+  <data name="ErrorInvalidHost" xml:space="preserve">
+    <value>Gostitelj ni veljavno ime domene: #{0}</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorMultiCloudOAuthOnAzureNotSupported" xml:space="preserve">
+    <value>Gostitelj je v Azure. Za končne točke Azure uporabite vir podatkov »Azure Databricks«: #{0}</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorInvalidHttpPath" xml:space="preserve">
+    <value>Neveljavna pot HTTP: #{0}.</value>
+    <comment>#{0}: HTTP Path</comment>
+  </data>
+  <data name="ErrorMissingClientLibrary" xml:space="preserve">
+    <value>Gonilnik Databricks ODBC ni nameščen v gostitelju. Namestite ustrezen gonilnik.</value>
+  </data>
+  <data name="ErrorOdbcAccessDenied" xml:space="preserve">
+    <value>Povezava ODBC ni uspela z vnesenimi poverilnicami. Poskusite znova z drugačnimi poverilnicami ali drugim mehanizmom za preverjanje pristnosti.</value>
+  </data>
+  <data name="ErrorOdbcCouldNotConnect" xml:space="preserve">
+    <value>Povezave s strežnikom ni bilo mogoče vzpostaviti. Znova preverite konfiguracijo ODBC. </value>
+  </data>
+  <data name="AutomaticProxyDiscoveryFlagDisabledLabel" xml:space="preserve">
+    <value>Onemogočeno (privzeto)</value>
+  </data>
+  <data name="AutomaticProxyDiscoveryFlagEnabledLabel" xml:space="preserve">
+    <value>Omogočeno</value>
+  </data>
+  <data name="HttpPathHelp" xml:space="preserve">
+    <value>Pot HTTP gruče.</value>
+  </data>
+  <data name="HttpPathLabel" xml:space="preserve">
+    <value>Pot HTTP</value>
+  </data>
+  <data name="PersonalAccessTokenLabel" xml:space="preserve">
+    <value>Osebni žeton za dostop</value>
+  </data>
+  <data name="OIDCLabel" xml:space="preserve">
+    <value>OAuth (OIDC)</value>
+  </data>
+  <data name="QueryDataSourceDescription" xml:space="preserve">
+    <value>Določite vir podatkov Databricks za izvajanje SQL poizvedb</value>
+  </data>
+  <data name="QueryDataSourceInstanceDescription" xml:space="preserve">
+    <value>Zaženite poizvedbo SQL na Databricks in pridobite rezultate</value>
+  </data>
+  <data name="QueryDataSourceInstanceName" xml:space="preserve">
+    <value>Poizvedba SQL Databricks</value>
+  </data>
+  <data name="QueryDataSourceName" xml:space="preserve">
+    <value>Vir poizvedbe SQL Databricks</value>
+  </data>
+  <data name="ServerHostNameHelp" xml:space="preserve">
+    <value>Ime gostitelja strežnika Databricks.</value>
+  </data>
+  <data name="ServerHostNameLabel" xml:space="preserve">
+    <value>Ime gostitelja strežnika</value>
+  </data>
+  <data name="SqlQueryHelp" xml:space="preserve">
+    <value>Vnesite poizvedbo SQL, ki jo želite zagnati v Databricks</value>
+  </data>
+  <data name="SqlQueryLabel" xml:space="preserve">
+    <value>Poizvedba SQL</value>
+  </data>
+  <data name="UsernamePasswordLabel" xml:space="preserve">
+    <value>Uporabniško ime/geslo</value>
+  </data>
+</root>

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Avancerede indstillinger</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Aggregerede data</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Datakornethed</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Vælg data på rækkeniveau for at indlæse rå forespørgselsresultater eller aggregerede data for at sende forespørgsler til databasen og hente aggregerede resultater. Du får de bedste resultater ved kun at vælge data på rækkeniveau, hvis du vælger tilstanden Importér dataforbindelse.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Data på rækkeniveau</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Organisationskonto</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Opret forbindelse til Workplace Analytics-data</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Opret forbindelse til Viva Insights-data</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Onlinetjenester</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Tabelnavn</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Opret forbindelse til Workplace Analytics-data</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Hvis forespørgslen Avanceret indsigt udskriver mere end én tabel, skal du angive, hvilken tabel der skal oprettes forbindelse til.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data ("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Opret forbindelse til Viva Insights-data</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Aggregeret datakornethed understøttes i øjeblikket ikke, når der oprettes forbindelse til forespørgselsresultater ved at angive et forespørgselsnavn eller id. Vælg datakornethed på rækkeniveau for at oprette forbindelse til forespørgselsresultater.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Datakornethed på rækkeniveau understøttes i øjeblikket kun, når der oprettes forbindelse til forespørgselsresultater. Vælg aggregeret datakornethed for at oprette forbindelse til et generelt sæt personmålepunkter eller angive et forespørgselsnavn eller id.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Uventet format eller værdi for WWW-Authenticate-overskriften under godkendelse.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Uventet svar fra server under godkendelse.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Datakornethed på rækkeniveau understøttes ikke for denne datakilde. Vælg aggregeret datakornethed i stedet.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Returnerer en tabel med synlige attributter og pr. uge-målepunkter for hver målt medarbejder i partitionen.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identifikator for forespørgsel</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Forespørgsels-id'er</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Find dette i arbejdspladsanalysen ved at åbne dine forespørgselsresultater, kopiere det ønskede forespørgselslink og udtrække det sidste 32-cifrede ID (GUID), der vises i URL-adressen.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>I appen Avanceret indsigt skal du gå til Analyse &gt; Forespørgselsresultater, finde din forespørgsel og vælge Link for at hente forespørgsels-id'et.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Forespørgselsnavn</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Angiv forespørgselsnavnet nøjagtigt som det findes under fanen Resultater for arbejdspladsanalyseforespørgsel</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Angiv forespørgselsnavnet, som det findes på siden Analyse &gt; Forespørgselsresultater i appen Avanceret indsigt.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Importér ugentlige målepunkter og attributdata fra Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contosos personmålepunkter</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Skematype</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Vælg pivoteret for at indlæse organisationsattributter som individuelle kolonner eller fjern pivotering for at indlæse organisationsattributter som nøgleværdipar, f.eks. Attributnavn = Organisation, Attributværdi = Økonomi.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Pivoteret</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Pivotering fjernet</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Identifikator til partition</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Find dette i arbejdsområdeanalysen ved at åbne din brugerprofil og vælge Mine oplysninger</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>I appen Avanceret indsigt skal du gå til Analyse &gt; Forespørgselsresultater, finde din forespørgsel og vælge Link for at hente partitions-id'et.</value>
   </data>
 </root>

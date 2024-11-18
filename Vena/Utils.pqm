@@ -1,20 +1,27 @@
 ﻿let
-	
-	User.FetchModels = (url as text, VenaBasic as text) =>
-	let
-		modelsResponse = Generic.Fetch(url, "", VenaBasic)
-	in
-		Response.Handle(modelsResponse, Json.Document, Text.FromBinary),
+    // Figure out if power bi is enabled
+    Customer.GetEnabled = (url as text, VenaBasic as text) =>
+    let
+        enabledResponse = Generic.Fetch(url, "", VenaBasic)
+    in
+        Response.Handle(enabledResponse, (binary) => Logical.From(Text.FromBinary(binary)), Text.FromBinary),
+    
+    // Fetch all the models that a user has access to
+    User.FetchModels = (url as text, VenaBasic as text) =>
+    let
+        modelsResponse = Generic.Fetch(url, "", VenaBasic)
+    in
+        Response.Handle(modelsResponse, Json.Document, Text.FromBinary),
 
-
+    // Fetch all the dimensions belonging to the model in the url
     Model.Dimensions = (url as text, VenaBasic as text) =>
     let
-        requestUrl = url & "/dimensions?includeMembers=false",
+        requestUrl = url & "/dimensions?incMembers=false",
         modelResponse = Generic.Fetch(requestUrl, "", VenaBasic)
     in
-		Response.Handle(modelResponse, Json.Document, Text.FromBinary),
-    
-
+        Response.Handle(modelResponse, Json.Document, Text.FromBinary),
+        
+    // Generic method for making API calls
     Generic.Fetch = (url as text, content as text, VenaBasic as text) => 
     let
         requestBody = [
@@ -25,31 +32,37 @@
             ]
         ],
 
+        // If content is null it means we want to make an empty POST request
+        // If content is "" then we want to make do a GET request
+        // Otherwise it makes a POST request with the provided content
         response = Web.Contents(url,
                         if content = null then
                             Record.AddField(requestBody, "Content", Text.ToBinary(""))
-						else if content <> "" then
-							Record.AddField(requestBody, "Content", Text.ToBinary(content))
+                        else if content <> "" then
+                            Record.AddField(requestBody, "Content", Text.ToBinary(content))
                         else
-							requestBody
+                            requestBody
                    )
     in
         response,
 
-	Response.Handle = (response, success, failure) =>
-	let
-		responseMetadata = Value.Metadata(response),
+    // Handles a response using the given success and failure methods
+    Response.Handle = (response, success, failure) =>
+    let
+        responseMetadata = Value.Metadata(response),
         responseCode = responseMetadata[Response.Status], 
 
-		json = if responseCode < 300 then 
+        json = if responseCode < 300 then 
             success(response)
-        else 
-            failure(response)			
-	in
-		json,
-                                                                
-
-    Hierarchy.Fetch = (url as text, dimensionNumber as text, VenaBasic as text, optional modelQuery as text) =>  
+        else if responseCode = 401 then
+            error "#(lf)Invalid application token provided. Ensure the application token is valid and enabled and that the Source Region is correct.#(lf)#(lf)You may need to clear the stored data source permissions to re-enter a new application token."
+        else
+            failure(response)            
+    in
+        json,
+                           
+    // Fetch the formatted hierarchy for the given dimension
+    Hierarchy.Fetch = (url as text, dimensionNumber as text, VenaBasic as text, pbic_version as text, optional apiVersion as text, optional modelQuery as text) =>  
     let                                      
         hierarchyBodyRecord = [
             dimensionNumber = dimensionNumber,
@@ -65,46 +78,51 @@
                                                         
         hierarchyBody = Text.FromBinary(Json.FromValue(hierarchyBodyWithQuery)),
 
-        hierarchyWebUrl = url & "/etl/query/hierarchy_table",
+        hierarchyTableVersion = if Value.Equals(apiVersion, "v1") or Value.Equals(apiVersion, "")  then
+                                    "hierarchy_table"
+                                else
+                                    "hierarchy_table_" & apiVersion,
+
+        hierarchyWebUrl = url & "/etl/query/" & hierarchyTableVersion & "?pbic_ver=" & pbic_version,
         hierarchyResponse = Generic.Fetch(hierarchyWebUrl, hierarchyBody, VenaBasic)
     in
         Response.Handle(hierarchyResponse, Hierarchy.Buffer, Text.FromBinary),
 
-                             
+    // Buffer all successful hierarchy responses                 
     Hierarchy.Buffer = (binary) => 
     let
         buffered = Csv.Document(Binary.Buffer(binary))
     in
         buffered,
 
+    // Create tables for each dimension hierarchy in the model
+    Hierarchies.CreateTablesForModel = (modelUrl as text, VenaBasic as text, pbic_version as text, optional apiVersion as text, optional modelQuery as text) =>
+    let         
+        dimensionRecord = Model.Dimensions(modelUrl, VenaBasic),
 
-	Hierarchies.CreateTablesForModel = (modelUrl as text, VenaBasic as text, optional modelQuery as text) =>
-	let         
-		dimensionRecord = Model.Dimensions(modelUrl, VenaBasic),
+        hierarchyList = 
+        try
+            List.Transform(dimensionRecord,     
+                each let
+                        number = Number.ToText(_[number]),    
+                        name = _[name],
+                        response = Hierarchy.Fetch(modelUrl, number, VenaBasic, pbic_version, apiVersion, modelQuery),
+                        Table = let
+                                    Promoted = Table.PromoteHeaders(response),
+                                    TextTransformationList = List.Transform(Table.ColumnNames(Promoted), each {_, type text}),
+                                    TextTypeTransformation = Table.TransformColumnTypes(Promoted, TextTransformationList)
+                                in
+                                    TextTypeTransformation
+                    in
+                        {name, number & modelUrl, Table, "Table", "Table", true}
+            )
+        otherwise
+            {{"Fetch Dimension Error", "Fetch Dimension Error", Table.FromValue(dimensionRecord), "Table", "Table", true}}
+    in
+        hierarchyList,
 
-		hierarchyList = 
-		try
-			List.Transform(dimensionRecord,     
-				each let
-						number = Number.ToText(_[number]),    
-						name = _[name],
-						response = Hierarchy.Fetch(modelUrl, number, VenaBasic, modelQuery),
-						Table = let
-									Promoted = Table.PromoteHeaders(response),
-									TextTransformationList = List.Transform(Table.ColumnNames(Promoted), each {_, type text}),
-									TextTypeTransformation = Table.TransformColumnTypes(Promoted, TextTransformationList)
-								in
-									TextTypeTransformation
-					in
-						{name, number & modelUrl, Table, "Table", "Table", true}
-			)
-		otherwise
-			{{"Fetch Dimension Error", "Fetch Dimension Error", Table.FromValue(dimensionRecord), "Table", "Table", true}}
-	in
-		hierarchyList,
-
-            
-    Values.Fetch = (url as text, VenaBasic as text, optional modelQuery as text) => 
+    // Fetch the formatted values for the given model    
+    Values.Fetch = (url as text, VenaBasic as text, pbic_version as text, optional modelQuery as text) => 
     let 
         valuesBodyRecord = [
             destination = "ToCSV",
@@ -121,30 +139,32 @@
                                                          
         valuesBody = Text.FromBinary(Json.FromValue(valuesBodyWithQuery)),
                                                         
-        valuesWebUrl = url & "/etl/query/intersections2",
+        valuesWebUrl = url & "/etl/query/intersections2?pbic_ver=" & pbic_version,
         valuesResponse = Generic.Fetch(valuesWebUrl, valuesBody, VenaBasic)
     in
         Response.Handle(valuesResponse, Csv.Document, Text.FromBinary),
 
-	Values.CreateTableForModel = (modelUrl as text, VenaBasic as text, optional modelQuery as text) =>
-	let
-		response = Values.Fetch(modelUrl, VenaBasic, modelQuery),
-		Table = try
-					let
-						Promoted = Table.PromoteHeaders(response),
-						changedNames = Table.TransformColumnNames(Promoted, Column.ValidateName),//Changes "value" to "[Values]"
-						TextTransformationList = List.Transform(Table.ColumnNames(changedNames), each {_, type text}),
-						TextTypeTransformation = Table.TransformColumnTypes(changedNames, TextTransformationList),
-						NumbersTransformed = (Table.TransformColumns(TextTypeTransformation, {"[Values]", Number.FromStable})),
-						NumberTypedColumn = Table.TransformColumnTypes(NumbersTransformed, {"[Values]", type number})
-					in
-						NumberTypedColumn
-				otherwise
-					Table.FromValue(response)
-	in
-		{"values", "values" & modelUrl, Table, "Table", "Table", true},
+    // Create a table for the models values
+    Values.CreateTableForModel = (modelUrl as text, VenaBasic as text, pbic_version as text, optional modelQuery as text) =>
+    let
+        response = Values.Fetch(modelUrl, VenaBasic, pbic_version, modelQuery),
+        Table = try
+                    let
+                        Promoted = Table.PromoteHeaders(response),
+                        changedNames = Table.TransformColumnNames(Promoted, Column.ValidateName),//Changes "value" to "[Values]"
+                        TextTransformationList = List.Transform(Table.ColumnNames(changedNames), each {_, type text}),
+                        TextTypeTransformation = Table.TransformColumnTypes(changedNames, TextTransformationList),
+                        NumbersTransformed = (Table.TransformColumns(TextTypeTransformation, {"[Values]", Number.FromStable})),
+                        NumberTypedColumn = Table.TransformColumnTypes(NumbersTransformed, {"[Values]", type number})
+                    in
+                        NumberTypedColumn
+                otherwise
+                    Table.FromValue(response)
+    in
+        {"values", "values" & modelUrl, Table, "Table", "Table", true},
 
-
+    // This creates a specially formatted table that Power BI will render to the user.
+    // See https://github.com/microsoft/DataConnectors/blob/master/docs/nav-tables.md for more info
     Table.ToNavigationTable = (rows as list) as table =>
     let
         keyColumns = {"Key"},
@@ -167,14 +187,18 @@
     in
         navigationTable,
     
-    
+    // Used to transform any value into its number representation,
+    // or 0 if it cannot be transformed
     Number.FromStable = (var as any) =>
     let
-        number = try Number.From(var) otherwise 0
+        // The backend sends numbers in a "en-US" compatible format and we need to make sure that the local region settings don't affect this check.
+        // see this link for a list of cultures https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c?redirectedfrom=MSDN
+        defaultCulture = "en-US",
+        number = try Number.From(var, defaultCulture) otherwise 0
     in
         number,
 
-
+    // Special case the value column because some people have dimensions named "value"
     Column.ValidateName = (name as text) =>
     let
         ret = if name = "value" then
@@ -184,25 +208,27 @@
     in
         ret,
 
-
-	Validate = (modelUrl as text, VenaBasic as text, modelQuery as text) =>
-	let
-		response = Generic.Fetch(modelUrl & "/mql/validate", modelQuery, VenaBasic),
-		handled = Response.Handle(response, 
-								  (x) => {},	  //Eat the response and return an empty list
-								  Text.FromBinary //Cast the error message from binary
-				  )
-	in
-		if Value.Is(handled, Text.Type) then
-			handled		//Provided MQL is invalid, display the reason
-		else
-			"valid"		//Provided MQL is valid for the model		
+    // Validate the provided modelQuery text
+    Validate = (modelUrl as text, VenaBasic as text, modelQuery as text) =>
+    let
+        response = Generic.Fetch(modelUrl & "/mql/validate", modelQuery, VenaBasic),
+        handled = Response.Handle(response, 
+                                  (x) => {},      // Success: Eat the response and return an empty list
+                                  Text.FromBinary // Failure: Cast the error message from binary to text
+                  )
+    in
+        if Value.Is(handled, Text.Type) then
+            handled        // Provided MQL is invalid, display the reason
+        else
+            "valid"        // Provided MQL is valid for the model        
 
 in
+    // Return an object containing helper methods
     [
         Hierarchies.CreateTablesForModel = Hierarchies.CreateTablesForModel,
-		Values.CreateTableForModel = Values.CreateTableForModel,
+        Values.CreateTableForModel = Values.CreateTableForModel,
         Table.ToNavigationTable = Table.ToNavigationTable,
-		User.FetchModels = User.FetchModels,
-		Validate = Validate
+        Customer.GetEnabled = Customer.GetEnabled,
+        User.FetchModels = User.FetchModels,
+        Validate = Validate
     ]

@@ -1,0 +1,224 @@
+﻿let
+    CommonHelpers.JsonHeaders = [
+        Accept = "application/json",
+        #"Content-Type" = "application/json"
+    ],
+    CommonHelpers.DataTypes = {
+        Logical.Type,
+        //   1  boolean
+        Guid.Type,
+        //   2  guid
+        Any.Type,
+        //   3  ?
+        Byte.Type,
+        //   4  byte
+        Number.Type,
+        //   5  short
+        Number.Type,
+        //   6  int
+        Number.Type,
+        //   7  long
+        Number.Type,
+        //   8  real
+        Number.Type,
+        //   9  float
+        Character.Type,
+        //  10  char
+        Text.Type,
+        //  11  symbol
+        DateTime.Type,
+        //  12  timestamp
+        Date.Type,
+        //  13  month
+        Date.Type,
+        //  14  date
+        DateTime.Type,
+        //  15  datetime
+        Duration.Type,
+        //  16  timespan
+        Time.Type,
+        //  17  minute
+        Time.Type,
+        //  18  second
+        Time.Type
+        //  19  time
+    },
+    // https://learn.microsoft.com/en-us/power-query/helper-functions#tabletonavigationtable
+    CommonHelpers.ToNavigationTable = (
+        table as table,
+        keyColumns as list,
+        nameColumn as text,
+        dataColumn as text,
+        itemKindColumn as text,
+        itemNameColumn as text,
+        isLeafColumn as text
+    ) as table =>
+        let
+            tableType = Value.Type(table),
+            newTableType = Type.AddTableKey(tableType, keyColumns, true) meta [
+                NavigationTable.NameColumn = nameColumn,
+                NavigationTable.DataColumn = dataColumn,
+                NavigationTable.ItemKindColumn = itemKindColumn,
+                Preview.DelayColumn = itemNameColumn,
+                NavigationTable.IsLeafColumn = isLeafColumn
+            ],
+            navigationTable = Value.ReplaceType(table, newTableType)
+        in
+            navigationTable,
+    // PowerBI Rest API project
+    CommonHelpers.ForceToNavigationTable = (
+        table as table,
+        keyColumns as list,
+        nameColumn as text,
+        dataColumn as text,
+        itemKindColumn as text,
+        itemNameColumn as text,
+        isLeafColumn as text
+    ) as table =>
+        let
+            tableType = Value.Type(table),
+            newTableType = Type.AddTableKey(tableType, keyColumns, true) meta [
+                NavigationTable.NameColumn = nameColumn,
+                NavigationTable.DataColumn = dataColumn,
+                NavigationTable.ItemKindColumn = itemKindColumn,
+                NavigationTable.IsLeafColumn = isLeafColumn
+            ],
+            navigationTable = Value.ReplaceType(table, newTableType)
+        in
+            navigationTable,
+    // https://learn.microsoft.com/en-us/power-query/helper-functions#valuewaitfor
+    // Adapted code to return record
+    // Producer is expected to return [status=..., response=....]
+    CommonHelpers.Value.WaitFor = (producer as function, delay as function, optional count as number) as record =>
+        let
+            list = List.Generate(
+                () => {0, [response = null, status = 200]},
+                (state) => state{0} <> null and (count = null or state{0} < (count + 1)),
+                //first row is {0, [null and status 200]} and doesn't invoke the producer.
+                (state) =>
+                    if state{0} > 0 and state{1}[status] = 200
+                    // check if we want to retry based on status code or invoke the producer on first iteration
+                    then
+                        {null, state{1}}
+                    else
+                        {1 + state{0}, Function.InvokeAfter(() => producer(state{0}), delay(state{0}))},
+                (state) => state{1}
+            ),
+            result = List.Last(list)[response]
+        in
+            result,
+    // https://learn.microsoft.com/en-us/power-query/helper-functions#tablechangetype
+    CommonHelpers.Schema.ToTableType = (schema as table) as type =>
+        let
+            toList = List.Transform(schema[Type], (t) => [Type = t, Optional = false]),
+            toRecord = Record.FromList(toList, schema[Name]),
+            toType = Type.ForRecord(toRecord, false),
+            previousMeta = Value.Metadata(schema)
+        in
+            type table (toType) meta previousMeta,
+    // https://learn.microsoft.com/en-us/power-query/helper-functions#schematransformtable
+    // Add any missing columns, remove extra columns, set table type
+    EnforceSchema.Strict = 1,
+    // Add missing columns, do not remove extra columns
+    EnforceSchema.IgnoreExtraColumns = 2,
+    // Do not add or remove columns
+    EnforceSchema.IgnoreMissingColumns = 3,
+    CommonHelpers.SchemaTransformTable = (table as table, schema as table, optional enforceSchema as number) as table =>
+        let
+            // Default to EnforceSchema.Strict
+            _enforceSchema = if (enforceSchema <> null) then enforceSchema else EnforceSchema.Strict,
+            // Applies type transforms to a given table
+            EnforceTypes = (table as table, schema as table) as table =>
+                let
+                    tableColumnNames = Table.ColumnNames(table),
+                    updatedForDurationDataTable = ConvertDurationTypes(table, schema, tableColumnNames),
+                    updatedForDateDataTable = ConvertDateTypes(updatedForDurationDataTable, schema, tableColumnNames),
+                    updatedForTimeDataTable = ConvertTimeTypes(updatedForDateDataTable, schema, tableColumnNames),
+                    updatedDataTable = ConvertByteTypes(updatedForTimeDataTable, schema, tableColumnNames),
+                    map = (t) => if Type.Is(t, type list) or Type.Is(t, type record) or t = type any then null else t,
+                    mapped = Table.TransformColumns(schema, {"Type", map}),
+                    omitted = Table.SelectRows(mapped, each [Type] <> null),
+                    existingColumns = Table.ColumnNames(updatedDataTable),
+                    removeMissing = Table.SelectRows(omitted, each List.Contains(existingColumns, [Name])),
+                    primativeTransforms = Table.ToRows(removeMissing),
+                    changedPrimatives = Table.TransformColumnTypes(updatedDataTable, primativeTransforms)
+                in
+                    changedPrimatives,
+            // Returns the table type for a given schema
+            SchemaToTableType = (schema as table) as type =>
+                let
+                    toList = List.Transform(schema[Type], (t) => [Type = t, Optional = false]),
+                    toRecord = Record.FromList(toList, schema[Name]),
+                    toType = Type.ForRecord(toRecord, false)
+                in
+                    type table (toType),
+            // Determine if we have extra/missing columns.
+            // The enforceSchema parameter determines what we do about them.
+            schemaNames = schema[Name],
+            foundNames = Table.ColumnNames(table),
+            addNames = List.RemoveItems(schemaNames, foundNames),
+            extraNames = List.RemoveItems(foundNames, schemaNames),
+            tmp = Text.NewGuid(),
+            added = Table.AddColumn(table, tmp, each []),
+            expanded = Table.ExpandRecordColumn(added, tmp, addNames),
+            result = if List.IsEmpty(addNames) then table else expanded,
+            fullList =
+                if (_enforceSchema = EnforceSchema.Strict) then
+                    schemaNames
+                else if (_enforceSchema = EnforceSchema.IgnoreMissingColumns) then
+                    foundNames
+                else
+                    schemaNames & extraNames,
+            // Select the final list of columns.
+            // These will be ordered according to the schema table.
+            reordered = Table.SelectColumns(result, fullList, MissingField.Ignore),
+            enforcedTypes = EnforceTypes(reordered, schema),
+            withType =
+                if (_enforceSchema = EnforceSchema.Strict) then
+                    Value.ReplaceType(enforcedTypes, SchemaToTableType(schema))
+                else
+                    enforcedTypes
+        in
+            withType,
+
+ConvertDurationTypes = (dataTable as table, schemaTable as table, tableColumnNames as list) =>
+    let
+        durationColumnsInSchema = Table.SelectRows(schemaTable, each [Type] = type duration)[Name],
+        durationColumnsInBoth = List.Intersect({durationColumnsInSchema, tableColumnNames}),
+        durationFormat = Table.TransformColumns(dataTable, List.Transform(durationColumnsInBoth, each {_, (value) => Text.Replace(if Text.Contains(value, ".") then Text.Start(value, Text.PositionOf(value, ".") + 7) else value , "D", ".")}))
+    in
+        durationFormat,
+
+ConvertDateTypes = (dataTable as table, schemaTable as table, tableColumnNames as list) =>
+    let
+        dateColumnsInSchema = Table.SelectRows(schemaTable, each [Type] = type date)[Name],
+        dateColumnsInBoth = List.Intersect({dateColumnsInSchema, tableColumnNames}),
+        dateFormat = Table.TransformColumns(dataTable, List.Transform(dateColumnsInBoth, each {_, (value) => Text.Replace(value, "*", "0")}))
+    in
+        dateFormat,
+
+ConvertTimeTypes = (dataTable as table, schemaTable as table, tableColumnNames as list) =>
+    let
+        timeColumnsInSchema = Table.SelectRows(schemaTable, each [Type] = type time)[Name],
+        timeColumnsInBoth = List.Intersect({timeColumnsInSchema, tableColumnNames}),
+        timeFormat = Table.TransformColumns(dataTable, List.Transform(timeColumnsInBoth, each {_, (value) => Text.Replace(if List.Count(Text.Split(value, ":")) < 3 then value & ":00" else value, "*", "0")}))
+    in
+        timeFormat,
+
+ConvertByteTypes = (dataTable as table, schemaTable as table, tableColumnNames as list) =>
+    let
+        byteColumnsInSchema = Table.SelectRows(schemaTable, each [Type] = Byte.Type)[Name],
+        byteColumnsInBoth = List.Intersect({byteColumnsInSchema, tableColumnNames}),
+        byteFormat = Table.TransformColumns(dataTable, List.Transform(byteColumnsInBoth, each {_, (value) => if Text.StartsWith(value, "0x") then Expression.Evaluate(value) else Expression.Evaluate("0x" & value)}))    
+        in
+        byteFormat
+in
+    [
+        JsonHeaders = CommonHelpers.JsonHeaders,
+        DataTypes = CommonHelpers.DataTypes,
+        ToNavigationTable = CommonHelpers.ToNavigationTable,
+        ForceToNavigationTable = CommonHelpers.ForceToNavigationTable,
+        Value.WaitFor = CommonHelpers.Value.WaitFor,
+        Schema.ToTableType = CommonHelpers.Schema.ToTableType,
+        SchemaTransformTable = CommonHelpers.SchemaTransformTable
+    ]

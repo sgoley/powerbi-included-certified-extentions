@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,43 +118,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>從資料流程匯入資料。</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>資料流程</value>
   </data>
-  <data name="dataflows.caption" xml:space="preserve">
+  <data name="dataflows.caption" errorCode="003" xml:space="preserve">
     <value>從資料流程匯入資料。</value>
   </data>
-  <data name="dataflows.longDescription" xml:space="preserve">
+  <data name="dataflows.longDescription" errorCode="004" xml:space="preserve">
     <value>連線到您有權存取的所有資料流程，以及選擇您要使用的實體。</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
     <value>資料流程</value>
   </data>
-  <data name="dataflows.description" xml:space="preserve">
+  <data name="dataflows.description" errorCode="006" xml:space="preserve">
     <value>從資料流程匯入資料。</value>
   </data>
-  <data name="Environments" xml:space="preserve">
+  <data name="Environments" errorCode="007" xml:space="preserve">
     <value>環境</value>
   </data>
-  <data name="Workspaces" xml:space="preserve">
+  <data name="Workspaces" errorCode="008" xml:space="preserve">
     <value>工作區</value>
   </data>
-  <data name="EnvironmentError" xml:space="preserve">
+  <data name="EnvironmentError" errorCode="009" xml:space="preserve">
     <value>在環境探索回應中發現錯誤</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="010" xml:space="preserve">
     <value>#{0} 並非有效的選項。有效的選項為: #{1}</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="011" xml:space="preserve">
     <value>這個函式不支援值為「#{1}」的選項「#{0}」。</value>
   </data>
-  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityHotDataSuffix" errorCode="012" xml:space="preserve">
     <value>_StreamingData_Hot</value>
   </data>
-  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityArchivedDataSuffix" errorCode="013" xml:space="preserve">
     <value>_ArchivedData_Cold</value>
+  </data>
+  <data name="ParquetModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>此資料以 Parquet 格式進行儲存，因此無法載入</value>
+  </data>
+  <data name="Errors.NoErrorCodeFormat" errorCode="015" xml:space="preserve">
+    <value>#{0} (回應碼: #{1})</value>
+  </data>
+  <data name="Errors.UnspecifiedError" errorCode="016" xml:space="preserve">
+    <value>基礎服務報告錯誤回應</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="017" xml:space="preserve">
+    <value>剖析來自 Web 服務的錯誤回應時發生例外狀況: '#{0}'。</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="018" xml:space="preserve">
+    <value>下游服務呼叫失敗，狀態碼為 '#{0}'。</value>
   </data>
 </root>

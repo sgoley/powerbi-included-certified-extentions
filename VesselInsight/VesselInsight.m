@@ -1,4 +1,4 @@
-[Version = "1.0.2"]
+[Version = "1.0.5"]
 section VesselInsight;
 
 // OAuth2 values
@@ -26,14 +26,22 @@ shared VesselInsight.Contents = () =>
            The end goal should be to send the HTTP request to load children only after the node is expanded, but
            so far we have not found a way to do this.
         */
-
-        edgesRoot = galoreLoadEdges("~/", 2)[edges],
+        
+        edgesRoot = galoreLoadEdges("~/", 2, "all")[edges],
 
         // create the navigation table using data from the Galore tree structure
         // we will create two Level-1 items: Galore Data, and Advanced
         // Galore Data will show items from Galore's asset tree
-        dataNodesRootTable = createNavTableObject(List.Transform(edgesRoot, each galoreEdgeToNavTableRow(_))),
+        dataNodesRootTable = createNavTableObject(List.Transform(edgesRoot, each galoreEdgeToNavTableRow(_, "all"))),
         dataNodesRootRow = createNavTableDataRow(Extension.LoadString("TreeNodeGaloreDataLabel"), "Galore_Data_Root", dataNodesRootTable, "Folder", false),
+        
+        // fetch asset views from API
+        viewList = fetchAssetViews(),
+        
+        // create the navigation table using data from asset view
+        assetViewRootTable = createNavTableObject(List.Transform(viewList, each createAssetViewData(_))),
+        assetViewRootRow = createNavTableDataRow(Extension.LoadString("AssetViewLabel"), "Asset_Root", assetViewRootTable, "Folder", false),
+        
         customTqlTable = createNavTableObject({
             createNavTableDataRow(Extension.LoadString("TreeNodeAdvancedTqlLabel"), "custom_tql_query", galoreCustomDataQuery(), "Function", true)}),
         advancedRootRow = createNavTableDataRow(Extension.LoadString("TreeNodeAdvancedLabel"), "advanced_node_root", customTqlTable, "Folder", false),
@@ -46,21 +54,46 @@ shared VesselInsight.Contents = () =>
         navigationT = createNavTableObject({
             dataNodesRootRow,
             advancedRootRow,
-            voyageRow
+            voyageRow,
+            assetViewRootRow
         })
     in
         navigationT;
 
+// fetch asset view list from API
+fetchAssetViews = () =>
+    let 
+        assetViewUrl = galoreBaseUrl & "/v1/api/NodeSelector/Views",
+        headers = [
+            #"Content-type" = "application/json",
+            #"Accept" = "application/json"
+        ],
+        views = Json.Document(Web.Contents(assetViewUrl, [ Headers = headers ])),
+        viewList = if(List.Count(views) > 0) then views else {"all"}  
+    in
+        viewList;
+
+// based on asset view, fetch vessel and sensor information
+createAssetViewData = (assetView as text) => 
+    let 
+        edgesRoot = galoreLoadEdges("~/", 2, assetView)[edges],
+        // create the navigation table using data from the Galore tree structure based on asset view
+        // Galore Data will show items from Galore's asset tree
+        dataNodesRootTable = createNavTableObject(List.Transform(edgesRoot, each galoreEdgeToNavTableRow(_,assetView)))
+    in
+        createNavTableDataRow(assetView, assetView, dataNodesRootTable, "Folder", false);   
+
 // galoreLoadEdges: Used to load edges from the galore tree starting with the specified selector, with a certain depth
-galoreLoadEdges = (selector as text, maxLevelsOfChildren as number) =>    
+galoreLoadEdges = (selector as text, maxLevelsOfChildren as number,assetView as text) =>    
     let
         headers = [
             #"Content-type" = "application/json",
             #"Accept" = "application/json"
         ],
+        assetViewParam = "&view=" & assetView,
         galoreUrl = galoreBaseUrl 
             & "/v1/api/nodeselector?selector=" & Uri.EscapeDataString(selector)
-            & "&maxLevelsOfChildren=" & Number.ToText(maxLevelsOfChildren),
+            & "&maxLevelsOfChildren=" & Number.ToText(maxLevelsOfChildren) & assetViewParam,
         subtree = Json.Document(Web.Contents(galoreUrl, [ Headers = headers ])),
         firstNode = subtree{0}
     in
@@ -598,7 +631,7 @@ createAllVesselsInfoRow = (vesselEdges as list) =>
 
 
 // Creates a row in the Navigation table from a Galore asset (edge)
-galoreEdgeToNavTableRow = (edge as any) =>
+galoreEdgeToNavTableRow = (edge as any, assetView as text) =>
     let 
         edgeTarget = edge[target],
         isTimeSeriesNode = Text.Lower(edgeTarget[attributes][nodeType]) = "timeseries",
@@ -606,7 +639,9 @@ galoreEdgeToNavTableRow = (edge as any) =>
         isVessel = Record.HasFields(edgeTarget[attributes],"nodeDefinitionId") and edgeTarget[attributes][nodeDefinitionId] = Extension.LoadString("VIVessel"),
         isFleet = Text.Lower(edgeTarget[name]) = "fleet",   // the fleet node is called "Fleet"
         hasEdges = ((not isTimeSeriesNode) and ( not isStateEventLog) ) and edgeTarget[hasEdges],     // limitation: cannot be timeseries node and have children at the same time
-        isLeaf = not hasEdges, 
+        isLeaf = not hasEdges,
+        isStreaming = if(isLeaf) then edgeTarget[attributes][streamLink] <> ""
+        else false,
         isLoaded = List.Count(edgeTarget[edges]) > 0,   // if we have edges in the sub-edges list, this means that we've already loaded the child edges,
         // Work Around: US id: 150879. For state node, galore api( /v1/api/Query) response does not contain the display path in metadata. For now pass path from here.
         nodePath = Json.Document(edgeTarget[attributes][paths]){0},
@@ -618,12 +653,12 @@ galoreEdgeToNavTableRow = (edge as any) =>
         childNavTableDataRowsSource = if (isLoaded)
             then edgeTarget[edges]   // already loaded
             else 
-                galoreLoadEdges("#" & edgeTarget[nodeId], 1)[edges],     // not loaded yet, we need to load the next level
+                galoreLoadEdges("#" & edgeTarget[nodeId], 1,assetView)[edges],     // not loaded yet, we need to load the next level
 
         // when this edge has sub-edges, we recursively call the function itself for each of the sub-edges, in order to create the subtree for this item
         childNavTableDataRows = List.Transform(childNavTableDataRowsSource,
             each 
-                try @galoreEdgeToNavTableRow(_) 
+                try @galoreEdgeToNavTableRow(_,assetView) 
                 otherwise null),   // add a null row when there's an error
         
         // generate a vessel info row if this is a vessel or a fleet node
@@ -635,12 +670,13 @@ galoreEdgeToNavTableRow = (edge as any) =>
         childNavTableDataRowsFinal = List.RemoveNulls(  // filter out the null rows (rows with errors)
             List.InsertRange(childNavTableDataRows, 0, vesselInfoRow)),
 
-        rowData = if (hasEdges) 
+        rowData = if(not isStreaming and isLeaf) then null else if (hasEdges) 
             then createNavTableObject(childNavTableDataRowsFinal)    // this is a parent, we create a child navigation table for it
             else galoreEdgeDataQuery(edgeTarget[nodeId], isStateEventLog, nodePath),  // this is a leaf node, we create a data query function row
 
         itemKind = if isLeaf then "Function" else "Folder",     // when preview delay is disabled, all folders show as tables for some reason 
-        result = createNavTableDataRow(edgeTarget[displayName], "Node_" & edgeTarget[nodeId], rowData, itemKind, isLeaf)
+        result = if(not isStreaming and isLeaf) then null else 
+        createNavTableDataRow(edgeTarget[displayName], "Node_" & edgeTarget[nodeId], rowData, itemKind, isLeaf)
     in 
         result;
 

@@ -2,7 +2,7 @@
 // based on an ODBC driver. It is meant as a template for other 
 // ODBC based connectors that require similar functionality.
 // 
-[Version = "1.0.4"]
+[Version = "1.0.5"]
 section MarkLogicODBC;
 
 // When set to true, additional trace information will be written out to the User log. 
@@ -101,7 +101,7 @@ MarkLogicODBCType = type function (
         Documentation.SampleValues = {5432, 7033, 6050}
     ]))
     as table meta [
-        Documentation.Name = "MarkLogic ODBC (v3.0.1)",
+        Documentation.Name = "MarkLogic ODBC (v3.0.2)",
         Documentation.LongDescription = "Returns the list of tables returned from the ODBC driver",
         Documentation.Examples = {}
     ];
@@ -212,7 +212,8 @@ MarkLogicODBCImpl = (server as text, port as number ) =>
             { "IRI",               -9,         65535,          "'",            "'",              "max. length",            1,          1,                3,            null,                 0,                  null,                "IRI",               null,            null,           -9,               null,               null,             0,                    0                },
             { "boolean",           -7,         1,              "'",            "'",              null,                     1,          1,                3,            null,                 0,                  null,                "boolean",           null,            null,            -7,              null,               null,             0,                    0                },
             { "int",               4,          10,             null,           null,             null,                     1,          0,                2,            0,                    0,                  0,                   "int",               0,               0,               4,               null,               2,                0,                    0                },
-            //{ "unsignedInt",       2,          28,             null,           null,             "precision, scale",       1,          0,                2,            0,                    10,                 0,                   "unsignedInt",       0,               6,               2,               null,               10,               0,                    0                },            
+            //{ "unsignedInt",       2,          28,             null,           null,             "precision, scale",       1,          0,                2,            0,                    10,                 0,                   "unsignedInt",       0,               6,               2,               null,               10,               0,                    0                },
+            //{ "unsignedInt",       -5,         19,             "'",            "'",              null,                     1,          0,                2,            0,                    10,                 0,                   "unsignedInt",       0,               0,               -5,              null,               2,                0,                    0                },
             { "unsignedInt",       4,          10,             null,           null,             null,                     1,          0,                2,            1,                    0,                  0,                   "unsignedInt",       0,               0,               4,               null,               2,                0,                    0                },
             { "nonNegativeInteger",-9,         65535,          "'",            "'",              "max. length",            1,          1,                3,            null,                 0,                  null,                "nonNegativeInteger",null,            null,           -9,               null,               null,             0,                    0                },
             { "positiveInteger",   -9,         65535,          "'",            "'",              "max. length",            1,          1,                3,            null,                 0,                  null,                "positiveInteger",   null,            null,           -9,               null,               null,             0,                    0                },
@@ -346,9 +347,10 @@ MarkLogicODBC = [
     TestConnection = (dataSourcePath) => 
         let
             json = Json.Document(dataSourcePath),
-            server = json[server]   // name of function parameter
+            server = json[server],   // name of function parameter
+            port = json[port]        // name of function parameter
         in
-            { "MarkLogicODBC.Contents", server },
+            { "MarkLogicODBC.Contents", server, port },
     // Set supported types of authentication
     Authentication = [
         UsernamePassword = []

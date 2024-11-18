@@ -1,0 +1,100 @@
+/**
+ * Translates network errors into the actual errors we want to
+ * show customers. It's assumed that we've encountered a failure
+ * before calling this function, so 200 OK responses shouldn't be
+ * passed to this function.
+ *
+ * @param Context Global parameters and constants.
+ * @param StatusCode The HTTP status code of the request.
+ * @param Response The raw network response.
+ * @raises The modeled error for each failure scenario.
+ */
+(Context as record, StatusCode as number, Response as any) =>
+    let
+        Status.BadRequest = 400,
+        Status.Unauthorized = 401,
+        Status.Forbidden = 403,
+        Status.TooManyRequests = 429,
+
+        ErrorMessage.BadToken = "invalid token",
+        ErrorMessage.BadVersion = "invalid connector version",
+
+        ErrorMessage = try 
+            Json.Document(Response)[message]? ?? "No cause message in response"
+        otherwise
+            // Not all error responses are JSON, and the Content-Type doesn't reflect
+            // the actual body contents.
+            Text.FromBinary(Response),
+
+        BadToken = Error.Record(
+            Extension.LoadString("ErrorAccessDenied"),
+            Extension.LoadString("ErrorTokenInvalid"),
+            [ 
+                ResponseCode = Status.Unauthorized,
+                Tag = "bad_token",
+                Cause = ErrorMessage
+            ]
+        ),
+        MissingScope = Error.Record(
+            Extension.LoadString("ErrorAccessDenied"),
+            Extension.LoadString("ErrorMissingScope"),
+            [ 
+                ResponseCode = Status.Unauthorized,
+                Tag = "missing_scope",
+                Cause = ErrorMessage
+            ]
+        ),
+        Forbidden = Error.Record(
+            Extension.LoadString("ErrorAccessDenied"),
+            Extension.LoadString("ErrorOrgRollout"),
+            [
+                ResponseCode = Status.Forbidden,
+                Tag = "missing_license",
+                Cause = ErrorMessage
+            ]
+        ),
+        BadVersion = Error.Record(
+            Extension.LoadString("ErrorUpgradeRequired"),
+            Extension.LoadString("ErrorVersionSunset"),
+            [ 
+                ResponseCode = Status.BadRequest,
+                Tag = "unsupported_version",
+                Cause = ErrorMessage
+            ],
+            { Context[Version] }
+        ),
+        TooManyRequests = Error.Record(
+            Extension.LoadString("ErrorTooManyRequests"),
+            Extension.LoadString("ErrorTooManyRequestsMessage"),
+            [
+                ResponseCode = Status.TooManyRequests,
+                Tag = "throttle",
+                Cause = ErrorMessage
+            ]
+        ),
+        Fatal = Error.Record(
+            Extension.LoadString("ErrorFatal"),
+            Extension.LoadString("ErrorServerUnknown"),
+            [ 
+                ResponseCode = StatusCode,
+                Tag = if StatusCode < 500 then "client_error" else "remote_error",
+                Cause = ErrorMessage
+            ],
+            { StatusCode }
+        ),
+
+        Translated.Error = if StatusCode = Status.Unauthorized and Text.Contains(ErrorMessage, ErrorMessage.BadToken) then BadToken
+            else if StatusCode = Status.Unauthorized then MissingScope
+            else if StatusCode = Status.Forbidden then Forbidden
+            else if StatusCode = Status.BadRequest and Text.Contains(ErrorMessage, ErrorMessage.BadVersion) then BadVersion 
+            else if StatusCode = Status.TooManyRequests then TooManyRequests
+            else Fatal
+    in
+        error Diagnostics.Trace(
+            TraceLevel.Critical,
+            Text.Format(
+                "HTTP request failed: Status Code #{0}, Message #{1}",
+                { StatusCode, ErrorMessage ?? "No reply from server" }
+            ),
+            Translated.Error
+        )

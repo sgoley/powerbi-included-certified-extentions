@@ -135,6 +135,18 @@
   <data name="ButtonTitle" xml:space="preserve">
     <value>Azure Databricks</value>
   </data>
+  <data name="MultiCloudButtonHelp" xml:space="preserve">
+    <value>Import data from Databricks</value>
+  </data>
+  <data name="MultiCloudButtonTitle" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="CatalogHelp" xml:space="preserve">
+    <value>Select a default catalog for the connection.</value>
+  </data>
+  <data name="CatalogLabel" xml:space="preserve">
+    <value>Default catalog</value>
+  </data>
   <data name="DatabaseHelp" xml:space="preserve">
     <value>Limit the connection to the selected database. This might make listing tables faster, however it will prevent query folding for queries that hit multiple different databases.</value>
   </data>
@@ -147,11 +159,17 @@
   <data name="DataSourceName" xml:space="preserve">
     <value>Azure Databricks</value>
   </data>
-  <data name="EnableExperimentalFlagsHelp" xml:space="preserve">
-    <value>For Databricks SQL or Databricks Runtime 8.3 and later, this enables faster processing of large DirectQuery reports, as well as improved performance of large imports.</value>
+  <data name="MultiCloudDataSourceLabel" xml:space="preserve">
+    <value>Databricks</value>
   </data>
-  <data name="EnableExperimentalFlagsLabel" xml:space="preserve">
-    <value>Fast Evaluation</value>
+  <data name="MultiCloudDataSourceName" xml:space="preserve">
+    <value>Databricks</value>
+  </data>
+  <data name="EnableAutomaticProxyDiscoveryFlagsHelp" xml:space="preserve">
+    <value>This enables automatic Windows System wide automatic Proxy Discovery.</value>
+  </data>
+  <data name="EnableAutomaticProxyDiscoveryFlagsLabel" xml:space="preserve">
+    <value>Automatic Proxy Discovery</value>
   </data>
   <data name="ErrorAadInvalidDomain" xml:space="preserve">
     <value>AAD is not supported for domain: #{0}.</value>
@@ -167,8 +185,15 @@
     <value>Invalid value '#{0}' for field #{1}.</value>
     <comment>#{0}: Field value, #{1}: Field name</comment>
   </data>
+  <data name="ErrorExpectedSqlString" xml:space="preserve">
+    <value>Expected SQL query, but got null or an empty value.</value>
+  </data>
   <data name="ErrorInvalidHost" xml:space="preserve">
     <value>Host is not a valid domain name: #{0}</value>
+    <comment>#{0}: Domain</comment>
+  </data>
+  <data name="ErrorMultiCloudOAuthOnAzureNotSupported" xml:space="preserve">
+    <value>Host is in Azure. For Azure endpoints, use `Azure Databricks` Datasource: #{0}</value>
     <comment>#{0}: Domain</comment>
   </data>
   <data name="ErrorInvalidHttpPath" xml:space="preserve">
@@ -184,11 +209,11 @@
   <data name="ErrorOdbcCouldNotConnect" xml:space="preserve">
     <value>Could not connect to server. Please double check your ODBC configuration. </value>
   </data>
-  <data name="ExperimentalFlagsDisabledLabel" xml:space="preserve">
-    <value>Disabled</value>
+   <data name="AutomaticProxyDiscoveryFlagDisabledLabel" xml:space="preserve">
+    <value>Disabled (default)</value>
   </data>
-  <data name="ExperimentalFlagsEnabledLabel" xml:space="preserve">
-    <value>Enabled (default)</value>
+  <data name="AutomaticProxyDiscoveryFlagEnabledLabel" xml:space="preserve">
+    <value>Enabled</value>
   </data>
   <data name="HttpPathHelp" xml:space="preserve">
     <value>The HTTP path of the cluster.</value>
@@ -199,11 +224,32 @@
   <data name="PersonalAccessTokenLabel" xml:space="preserve">
     <value>Personal Access Token</value>
   </data>
+  <data name="OIDCLabel" xml:space="preserve">
+    <value>OAuth (OIDC)</value>
+  </data>
+  <data name="QueryDataSourceDescription" xml:space="preserve">
+    <value>Define a Databricks data source for running SQL queries</value>
+  </data>
+  <data name="QueryDataSourceInstanceDescription" xml:space="preserve">
+    <value>Run a SQL query on Databricks and retrieve the results</value>
+  </data>
+  <data name="QueryDataSourceInstanceName" xml:space="preserve">
+    <value>Databricks SQL Query</value>
+  </data>
+  <data name="QueryDataSourceName" xml:space="preserve">
+    <value>Databricks SQL Query Source</value>
+  </data>
   <data name="ServerHostNameHelp" xml:space="preserve">
     <value>The hostname of the Databricks server.</value>
   </data>
   <data name="ServerHostNameLabel" xml:space="preserve">
     <value>Server Hostname</value>
+  </data>
+  <data name="SqlQueryHelp" xml:space="preserve">
+    <value>Enter a SQL query to run on Databricks</value>
+  </data>
+  <data name="SqlQueryLabel" xml:space="preserve">
+    <value>SQL Query</value>
   </data>
   <data name="UsernamePasswordLabel" xml:space="preserve">
     <value>Username / Password</value>

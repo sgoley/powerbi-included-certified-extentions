@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>เชื่อมต่อกับ Dataverse ผ่านปลายทาง SQL</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>โดเมนของสภาพแวดล้อม</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>โดเมนของสภาพแวดล้อม</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>ระบุสภาพแวดล้อม Dataverse ที่จะเชื่อมต่อ เขตข้อมูลนี้ไม่จําเป็นต้องระบุ และเมื่อไม่ได้ระบุสภาพแวดล้อม Dataverse ทั้งหมดที่มีให้กับผู้ใช้ที่เข้าสู่ระบบจะแสดงในหน้าจอ "เลือกข้อมูล"</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>เชื่อมต่อกับอินสแตนซ์ Dataverse ของคุณ (Dynamics 365 และ PowerApps)</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>โดเมนสำหรับ "#{0}" ไม่ได้รับการสนับสนุนโดยตัวเชื่อมต่อ Dataverse</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>การโหลดข้อมูลจากตารางทางอ้อมของสภาพแวดล้อมไม่ได้รับการสนับสนุน</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>'#{0}' ไม่ใช่ตัวเลือกที่ถูกต้อง ตัวเลือกที่ถูกต้องคือ: “#{1}”</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>ฟังก์ชันนี้ไม่สนับสนุนตัวเลือก “#{0}” ที่มีค่า “#{1}”</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>รูปแบบชื่อเซิร์ฟเวอร์ '#{0}' ไม่ถูกต้อง โปรดนำแบบแผน เช่น "https://" ออกจากชื่อเซิร์ฟเวอร์</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>ใส่คอลัมน์ความสัมพันธ์</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>ตัวเลือก</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>ระบุตัวเลือกเพื่อเชื่อมต่อกับอินสแตนซ์ Dataverse ของคุณ</value>
   </data>
 </root>

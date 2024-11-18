@@ -1,12 +1,13 @@
 ﻿[
-    Version = "1.0.25",
+    Version = "3.0.64",
     Requires = [
         Legacy = "[0.0,)",
         DataSource = "[0.0,)",
         Environment = "[0.0,)",
         Extensibility = "[0.0,)",
         ParallelEvaluation = "[0.0,)",
-        SqlDatabase = "[0.0,)"
+        SqlDatabase = "[0.0,)",
+        Lakehouse = "[0.0,)"
     ]
 ]
 section PowerPlatformDataflows;
@@ -36,39 +37,51 @@ section PowerPlatformDataflows;
 // -----------------------------------------------------
 
 environments = [
-    global = "global", tip1 = "tip1", local = "local", usnat = "usnat",
-    gcc = "gcc", gcc_high = "gcc_high", gcc_dod = "gcc_dod",
-    ppe = "ppe", chinacloud = "chinacloud", PpeCloud = "PpeCloud"];
+    china       = "china",
+    gcc         = "gcc",
+    gcc_dod     = "gcc_dod",
+    gcc_high    = "gcc_high",
+    global      = "global",
+    local       = "local",
+    ppe         = "ppe",
+    PpeCloud    = "PpeCloud",
+    tip1        = "tip1",
+    usnat       = "usnat",
+    ussec       = "ussec"
+];
 env = Environment.FeatureSwitch("Cloud", environments[global]);
 
 // These settings only required by this connector.
 // We'll not add environment settings explicitly for the settings used by a single connector.
 AadGroupApiOAuthResourceEnv = [
-    global      = "https://powerquery.microsoft.com",
-    usnat       = "https://usnat.powerquery.eaglex.ic.gov",
+    china       = "https://powerquery.azure.cn",
     gcc         = "https://gov.powerquery.microsoft.us",
-    gcc_high    = "https://high.powerquery.microsoft.us",
     gcc_dod     = "https://mil.powerquery.microsoft.us",
-    chinacloud  = "https://powerquery.azure.cn",
+    gcc_high    = "https://high.powerquery.microsoft.us",
+    global      = "https://powerquery.microsoft.com",
+    local       = "https://pq-df.microsoft.com",
     tip1        = "https://powerquery.microsoft.com",
-    local       = "https://pq-df.microsoft.com"
+    usnat       = "https://powerquery.eaglex.ic.gov",
+    ussec       = "https://powerquery.microsoft.scloud"
 ];
 AadPowerAppsResourceEnv = [
-    global      = "https://service.powerapps.com",
-    usnat       = "https://service.apps.appsplatform.us",
+    china       = "https://service.powerapps.cn",
     gcc         = "https://gov.service.powerapps.us",
-    gcc_high    = "https://high.service.powerapps.us",
     gcc_dod     = "https://service.apps.appsplatform.us",
-    chinacloud  = "https://service.powerapps.cn"
+    gcc_high    = "https://high.service.powerapps.us",
+    global      = "https://service.powerapps.com",
+    usnat       = "https://service.powerapps.eaglex.ic.gov",
+    ussec       = "https://service.powerapps.microsoft.scloud"
 ];
 BapBaseUrlEnv = [
-    global      = "https://api.bap.microsoft.com",
-    usnat       = "https://api.bap.appsplatform.us",
+    china       = "https://api.bap.partner.microsoftonline.cn",
     gcc         = "https://gov.api.bap.microsoft.us",
-    gcc_high    = "https://high.api.bap.microsoft.us",
     gcc_dod     = "https://api.bap.appsplatform.us",
-    chinacloud  = "https://api.bap.partner.microsoftonline.cn",
-    tip1        = "https://tip1.api.bap.microsoft.com"
+    gcc_high    = "https://high.api.bap.microsoft.us",
+    global      = "https://api.bap.microsoft.com",
+    tip1        = "https://tip1.api.bap.microsoft.com",
+    usnat       = "https://api.bap.eaglex.ic.gov",
+    ussec       = "https://api.bap.microsoft.scloud"
 ];
 
 AadGroupApiOAuthResource = Utility.GetUrlWithEnv(AadGroupApiOAuthResourceEnv, env, AadGroupApiOAuthResourceEnv[global]);
@@ -79,9 +92,18 @@ PBIBaseUrl = Environment.FeatureSwitch("PowerBiUri", "https://api.powerbi.com");
 AadWorkspaceApiOAuthResource = Environment.FeatureSwitch("PowerBiAadResource", "https://analysis.windows.net/powerbi/api");
 AadAuthorizationUri =  Uri.Combine(Environment.FeatureSwitch("AzureActiveDirectoryUri", "https://login.microsoftonline.com"), "/common/oauth2/authorize");
 AadAdlsStorageResource = Environment.FeatureSwitch("AzureStorageAadResource", "https://storage.azure.com");
+UseNewClusterAPI = Value.ConvertToLogical(Environment.FeatureSwitch("MashupFlight_UseNewClusterAPI", false));
 
-PowerQueryWebRootLocal = "https://onebox.pq-df.microsoft.com:9443";
+PowerQueryWebRootLocal = "https://onebox.pq-df.microsoft.com:9543";
 AadRedirectUrl = "https://preview.powerbi.com/views/oauthredirect.html";
+PowerQuerySovCloudEndpoints = [
+    china       = "https://powerquery.azure.cn",
+    gcc         = "https://gov.powerquery.microsoft.us",
+    gcc_dod     = "https://mil.powerquery.microsoft.us",
+    gcc_high    = "https://high.powerquery.microsoft.us",
+    usnat       = "https://usnat.powerquery.eaglex.ic.gov",
+    ussec       = "https://ussec.powerquery.microsoft.scloud"
+];
 
 ApiErrorStatusCodes = { 400, 403, 404, 500, 503 };
 Concurrency = 16;
@@ -113,6 +135,24 @@ CodepageIdEncodingMap = [
     #"WINDOWS-1252" = 1252
 ];
 
+ClientRequestIdHeader = "x-ms-client-request-id";
+ClientSessionIdHeader = "x-ms-client-session-id";
+
+CommonHeaderNames = {
+    ClientRequestIdHeader,
+    ClientSessionIdHeader,
+    "RequestId",
+    "ActivityId"
+};
+
+CommonOptions = () =>
+    let
+        activityId = Diagnostics.ActivityId(),
+        requestId = Text.NewGuid(),
+        headers = Record.FromList({requestId, activityId, requestId, activityId}, CommonHeaderNames)
+    in
+        [Headers = headers, ExcludedFromCacheKey = CommonHeaderNames];
+
 [DataSource.Kind="PowerPlatformDataflows", Publish="PowerPlatformDataflows.Publish"]
 shared PowerPlatform.Dataflows = Value.ReplaceType(DataflowsView, DataflowsType);
 
@@ -120,7 +160,7 @@ DataflowsType =
     let
         functionType = type function (optional options as record)
             as table meta [
-                Documentation.Name = "PowerPlatform.Dataflows",
+                Documentation.Name = Extension.LoadString("DataSourceLabel"),
                 Documentation.Caption = Extension.LoadString("dataflows.caption"),
                 Documentation.Description = Extension.LoadString("dataflows.description"),
                 Documentation.LongDescription = Extension.LoadString("dataflows.longDescription")
@@ -129,9 +169,17 @@ DataflowsType =
         functionType;
 
 PpdfOptionsMap = #table(
-    {"Name","Type","Default","Validate"}, {
-    {"EnableFolding", type nullable logical, true, each _ = null or _ = true or _ = false}
+    {"Name","Type","Default","Validate","Hidden"}, {
+    {"EnableFolding", type nullable logical, true, each _ = null or _ = true or _ = false, false},
+    // Not public-facing
+    {"TenantId", type any, null, each true, true},
+    {"DataflowId", type any, null, each true, true},
+    {"WorkspaceId", type any, null, each true, true},
+    {"TransactionId", type any, null, each true, true},
+    {"IsInternalRewrite", type any, null, each true, true}
 });
+
+SasTokenCacheHours = 4;
 
 DataflowsView = (optional options as record) as table =>
     let
@@ -193,10 +241,16 @@ Group.GetNavTableForGroups = (env as text, options as nullable record) as nullab
     let
         credential = Group.AuthCredential(AadGroupApiOAuthResource),
         isLocal = env = environments[local],
-        allEnvironments = if isLocal then null else Group.GetEnvironments(env),
+        isSovCloud = Record.HasFields(PowerQuerySovCloudEndpoints, env),
+        allEnvironments = if isLocal or isSovCloud then null else Group.GetEnvironments(env),
         groups = if isLocal
             then Group.GetGroups(credential, PowerQueryWebRootLocal)
-            else Group.GetGroupsAllCluster(allEnvironments, credential),
+            else
+                if isSovCloud
+                then
+                    Group.GetSovGroups(credential, env)
+                else
+                    Group.GetGroupsAllCluster(allEnvironments, credential),
         withData = Table.AddColumn(groups, "Data", each
             if ([errorCode] <> null) then
                 error Error.Record(
@@ -266,9 +320,9 @@ Group.GetGroupsAllCluster = (environments as list, credential as record) as tabl
         endpoints = List.Distinct(List.Transform(environments, each [endpoint])),
         getGroups = List.Transform(endpoints, (endpoint) => () =>
             let
-                // The failure of one region shouldn't block the connector. 
+                // The failure of one region shouldn't block the connector.
                 // Ignore the regions when the PQO instance does not respond at all or return any error response.
-                result = try Group.GetGroups(credential, endpoint) otherwise #table(null,{})
+                result = try Group.GetGroups(credential, endpoint) otherwise #table(null, {})
             in
                 result),
         batches = List.ParallelInvoke(getGroups, Concurrency),
@@ -277,10 +331,16 @@ Group.GetGroupsAllCluster = (environments as list, credential as record) as tabl
     in
         pruned;
 
+Group.GetSovGroups = (credential as record, env as text) as table =>
+    let
+        endpoint = Record.FieldOrDefault(PowerQuerySovCloudEndpoints, env)
+    in
+        if endpoint is null then #table(null, {}) else Group.GetGroups(credential, endpoint);
+
 Group.GetGroups = (credential as record, baseUrl as text) as table =>
     let
         url = Uri.Combine(baseUrl, "/api/dataflowConnector/groups"),
-        response = Web.JsonContents(url, Group.AuthHeader(credential)),
+        response = Group.GetJsonContents(url, credential, [Origin = NonPii("Group/GetGroups")]),
         groups = Table.FromRecords(response, {"groupId", "name", "errorCode"}, MissingField.UseNull),
         rename = Table.RenameColumns(groups, {{"name", "groupName"}}),
         result = Table.AddColumn(rename, "baseUrl", each baseUrl)
@@ -289,9 +349,9 @@ Group.GetGroups = (credential as record, baseUrl as text) as table =>
 
 Group.GetDataflows = (credential as record, baseUrl as text, groupId as text) as nullable table =>
     let
-        url = Uri.Combine(baseUrl, Text.Format("/api/dataflowConnector/group/#{0}/dataflowsInfo", {groupId})),
-        response = Web.JsonContents(url, Group.AuthHeader(credential)),
-        dataflows = Table.FromRecords(response, {"dataflowId", "name", "description"}),
+        url = Uri.Combine(baseUrl, Text.Format("/api/dataflowConnector/group/#{0}/dataflowsInfo?$filter=permissions eq read and type eq Adls", {groupId})),
+        response = Group.GetJsonContents(url, credential, [Origin = NonPii("Group/GetDataflows"), GroupId = NonPii(groupId)], null, null, null, [#"x-ms-api-version" = "2.0"]),
+        dataflows = Table.FromRecords(response, {"dataflowId", "name", "description"}, MissingField.UseNull),
         rename = Table.RenameColumns(dataflows, {{"name", "dataflowName"}})
     in
         Table.View(null, [
@@ -302,20 +362,48 @@ Group.GetDataflows = (credential as record, baseUrl as text, groupId as text) as
 Group.GetDataflow = (credential as record, baseUrl as text, groupId as text, dataflowId as text, options as nullable record) as nullable table =>
     let
         url = Uri.Combine(baseUrl, Text.Format("/api/dataflowConnector/dataflow/#{0}", {dataflowId})),
-        response = Web.JsonContents(url, Group.AuthHeader(credential)),
-        json = if response[model] <> null then response[model] else [],
+        partialContext = [GroupId = NonPii(groupId), DataflowId = NonPii(dataflowId)],
+        response = Group.GetJsonContents(url, credential, [Origin = NonPii("Group/GetDataflow")] & partialContext),
+        json = response[model] ?? [],
 
         dataflow = Record.SelectFields(json, {"culture", "entities", "relationships"}, MissingField.UseNull),
         renameFields = Record.RenameFields(dataflow, {{"culture", "dataflowCulture"}}),
-        transformFields = Record.TransformFields(renameFields, {
-            {"dataflowCulture", each if (_ = null) then "" else _}
-        }),
+        transformFields = Record.TransformFields(renameFields, {{"dataflowCulture", each _ ?? ""}}),
         toTable = Table.FromRecords({transformFields}),
-        entities = Table.AddColumn(toTable, "Entities", each if ([entities] <> null) then FormatEntitiesForDataflow(baseUrl, "", "", dataflowId, [entities], "", false, credential, options) else null, type nullable table),
+        enableFolding = options[EnableFolding]? <> false,
+        getEntityMashupJson = (entityName) => let
+            accessorUrl = Uri.Combine(baseUrl, Text.Format("/api/dataflowConnector/dataflow/#{0}/storageAccess/#{1}", {dataflowId, entityName})),
+            context = [Origin = NonPii("Group/GetDataflow/getEntityMashupJson")] & partialContext,
+            storageJson = Group.GetJsonContents(accessorUrl, credential, context, null, url, SasTokenCacheHours)
+        in
+            if enableFolding then storageJson & [accessorSettings = []] else null,
+        getEntityPartitionData = (partition, entityName, tableType, culture) => let
+            location = partition[location],
+            partitionName = partition[name],
+            format = partition[fileFormatSettings],
+            traits = partition[#"cdm:traits"],
+            tenantId = options[TenantId]?,
+            workspaceId = "",
+            workspaceType = "",
+            storageAccess = Group.GetStorageAccess(credential, baseUrl, groupId, dataflowId, partitionName, entityName)
+        in
+            GetEntityFile(storageAccess[URL], tableType, storageAccess[AccessType], storageAccess[Sas], format, culture, traits),
+        entities = Table.AddColumn(toTable, "Entities",
+            each if ([entities] <> null)
+                then FormatEntitiesForDataflow(
+                    "MashupExpressionReadContentOnFailure",
+                    [entities],
+                    [dataflowCulture],
+                    getEntityMashupJson,
+                    getEntityPartitionData,
+                    options,
+                    [GroupId = NonPii(groupId), DataflowId = NonPii(dataflowId)])
+                else null,
+            type nullable table),
         noNulls = Table.SelectRows(entities, each [Entities] <> null),
         expandEntities = Table.ExpandTableColumn(noNulls, "Entities", {"name", "Data"}, {"entity", "Data"}),
 
-        withRelationships = ProcessRelationships(expandEntities, groupId, dataflowId, dataflow[relationships]?),
+        withRelationships = Group.ProcessRelationships(expandEntities, groupId, dataflowId, dataflow[relationships]?),
         selectColumns = Table.SelectColumns(withRelationships, {"entity", "Data"})
     in
         Table.View(null, [
@@ -323,22 +411,113 @@ Group.GetDataflow = (credential as record, baseUrl as text, groupId as text, dat
             GetRows = () => if response = null then #table(GetType(), {}) else selectColumns
         ]);
 
-Group.GetStorageAccess = (credential as record, baseUrl as text, dataflowId as text, partitionName as text, entityName as text) as record =>
+Group.ProcessRelationships = (entities as table, identity as text, dataflowId as text, relationships as nullable list) as table =>
+    let
+        // format the relationships table
+        relationshipTable = Group.FormatRelationships(relationships),
+
+        // set relationship identity for each entity - this value needs to be globally unique.
+        withIdentity = Table.AddColumn(entities, "DataWithId",
+                           each Table.ReplaceRelationshipIdentity([Data], Text.Format("#{0}/#{1}/#{2}", {identity, dataflowId, [entity]})),
+                           type table),
+
+        entitiesWithRelationships =
+            Table.AddColumn(withIdentity, "DataWithRelationships", (row) => Group.ApplyRelationships(row, withIdentity, relationshipTable)),
+
+        // rename the [DataWithRelationships] column to [Data]
+        replaceDataTable = Table.RenameColumns(Table.RemoveColumns(entitiesWithRelationships, {"Data"}), {{"DataWithRelationships", "Data"}})
+    in
+        if (relationships = null or List.IsEmpty(relationships)) then
+            entities
+        else
+            replaceDataTable;
+
+Group.FormatRelationships = (relationships as list) as table =>
+    let
+        emptyRelationshipsTable = #table(type [fromEntity = text, fromAttributes = { text }, toEntity = text, toAttributes = { text }], {}),
+        selectedFields = List.Transform(relationships, each Record.SelectFields(_, {"fromAttribute", "toAttribute", "$type"})),
+        relationshipsTable = Table.FromRecords(selectedFields),
+        expandFromAttribute = Table.ExpandRecordColumn(relationshipsTable, "fromAttribute", {"entityName", "attributeName"}, {"fromEntity", "fromAttributeName"}),
+        expandToAttribute = Table.ExpandRecordColumn(expandFromAttribute, "toAttribute", {"entityName", "attributeName"}, {"toEntity", "toAttributeName"}),
+        rename = Table.RenameColumns(expandToAttribute,{{"$type", "relationshipType"}}),
+        calcFrom = Table.AddColumn(rename, "fromAttributes", each
+            if ([relationshipType] = "SingleKeyRelationship") then
+                {[fromAttributeName]}
+            else null,
+            type { text }),
+        calcTo = Table.AddColumn(calcFrom, "toAttributes", each
+            if ([relationshipType] = "SingleKeyRelationship") then
+                {[toAttributeName]}
+            else null,
+            type { text }),
+        finalTable = Table.SelectColumns(calcTo, {"fromEntity", "fromAttributes", "toEntity", "toAttributes"})
+    in
+        finalTable;
+
+Group.ApplyRelationships = (entity as record, entites as table, relationshipTable as table) as table =>
+    let
+        // filter down to the relationships for the current entity
+        relationships = Table.ToRecords(Table.SelectRows(relationshipTable, each _[fromEntity] = entity[entity])),
+        entityDataWithID = entity[DataWithId],
+        dataWithKeys = [Data = entityDataWithID, Keys = {}],
+
+        // For every row in the relationship table, add and then remove a nested join column.
+            // The result of List.Accumulate() will be a table with all relationships defined.
+       DataWithRelationshipsKeys = List.Accumulate(
+                relationships,
+                dataWithKeys,
+                // "state" is our accumulated entity table with relationships
+                // "current" is the current relationship record to process
+                (state, current) => Group.AddRelationshipMetadata(state, current, entites, relationships)),
+
+        keysList = DataWithRelationshipsKeys[Keys],
+        distinctKeys = List.Distinct(keysList),
+        DataWithRelationships = DataWithRelationshipsKeys[Data],
+
+        //Check that the table has no primary key
+        //The primary key should set to the tables after adding all the relationships metadata
+        entityWithKeys = if (List.Count(Table.Keys(DataWithRelationships)) = 0) then
+                            Table.AddKey(DataWithRelationships, distinctKeys, true)
+                        else
+                            DataWithRelationships
+
+    in
+        // "relationships" will be empty if there are no relationships defined for this entity
+        if (List.IsEmpty(relationships)) then
+            entity[DataWithId]
+        else
+            entityWithKeys;
+
+Group.AddRelationshipMetadata = (fromEntity as record, currentRelationship as record, entities as table, relevantRelationships as list) as record =>
+    let
+        fromEntityData = fromEntity[Data],
+        toEntityRow = entities{[entity=currentRelationship[toEntity]]}?,
+        joinedTable = Utility.JoinTables(fromEntityData, toEntityRow[DataWithId], currentRelationship[fromAttributes], currentRelationship[toAttributes]),
+
+        keysList = fromEntity[Keys],
+        addFromAttributes = List.InsertRange(keysList, List.Count(keysList), currentRelationship[fromAttributes]),
+
+        calculateRelationships = [Data = joinedTable, Keys = addFromAttributes]
+    in
+        // Additional check that that the "to" entity and "from / to" attributes actually exists.
+        // If it does not, the relationship will be ignored, and we
+        // return the original table (state).
+        if (toEntityRow <> null and
+            List.ContainsAll(Table.ColumnNames(fromEntityData), (currentRelationship[fromAttributes])) and
+            List.ContainsAll(Table.ColumnNames(toEntityRow[DataWithId]),(currentRelationship[toAttributes])))
+        then calculateRelationships
+        else fromEntity;
+
+Group.GetStorageAccess = (credential as record, baseUrl as text, groupId as text, dataflowId as text, _partitionName as text, _entityName as text) as record =>
     let
         url = Uri.Combine(baseUrl, Text.Format("/api/dataflowConnector/dataflow/#{0}/storageAccess", {dataflowId})),
         body = [
-            partitionName = partitionName,
-            entityName = entityName
+            partitionName = _partitionName,
+            entityName = _entityName
         ],
-        headers = Group.AuthHeader(credential)[Headers],
-        withContentTypes = headers & [
-            #"Content-type" = "application/json",
-            #"Accept" = "application/json"
-        ],
-        response = Web.JsonContents(url, [
-            Headers = withContentTypes,
-            Content = Json.FromValue(body)
-        ]),
+        cacheKey = _partitionName & "|" & dataflowId & "|" & _entityName,
+        context = [Origin = NonPii("Group/GetStorageAccess"), GroupId = NonPii(groupId), DataflowId = NonPii(dataflowId)],
+        response = Group.GetJsonContents(url, credential, context, body, cacheKey, SasTokenCacheHours),
         uri = response[uri],
         queryString = response[sasKey]
     in
@@ -351,19 +530,38 @@ Group.AuthCredential = (resource as text) as record =>
     in
         currentCredentials & [access_token = Record.FieldOrDefault(currentCredentials[Properties], prop, currentCredentials[access_token])];
 
-Group.AuthHeader = (credential as record) as record =>
+Group.DefaultErrorHandler = (state) => DefaultErrorHandler("Group", state);
+
+Group.DefaultWebResponseHandlers = [
+    302 = Group.DefaultErrorHandler,
+    400 = Group.DefaultErrorHandler,
+    403 = Group.DefaultErrorHandler,
+    404 = Group.DefaultErrorHandler,
+    500 = Group.DefaultErrorHandler,
+    503 = Group.DefaultErrorHandler
+];
+
+Group.GetJsonContents = (url as text, credential as record, context as record, optional body, optional cacheKey as text, optional cacheHours as number, optional additionalHeaders as record) =>
     let
-        result = [Headers = [Authorization = "Bearer " & credential[access_token]]]
+        headers = [
+            // TODO Setting authorization explicitly may not be necessary
+            // This seems to be added by web.contents
+            Authorization = "Bearer " & credential[access_token],
+            #"x-ms-host-context-type" = "PpdfConnector"
+        ] & (additionalHeaders ?? []),
+        result = if cacheKey <> null
+            then Web.JsonContentsWithCaching(url, headers, body, Group.DefaultWebResponseHandlers, cacheKey, cacheHours, context)
+            else Web.JsonContents(url, headers, body, Group.DefaultWebResponseHandlers, context)
     in
         result;
 
 // Note: The mapping needs to be kept in sync with endpointMappingService.ts in the Maker Portal.
-//       Link to the resource file: https://msazure.visualstudio.com/OneAgile/_git/power-platform-ux?path=%2Fpackages%2Fpowerapps-portal-angularjs%2Fsrc%2Fapp%2Fpowerquery%2Fservices%2FmashupEndpointMappingService.ts&version=GBmaster
+//       Link to the resource file: https://msazure.visualstudio.com/OneAgile/_git/power-platform-ux?path=/packages/powerapps-ui-common/src/shared/pqoMashupEndpointMapping.ts&_a=contents&version=GBmaster
 Group.GetEnvironments = (env as text) as list =>
     let
         credential = Group.AuthCredential(AadPowerAppsServiceResource),
         endpoint = Uri.Combine(BapBaseUri, "/providers/Microsoft.BusinessAppPlatform/environments?api-version=2016-11-01"),
-        response = Web.JsonContents(endpoint, Group.AuthHeader(credential)),
+        response = Group.GetJsonContents(endpoint, credential, [Origin = NonPii("Group/GetEnvironments")]),
         map_global = [
             asia = "asia",
             australia = "australia",
@@ -373,7 +571,11 @@ Group.GetEnvironments = (env as text) as list =>
             germany = "germany",
             india = "india",
             japan = "japan",
+            korea = "korea",
+            norway = "norway",
             southafrica = "southafrica",
+            singapore = "singapore",
+            sweden = "sweden",
             southamerica = "brazil",
             switzerland = "switzerland",
             unitedarabemirates = "uae",
@@ -402,37 +604,62 @@ Group.GetEnvironments = (env as text) as list =>
 // -----------------------------------------------------
 Workspace.GetNavTableForWorkspaces = (options as nullable record) as nullable table =>
     let
-        baseUrl = Workspace.CDSAEndpoint(PBIBaseUrl),
-        groups = Workspace.GetWorkspaces(baseUrl),
+        baseUrl = Workspace.GetCdsaClusterUrl(PBIBaseUrl, options[TenantId]?),
+        isMwcRefresh = options[DataflowId]? <> null
+    in
+        if isMwcRefresh then Workspace.GetWorkspacesMwcRefresh(baseUrl, options) else Workspace.GetWorkspaces2(baseUrl, options);
+
+Workspace.GetWorkspaces2 = (_baseUrl as text, options as nullable record) =>
+    let
+        workspaces = Workspace.GetWorkspaces(_baseUrl, options),
         // get models with certification tags
-        modelsWithTags = Workspace.GetCertification(baseUrl),
-        withTags = Table.AddColumn(groups, "Tags", each ""),
-        withData = Table.AddColumn(withTags, "Data", each Workspace.GetNavTableForWorkspace(baseUrl, [workspaceId], [workspaceType], modelsWithTags, options)),
+        withTags = Table.AddColumn(workspaces, "Tags", each ""),
+        withData = Table.AddColumn(withTags, "Data", each Workspace.GetNavTableForWorkspace(_baseUrl, [workspaceId], [workspaceType], options)),
 
         // build nav table
-        withItemKind = Table.AddColumn(withData, "ItemKind", each "Folder"),
-        withItemName = Table.AddColumn(withItemKind, "ItemName", each "Folder"),
-        withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each false),
-        nav = Table.ToNavigationTable(withIsLeaf, {"workspaceId"}, "workspaceName", "Data", "ItemKind", "ItemName", "IsLeaf", "Tags")
-    in
-        if (groups = null) then null else nav;
+        nav = Table.NavigationTableView(
+            () => withData,
+            {"workspaceId"},
+            (_workspaceId) =>
+                Workspace.GetNavTableForWorkspace(_baseUrl, _workspaceId, withTags{[workspaceId=_workspaceId]}[workspaceType], options),
+            [
+                Name = {"workspaceName", each [workspaceName]},
+                workspaceType = each "Folder",
+                Tags = each [Tags] ?? "",
+                Data = each [Data],
+                ItemKind = each "Folder",
+                ItemName = each "Folder",
+                IsLeaf = each false
+            ])
+        in
+            nav;
 
-Workspace.GetNavTableForWorkspace = (baseUrl as text, workspaceId as text, workspaceType as text, modelsWithTags as table, options as nullable record) as nullable table =>
+Workspace.GetNavTableForWorkspace = (_baseUrl as text, workspaceId as text, workspaceType as text, options as nullable record) as nullable table =>
     let
-        dataflows = Workspace.GetDataflows(baseUrl, workspaceId, workspaceType),
+        modelsWithTags = Workspace.GetCertificationForWorkspace(_baseUrl, workspaceId),
+        dataflows = Workspace.GetDataflows(_baseUrl, workspaceId, workspaceType, options[TenantId]?),
         dataflowsWithCertification = Table.Join(dataflows, "dataflowId", modelsWithTags, "modelObjectId", JoinKind.LeftOuter),
 
-        withData = Table.AddColumn(dataflowsWithCertification, "Data", each Workspace.GetNavTableForDataflow(baseUrl, workspaceId, workspaceType, [dataflowId], options)),
+        withData = Table.AddColumn(dataflowsWithCertification, "Data",
+            each Workspace.GetNavTableForDataflow(_baseUrl, workspaceId, workspaceType, [dataflowId], options)),
 
         // build nav table
-        withItemKind = Table.AddColumn(withData, "ItemKind", each "Database"),
-        withItemName = Table.AddColumn(withItemKind, "ItemName", each "Database"),
-        withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each false),
-        cleanedUpEntries = Table.RemoveColumns(withIsLeaf, {"modelObjectId"}),
-
-        nav = Table.ToNavigationTable(cleanedUpEntries, {"dataflowId"}, "dataflowName", "Data", "ItemKind", "ItemName", "IsLeaf", "Tags")
+        nav = Table.NavigationTableView(
+            () => withData,
+            {"dataflowId"},
+            (_dataflowId) =>
+                Workspace.GetNavTableForDataflow(_baseUrl, workspaceId, workspaceType, _dataflowId, options),
+            [
+                Name = {"dataflowName", each [dataflowName]},
+                description = each [description] ?? "",
+                Tags = each [Tags] ?? "",
+                Data = each [Data],
+                ItemKind = each "Database",
+                ItemName = each "Database",
+                IsLeaf = each false
+            ])
     in
-        if (dataflows = null) then null else nav;
+        nav;
 
 Workspace.GetNavTableForDataflow = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, options as nullable record) as nullable table =>
     let
@@ -448,110 +675,250 @@ Workspace.GetNavTableForDataflow = (baseUrl as text, workspaceId as text, worksp
     in
         nav;
 
-Workspace.GetWorkspaces = (baseUrl as text) as table =>
+Workspace.GetWorkspaces = (baseUrl as text, options as nullable record) as table =>
     let
         url = Uri.Combine(baseUrl, "/metadata/v201606/cdsa/workspaces"),
-        response = Web.JsonContents(url),
+        response = Workspace.GetJsonContents(url, Workspace.GetRequestHeaders(null), [Origin = NonPii("Workspace/GetWorkspaces")]),
         workspaces = Table.FromRecords(response, {"id", "name", "type"}),
         rename = Table.RenameColumns(workspaces, {{"id", "workspaceId"}, {"name", "workspaceName"}, {"type", "workspaceType"}}),
         withoutUserWorkspace = Table.SelectRows(rename, each [workspaceType] <> "User")
     in
         withoutUserWorkspace;
 
-Workspace.GetDataflows = (baseUrl as text, workspaceId as text, workspaceType as text) as nullable table =>
+Workspace.GetDataflows = (baseUrl as text, workspaceId as text, workspaceType as text, tenantId as nullable text) as nullable table =>
     let
         url = Uri.Combine(baseUrl, Text.Format("/metadata/v201606/cdsa/dataflows/#{0}", {workspaceId})),
-        headers = Workspace.PBIRequestHeaders(workspaceId, workspaceType),
-        response = Web.JsonContents(url, [Headers = headers]),
+        headers = Workspace.GetServiceRequestHeaders(workspaceId, workspaceType, tenantId),
+        response = Workspace.GetJsonContents(url, headers, [Origin = NonPii("Workspace/GetDataflows"), WorkspaceId = NonPii(workspaceId)]),
         dataflows = Table.FromRecords(response, {"dataflowId", "name", "description"}),
         rename = Table.RenameColumns(dataflows, {{"name", "dataflowName"}})
     in
         if (response = null) then null else rename;
 
-Workspace.GetCertification = (baseUrl as text) as table =>
+Workspace.GetWorkspacesMwcRefresh = (baseUrl as text, options as nullable record) =>
+    let
+        // MWC uses the connector to refresh and will refresh a specific dataflow entities, thus no need to enumerate all workspaces and all dataflows
+        dataflowId = options[DataflowId],
+        workspaceId = options[WorkspaceId],
+        workspaces = Table.FromRecords({[workspaceId = workspaceId, name = "cdsa workload", workspaceType = "Folder"]}),
+        result = Table.AddColumn(workspaces, "Data", each Workspace.GetWorkspaceMwcRefresh(baseUrl, workspaceId, [workspaceType], dataflowId, options))
+    in
+        result;
+
+Workspace.GetWorkspaceMwcRefresh = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, options as nullable record) =>
+    let
+        // creating record for the dataflows received from MWC
+        d = dataflowId,
+        dataflows = Table.FromRecords({[dataflowId = d, dataflowName = "mwcDataflow", dataflowDescription = "mwcDataflow"]}),
+
+        withData = Table.AddColumn(dataflows, "Data", each Workspace.GetNavTableForDataflow(baseUrl, workspaceId, workspaceType, [dataflowId], options), type table),
+        withTags = Table.AddColumn(withData, "Tags", each ""),
+        withItemKind = Table.AddColumn(withTags, "ItemKind", each "Database"),
+        withItemName = Table.AddColumn(withItemKind, "ItemName", each "Database"),
+        withIsLeaf = Table.AddColumn(withItemName, "IsLeaf", each false),
+
+        // build navigation table for workspace
+        nav = Table.ToNavigationTable(withIsLeaf, {"dataflowId"}, "dataflowName", "Data", "Tags", "ItemKind", "ItemName", "IsLeaf")
+    in
+        nav;
+
+Workspace.CertificationStringFromFlag = (flag as nullable number) as text =>
+    if flag = null then ""
+    else if flag = 1 then "PowerBI.Promoted"
+    else if flag = 2 then "PowerBI.Certified"
+    else if flag = 3 then "PowerBI.Master"
+    else if flag = 4 then "PowerBI.Recommended"
+    else "";
+
+Workspace.GetCertificationForWorkspace = (baseUrl as text, workspaceId as text) as table =>
     let
         // default return value on errors
         emptyResult = Table.FromRecords({[modelObjectId="00000000-0000-0000-0000-000000000000",Tags=""]}),
 
         // Returns the list of dataflows with gallery information.
-        url = Uri.Combine(baseUrl, "/metadata/v201901/gallery/dataflows"),
+        url = Uri.Combine(baseUrl, "/metadata/v201606/cdsa/endorsement/" & workspaceId),
 
         // ignore errors for now until gallery API will be available in all environments
-        response = try Web.JsonContents(url) otherwise null,
+        context = [Origin = NonPii("Workspace/GetCertificationForWorkspace")],
+        response = try Workspace.GetJsonContents(url, Workspace.GetRequestHeaders(null), context)
+            otherwise null,
 
         toTable = Table.FromList(response, Splitter.SplitByNothing(), {"Column1"}),
-        expandResponse = Table.ExpandRecordColumn(toTable, "Column1", {"cdsaModel", "galleryItem"}),
-        expandModelsWithId = Table.AddColumn(expandResponse, "modelObjectId", each Text.Lower([cdsaModel][objectId]?)),
+        expandResponse = Table.ExpandRecordColumn(toTable, "Column1", {"artifactObjectId", "status", "stage"}),
+        expandModelsWithId = Table.AddColumn(expandResponse, "modelObjectId", each Text.Lower([artifactObjectId])),
 
-        // function to convert certification stage to string used by PQ/desktop
-        CertificationStringFromFlag = (flag as nullable number) as text => 
-                if flag = null then ""
-                else if flag = 1 then "PowerBI.Promoted"
-                else if flag = 2 then "PowerBI.Certified"
-                else if flag = 3 then "PowerBI.Master"
-                else if flag = 4 then "PowerBI.Recommended"
-                else "",
-
-        expandModelsWithCertification = Table.AddColumn(expandModelsWithId, "Tags", each if [galleryItem] <> null then (if [galleryItem][status] = 0 then CertificationStringFromFlag([galleryItem][stage]) else "") else ""),
+        expandModelsWithCertification = Table.AddColumn(expandModelsWithId, "Tags",
+            each if [status] = 0 then Workspace.CertificationStringFromFlag([stage]) else ""),
 
         // remove columns used for computations
-        cleanedUpEntries = Table.RemoveColumns(expandModelsWithCertification, {"cdsaModel", "galleryItem"})
+        cleanedUpEntries = Table.RemoveColumns(expandModelsWithCertification, {"artifactObjectId", "status", "stage"})
     in
         if (response = null or List.IsEmpty(response)) then emptyResult else cleanedUpEntries;
 
+// The contentandcache catalog is for a single dataflow has the following key fields:
+// - content/entities: The dataflow entities, their schemas, and their data partition locations.
+// - entityAccessorType: can be ReadContent, MashupExpression, MashupExpressionReadContentOnFailure
+//     It is implemented here and is received as part of the contentandcache call.
+
+//     https://dev.azure.com/powerbi/Power%20BI/_git/powerbi?path=%2FSql%2FCloudBI%2FAS%2Fsrc%2FPowerBI%2FPowerBIServiceContracts%2FVersion201606%2FCdsa%2FEntityAccessorType.cs&_a=contents&version=GBmaster
+
+//     Note that all PowerPlatform dataflows correspond to MashupExpressionReadContentOnFailure
+//     From the connector perspective, the three values are treated as follows:
+//     ReadContent: Read from blob store. If cache is available and query can be folded, use the
+//       cache instead.
+//     MashupExpressionReadContentOnFailure: Backend API will provide a mashup expression that
+//       will read data. If that mashup expression fails, fall back to reading from blob storage.
+//     MashupExpression: Backend API will provide a mashup expression that will read data. There
+//       is no fallback to reading from blob store.
+// - cachedEntities: SQL accessors for the entities. May only be present if entityAccessorType is
+//     ReadContent.
+// - sources: Objects with two elements, name and source. Each name corresponds to an entity name.
+//     source is a template with variables marked as <<n>> where n is a numeric index into
+//     sharedStrings, below. Substituting the shared strings into the template gives a complete
+//     mashup expression for accessing the data source.
+// - sharedStrings: An array of strings to substitute into sources. See above.
 Workspace.GetDataflow = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, options as nullable record) as nullable table =>
     let
-        operationUserAccessToken = DataLake.GetAdlsOperationUserCredentials()[access_token],
-        operationUserPuid = if Record.HasFields(Extension.CurrentCredential()[Properties], {"OperationUserToken"})
-                            then DataLake.GetUserPuidFromToken(operationUserAccessToken)
-                            else null,
+        tenantId = options[TenantId]?,
+        context = [WorkspaceId = NonPii(workspaceId), DataflowId = NonPii(dataflowId)],
+        contentCatalog = let
+            operationUserAccessToken = DataLake.GetAdlsOperationUserCredentials()[access_token],
+            operationUserPuid = if Record.HasFields(Extension.CurrentCredential()[Properties], {"OperationUserToken"})
+                then DataLake.GetUserPuidFromToken(operationUserAccessToken)
+                else null,
+            contentType = if options[TransactionId]? = null then "contentandcache" else "content",
+            contentUrl = Uri.Combine(baseUrl, Text.Format("/metadata/v201606/cdsa/dataflows/#{0}/#{1}", {dataflowId, contentType})),
+            transactionUrl = if options[TransactionId]? <> null
+                then Text.Combine({ contentUrl, "?", Uri.BuildQueryString([transactionId = options[TransactionId]?])})
+                else contentUrl,
+            headers = Workspace.GetServiceRequestHeaders(workspaceId, workspaceType, tenantId, operationUserPuid),
+            originContext = [Origin = NonPii("Workspace/GetDataflow/contentCatalog")] & context
+        in
+            try Workspace.GetJsonContents(transactionUrl, headers, originContext, null, null, null, null, true)
+                catch (e) =>
+                    Diagnostics.Trace(TraceLevel.Information,
+                        [
+                            Name="Workspace/ContentCatalog/Error",
+                            Data=[Error=try Text.FromBinary(Json.FromValue(e)) otherwise "Unknown error."],
+                            SafeData=context
+                        ],
+                        []),
 
-        url = Uri.Combine(baseUrl, Text.Format("/metadata/v201606/cdsa/dataflows/#{0}/contentandcache", {dataflowId})),
-        headers = Workspace.PBIRequestHeaders(workspaceId, workspaceType, operationUserPuid),
-        response = Web.JsonContents(url, [Headers = headers]),
-        content = Value.IfNull(response[content]?, []),
-        dataflow = Record.SelectFields(content, {"culture", "entities", "relationships"}, MissingField.UseNull),
-        renameFields = Record.RenameFields(dataflow, {{"culture", "dataflowCulture"}}),
-        transformFields = Record.TransformFields(renameFields, {
-            {"dataflowCulture", each if (_ = null) then "" else _}
-        }),
-        toTable = Table.FromRecords({transformFields}),
-        entities = Table.AddColumn(toTable, "Entities", each if ([entities] <> null) then FormatEntitiesForDataflow(baseUrl, workspaceId, workspaceType, dataflowId, [entities], [dataflowCulture], true) else null, type nullable table),
-        noNulls = Table.SelectRows(entities, each [Entities] <> null),
-        expandEntities = Table.ExpandTableColumn(noNulls, "Entities", {"name", "pbi:dataCategory", "Data", "isStreaming"}, {"entity", "dataCategory", "uncachedData", "isStreaming"}),
-        withHotName = Table.AddColumn(expandEntities, "entityName", each [entity] & (if [isStreaming] then Extension.LoadString("StreamingEntityHotDataSuffix") else "")),
-        withHotVersion = Table.AddColumn(withHotName, "version", each ""),
+        entityAccessorType = contentCatalog[entityAccessorType]? ?? "ReadContent",
+        pbiClusterUrl = if entityAccessorType = "MashupExpression" or entityAccessorType = "MashupExpressionReadContentOnFailure"
+            then Workspace.GetCdsaClusterUrl(PBIBaseUrl, options[TenantId]?)
+            else null,
 
-        streamingEntities = Table.SelectRows(expandEntities, each [isStreaming]),
-        withColdName = Table.AddColumn(streamingEntities, "entityName", each [entity] & Extension.LoadString("StreamingEntityArchivedDataSuffix")),
-        withColdVersion = Table.AddColumn(withColdName, "version", each "cold"),
+        dataflowEntities = let
+            dataflow = Record.SelectFields(contentCatalog[content]? ?? [], {"culture", "entities", "relationships"}, MissingField.UseNull),
+            renameFields = Record.RenameFields(dataflow, {{"culture", "dataflowCulture"}}),
+            dataflowEntities = Table.FromRecords({ Record.TransformFields(renameFields, {{"dataflowCulture", each _ ?? ""}}) }),
+            getEntityMashupJson = (entityName) => let
+                url = Uri.Combine(baseUrl, Text.Format("/metadata/v201606/cdsa/dataflows/#{0}/storageAccess/#{1}", {dataflowId, entityName})),
+                headers = Workspace.GetServiceRequestHeaders(workspaceId, workspaceType, tenantId),
+                originContext = [Origin = NonPii("Workspace/GetDataflow/dataflowEntities")] & context,
+                storageJson = Workspace.GetJsonContents(url, headers, originContext, null, null, url, SasTokenCacheHours),
+                accessorSettings = [ PBI_ClusterUrl = pbiClusterUrl ]
+            in
+                storageJson & [accessorSettings = accessorSettings],
+            getEntityPartitionData = (partition, entityName, tableType, culture) => let
+                location = partition[location],
+                partitionName = partition[name],
+                format = partition[fileFormatSettings],
+                traits = partition[#"cdm:traits"],
+                // is.partition.folder is used only with streaming dataflows in powerbi
+                isPartitionFolder = List.Contains(traits ?? {}, "is.partition.folder"),
+                partitionFolderContents = let
+                    partitions = Workspace.GetQualifiedPartitions(baseUrl, workspaceId, workspaceType, dataflowId, entityName, location, tenantId),
+                    storageAccess = Workspace.GetStorageAccess(baseUrl, workspaceId, workspaceType, dataflowId, "" /* location */, entityName, "Read", tenantId),
+                    contentsTable = Table.AddColumn(partitions, "content", each GetEntityFile([qualifiedUri], tableType, storageAccess[AccessType], storageAccess[Sas], [columnHeaders = true], culture, traits)),
+                    dataPartitions = Table.SelectRows(contentsTable, each not Table.IsEmpty([content])),
+                    dataOnly = Table.SelectColumns(dataPartitions, "content"),
+                    contents = Table.ExpandTableColumn(dataOnly, "content", Type.TableSchema(tableType)[Name])
+                in
+                    contents,
+                partitionContents = let
+                    storageAccess = Workspace.GetStorageAccess(baseUrl, workspaceId, workspaceType, dataflowId, location, entityName, "Read", tenantId)
+                in
+                    GetEntityFile(storageAccess[URL], tableType, storageAccess[AccessType], storageAccess[Sas], format, culture, traits)
+            in
+                if isPartitionFolder then partitionFolderContents else partitionContents,
+            entities = Table.AddColumn(dataflowEntities, "Entities",
+                each if [entities] <> null
+                    then FormatEntitiesForDataflow(
+                        entityAccessorType,
+                        [entities],
+                        [dataflowCulture],
+                        getEntityMashupJson,
+                        getEntityPartitionData,
+                        options,
+                        [WorkspaceId = NonPii(workspaceId), DataflowId = NonPii(dataflowId)])
+                    else null,
+                type nullable table),
+            validatedEntities = Table.SelectRows(entities, each [Entities] <> null),
+            expandEntities = Table.ExpandTableColumn(validatedEntities, "Entities",
+                                                     {"name", "pbi:dataCategory", "Data", "isStreaming"},
+                                                     {"entity", "dataCategory", "uncachedData", "isStreaming"})
+        in
+            expandEntities,
 
-        allEntities = Table.Combine({withHotVersion, withColdVersion}),
+        // All entities are updated to indicate streaming. Streaming entities each have two rows: hot with recent
+        // data only, and cold with all data.
+        dataflowEntitiesWithStreaming = let
+            withHotName = Table.AddColumn(dataflowEntities, "entityName",
+                                          each [entity] & (if [isStreaming] then Extension.LoadString("StreamingEntityHotDataSuffix") else "")),
+            withHotVersion = Table.AddColumn(withHotName, "version", each ""),
 
-        cachedEntities = try Workspace.GetCachedEntities(PBIBaseUrl, workspaceId, dataflowId, response) otherwise null,
-        joinedEntities = if cachedEntities = null
-            then Table.AddColumn(allEntities, "cachedData", each null)
-            else Table.Join(allEntities, "entity", cachedEntities, "cachedEntity", JoinKind.LeftOuter),
-        addedItemKind = Table.AddColumn(joinedEntities, "ItemKind", each if [cachedData] <> null and [version] = "" then "View" else "Table"),
-        addedData = Table.AddColumn(addedItemKind, "Data", each MakeSqlTable(options, [cachedData], [uncachedData], [isStreaming], [version])),
+            streamingEntities = Table.SelectRows(dataflowEntities, each [isStreaming]),
+            withColdName = Table.AddColumn(streamingEntities, "entityName",
+                                           each [entity] & Extension.LoadString("StreamingEntityArchivedDataSuffix")),
+            withColdVersion = Table.AddColumn(withColdName, "version", each "cold")
+        in
+            Table.Combine({withHotVersion, withColdVersion}),
 
-        // withRelationships = FixExpression(ProcessRelationships(addedData, workspaceId, dataflowId, dataflow[relationships]?)),
-        withRelationships = addedData,
+        dataflowEntitiesWithCaching = let
+            entityCachesPresent = not List.IsEmpty(contentCatalog[cachedEntities]? ?? {}),
+            enableFolding = options[EnableFolding]? <> false,
+            entityCaches = if entityCachesPresent and enableFolding
+                then try Workspace.GetCachedEntitiesFromCatalog(PBIBaseUrl, workspaceId, dataflowId, contentCatalog) otherwise null
+                else null,
+            expressionsFromCatalog = let
+                _entities = try Workspace.GetEntityExpressionFromCatalog(contentCatalog, enableFolding, tenantId, context),
+                entities = if _entities[HasError]
+                    then Diagnostics.Trace(TraceLevel.Warning,
+                        [
+                            Name="Workspace/GetEntityExpressionFromCatalog/Error",
+                            Data=[Error=try Text.FromBinary(Json.FromValue(_entities[Error])) otherwise "Unknown error."],
+                            SafeData=context
+                        ],
+                        null)
+                    else _entities[Value]
+            in
+                if entityAccessorType = "MashupExpression" and Record.HasFields(contentCatalog, "sources") then entities else null,
+            catalogEntityData = expressionsFromCatalog ?? entityCaches,
+            entitiesWithCaches = if catalogEntityData <> null
+                then Table.Join(dataflowEntitiesWithStreaming, "entity", catalogEntityData, "cachedEntity", JoinKind.LeftOuter)
+                else Table.AddColumn(dataflowEntitiesWithStreaming, "cachedData",
+                    each if entityAccessorType = "MashupExpression" or entityAccessorType = "MashupExpressionReadContentOnFailure" then [uncachedData] else null),
+            addedItemKind = Table.AddColumn(entitiesWithCaches, "ItemKind", each if [cachedData] <> null and [version] = "" then "View" else "Table")
+        in
+            Table.AddColumn(addedItemKind, "Data", each GetEntityDataColumnValue(options, entityAccessorType, [cachedData], [uncachedData], [isStreaming], [version])),
 
-        // get rid of any extra columns used for calculation
-        selectColumns = Table.SelectColumns(withRelationships, {"entity", "dataCategory", "Data", "ItemKind", "entityName", "version"})
+        dataflowEntitiesFinalTable = Table.SelectColumns(dataflowEntitiesWithCaching, {"entity", "dataCategory", "Data", "ItemKind", "entityName", "version"})
     in
-        if (response = null) then null else selectColumns;
+        if (contentCatalog = null) then null else dataflowEntitiesFinalTable;
 
-MakeSqlTable = (options, cachedData, uncachedData, isStreaming, version) =>
+GetEntityDataColumnValue = (options, entityAccessorType, cachedData, uncachedData, isStreaming, version) =>
     if isStreaming
         then if version = "" then cachedData else uncachedData
-        else if cachedData = null or options[EnableFolding]? = false
-            then uncachedData
-            else Table.View(cachedData, [
-                GetExpression = () => GetAst(cachedData),
-                GetRows = () => uncachedData
-            ]);
+    else if entityAccessorType = "MashupExpression" or entityAccessorType = "MashupExpressionReadContentOnFailure"
+        then cachedData
+    else if cachedData = null or options[EnableFolding]? = false
+        then uncachedData
+    else Table.View(cachedData, [
+        GetExpression = () => GetAst(cachedData),
+        GetRows = () => uncachedData
+    ]);
 
 GetAst = (table) =>
     let
@@ -567,17 +934,54 @@ GetAst = (table) =>
     in
         ReplaceOneValue(Value.Expression(Value.Optimize(table)));
 
-Workspace.GetCachedEntities = (endpoint, workspaceId, dataflowId, jsonCatalog) =>
+ExpandTemplate = (template, strings) =>
     let
-        entities = jsonCatalog[content][entities],
-        entities2 = List.Transform(entities, each [TABLE_NAME=[name], Columns=Table.FromRecords([attributes])]),
-        entities3 = Table.FromRecords(entities2),
+        parts = Text.Split(template, "<<"),
+        substituteString = (state, current) => let
+            falseStart = Text.At(current, 0) = "<",
+            stringIndexStart = if falseStart then 1 else 0,
+            stringIndexEnd = Text.PositionOf(current, ">>"),
+            substitute = try if stringIndexEnd <> -1
+                then strings{Number.From(Text.Range(current, stringIndexStart, stringIndexEnd - stringIndexStart))}
+                else null
+                otherwise null
+        in
+            if substitute <> null
+                then (state & (if falseStart then "<" else "") & substitute & Text.Range(current, stringIndexEnd + 2))
+                else (state & "<<" & current),
+        result = List.Accumulate(List.RemoveFirstN(parts, 1), parts{0}, substituteString)
+    in
+        result;
+
+Workspace.GetEntityExpressionFromCatalog = (contentCatalog as record, enableFolding as logical, tenantId as nullable text, context as record) =>
+    let
+        namesAndSources = contentCatalog[sources],
+        sharedStrings = contentCatalog[sharedStrings],
+        replaceSharedStrings = (template) => ExpandTemplate(template, sharedStrings),
+        pbiClusterUrl = Workspace.GetCdsaClusterUrl(PBIBaseUrl, tenantId),
+        getNameAndCache = (nameAndSource) => let
+            name = nameAndSource[name],
+            expressionTemplate = nameAndSource[source][expression],
+            credentialsTemplate = nameAndSource[source][credentials],
+            sourceExpression = replaceSharedStrings(expressionTemplate),
+            sourceCredentials = replaceSharedStrings(credentialsTemplate),
+            withFolding = if enableFolding then sourceExpression else ("Table.StopFolding(" & sourceExpression & ")"),
+            cachedData = GetEntityFromAccessor(withFolding, sourceCredentials, [ PBI_ClusterUrl = pbiClusterUrl ], context)
+        in
+            [ cachedEntity = name, cachedData = cachedData ],
+        cacheRecords = List.Transform(namesAndSources, getNameAndCache)
+    in
+        Table.FromRecords(cacheRecords);
+
+Workspace.GetCachedEntitiesFromCatalog = (endpoint, workspaceId, dataflowId, contentCatalog) =>
+    let
+        entities = Table.FromRecords(List.Transform(contentCatalog[content][entities], each [TABLE_NAME=[name], Columns=Table.FromRecords([attributes])])),
         sqlCachedEntities = Table.Join(
             Table.SelectRows(
-                Table.SelectColumns(Table.FromRecords(jsonCatalog[cachedEntities]), {"entityName", "nameQualifier", "cacheType", "cacheMoniker"}, MissingField.UseNull),
+                Table.SelectColumns(Table.FromRecords(contentCatalog[cachedEntities]), {"entityName", "nameQualifier", "cacheType", "cacheMoniker"}, MissingField.UseNull),
                 each [cacheType] = "Sql"),
             "entityName",
-            entities3,
+            entities,
             "TABLE_NAME",
             JoinKind.Inner),
         transformSqlType = (t) => try TypeMap{[T = Text.Lower(t)]}[S] otherwise "error",
@@ -598,14 +1002,14 @@ Workspace.GetCachedEntities = (endpoint, workspaceId, dataflowId, jsonCatalog) =
         serializedVersion = Extension.Cache()[Metadata][Serialized](cacheKey, () => try Text.ToBinary(computedVersion) otherwise #binary({})),
         serverVersion = if Binary.Length(serializedVersion) > 0 then Text.FromBinary(serializedVersion)
             else error Error.Record("Expression.Error", "Cached dataflow not supported", null), // will be caught in GetDataflow
-        
+
         sqlCatalog = SqlDatabase.View([
             Dialect = "T-SQL",
             GeneratorVersion = 1,
             DataSourceName="Dataflows",
             ServerVersion=serverVersion,
             Server=workspaceId,
-            Database=dataflowId,
+            Database=workspaceId,
             GetTables = () => Table.AddColumn(Table.RenameColumns(sqlCachedEntities, {{"nameQualifier", "TABLE_SCHEMA"}}), "TABLE_TYPE", each "View"),
             GetColumns = (schema, table) => Table.TransformColumns(
                 Table.AddColumn(
@@ -625,71 +1029,152 @@ Workspace.GetCachedEntities = (endpoint, workspaceId, dataflowId, jsonCatalog) =
     in
         Table.RenameColumns(Table.SelectColumns(sqlCatalog, {"Item", "Data"}), {{"Item", "cachedEntity"}, {"Data", "cachedData"}});
 
-Workspace.GetStorageAccess = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, location as text, name as text, permissions as text) as record =>
+Workspace.GetStorageAccess = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, location as text, name as text, permissions as text, tenantId as nullable text) as record =>
     let
         url = Uri.Combine(baseUrl, Text.Format("/metadata/v201606/cdsa/dataflows/#{0}/storageAccess", {dataflowId})),
         body = [
-            TokenLifetimeInMinutes = 60,
+            TokenLifetimeInMinutes = 60*24,
             Permissions = permissions,
             EntityName = name,
             PartitionUri = location
         ],
-        headers = Workspace.PBIRequestHeaders(workspaceId, workspaceType),
-        withContentTypes = headers & [
-            #"Content-type" = "application/json",
-            #"Accept" = "application/json"
-        ],
-        response = Web.JsonContents(url, [
-            Headers = withContentTypes,
-            Content = Json.FromValue(body)
-        ]),
-
+        headers = Workspace.GetServiceRequestHeaders(workspaceId, workspaceType, tenantId),
+        cacheKey = if location <> "" then (name & "|" & location & "|" & dataflowId) else null,
+        context = [Origin = NonPii("Workspace/GetStorageAccess"), WorkspaceId = NonPii(workspaceId), DataflowId = NonPii(dataflowId)],
+        response = Workspace.GetJsonContents(url, headers, context, body, null, cacheKey, SasTokenCacheHours),
         // accessDetails is a list, but we currently only care about the first item.
         // When we add partition support, we will need to identify the which container to access.
         access = List.First(response[accessDetails]),
         //TODO (igcelik 01.13.18) remove "BlobContainerSas" value on sync with BE code and replace by "SAS" in contract
-        sas = if access[sas]? <> null then access[sas] else access[blobContainerSas]?,
+        sas = access[sas]? ?? access[blobContainerSas]?,
         useAdlsSas = access[accessType] = "Adls2" and sas <> null,
         accessType = if useAdlsSas then "Adls2Sas" else access[accessType],
         queryString = if (accessType = "BlobContainerSas" or accessType = "BlobSas" or accessType = "Adls2Sas") then sas else ""
     in
         [URL = location, AccessType = accessType, Sas = queryString];
 
-Workspace.CDSAEndpoint = (baseUrl as text) as text =>
+Workspace.GetCdsaClusterUrl = (baseUrl as text, tenantId as nullable text) as text =>
     let
         // Cluster avaliability issue may affect the globalservice call resulting is sporadic 500 response returned to the caller
         // It is not possible to change the status code which is returned to 504 as it will be a breaking change
         // therefore all the clients were instructed to retry this call on 500
-        retryCountCodes = {500},
-        maxRetryCount = 5,
-        props = Extension.CurrentApplication(),
-        serviceEndpoint = Value.IfNull(props[PBIEndpointUrl]?, baseUrl),
-        disco = Uri.Combine(serviceEndpoint, "/powerbi/globalservice/v201606/clusterdetails"),
-        response = Web.JsonContents(disco, [], retryCountCodes, maxRetryCount),
-        clusterUrl = response[clusterUrl]
+        // Power BI APIs return a 403 for token expiry, handling this manually to refresh the token.
+        props = (Extension.CurrentCredential()[Properties]? ?? []) & Extension.CurrentApplication(),
+        serviceEndpoint = props[PBIEndpointUrl]? ?? baseUrl,
+        retryfn = Workspace.RetryHandler(5),
+        uriEnd = if UseNewClusterAPI then "/metadata/cluster" else "/powerbi/globalservice/v201606/clusterdetails",
+        response = Workspace.GetJsonContents(
+            Uri.Combine(serviceEndpoint, uriEnd),
+            Workspace.GetRequestHeaders(tenantId),
+            [Origin = NonPii("Workspace/GetCdsaClusterUrl")],
+            null,
+            [500 = retryfn, 403 = retryfn]),
+        clusterUrlViaRequest = if UseNewClusterAPI then response[backendUrl] else response[clusterUrl],
+        _clusterUrl = props[PBI_ClusterUrl]? ?? clusterUrlViaRequest,
+        clusterUrl = Diagnostics.Trace(TraceLevel.Information, [
+                Name = "Workspace/GetCdsaClusterUrl",
+                Data = [],
+                SafeData = [ ServiceEndpoint = serviceEndpoint, PBI_ClusterUrl = props[PBI_ClusterUrl]? ]
+            ],
+            _clusterUrl)
     in
         clusterUrl;
 
-Workspace.PBIRequestHeaders = (workspaceId as text, workspaceType as text, optional userId as text) as record =>
+Workspace.GetQualifiedPartitions = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, entityName as text, location as text, tenantId as nullable text) as table =>
     let
-        workspaceHeader = if (workspaceType <> "User" and workspaceType <> "Folder") then [ #"X-PowerBI-User-GroupId" = workspaceId ] else [],
-        headerWithUserId = if userId <> null then workspaceHeader & [#"X-AS-AuthorizedUserID" = userId] else workspaceHeader
+        // Location example: "https://<<account>>.blob.core.windows.net:443/<<container>>/<<entityName>>/<<snapshot>>/"
+        locationWithoutSnapshot = Text.BeforeDelimiter(location, "@"), // removing @snapshot format, ?snapshot should be taken care of by Uri.Parts
+        uri = Uri.Parts(locationWithoutSnapshot),
+        pathParams = Text.Split(uri[Path], "/"),
+        pathParamsCount = List.Count(pathParams),
+        baseUri = Text.Combine({uri[Scheme], uri[Host]}, "://"), // https://<<account>>.blob.core.windows.net:443
+        containerUri = Text.Combine({baseUri, pathParams{1}}, "/"), // https://<<account>>.blob.core.windows.net:443/<<container>>
+        entityPrefix = Text.Combine(List.Range(pathParams, 2, pathParamsCount), "/"), // <<entityName>>/<<snapshot>>
+        // listing blobs under a directory
+        storageAccess = Workspace.GetStorageAccess(baseUrl, workspaceId, workspaceType, dataflowId, "" /* location */, entityName, "List", tenantId),
+        queryParams = Uri.BuildQueryString([restype = "container", comp = "list", prefix = entityPrefix]),
+        convertSas = (sas as text) as record => Uri.Parts("https://temp/?" & Text.Trim(Text.Trim(sas, "?"), "&"))[Query],
+        blobTableWithName = Workspace.GetPages(containerUri & "?" & queryParams, convertSas(storageAccess[Sas])),
+        fquTable = Table.AddColumn(blobTableWithName, "qualifiedUri", each Text.Combine({containerUri, [Name]}, "/"))
     in
-        headerWithUserId;
+        Table.SelectColumns(fquTable, "qualifiedUri");
+
+Workspace.GetPages = (uri as text, sas as record) as table =>
+    let
+        getPage = (uri as text) => [
+            response = Xml.Tables(Web.Contents(uri, [ManualCredentials = true, CredentialQuery = sas])),
+            blobs = if Record.HasFields(response{0}?[Blobs]{0}, "Blob") then Table.ToList(Table.SelectColumns(Record.Field(response{0}?[Blobs]{0}, "Blob"), "Name")) else {},
+            nextMarker = if not Type.Is(Value.Type(response{0}[NextMarker]), type text) then null else response{0}[NextMarker]
+        ],
+        blobList = List.Combine(List.Generate(
+            () => getPage(uri),
+            each _ <> null,
+            each if [nextMarker] = null then null else getPage(Text.Combine({uri, [nextMarker] }, "&marker=")),
+            each [blobs]
+        )),
+        blobTableWithName = Table.FromList(blobList, null, {"Name"})
+    in
+        blobTableWithName;
+
+Workspace.GetRequestHeaders = (tenantId as nullable text) =>
+    let
+        tenantIdHeaders = if tenantId <> null then [#"x-ms-tid" = tenantId] else []
+    in
+        tenantIdHeaders;
+
+Workspace.GetServiceRequestHeaders = (workspaceId as text, workspaceType as text, tenantId as nullable text, optional userId as text) as record =>
+    let
+        capacityId = Record.FieldOrDefault(Extension.CurrentApplication(), "PBI_CapacityObjectId", null),
+        workspaceHeader = if (workspaceType <> "User" and workspaceType <> "Folder") then [ #"X-PowerBI-User-GroupId" = workspaceId ] else [],
+        userIdHeader = if userId <> null then [#"X-AS-AuthorizedUserID" = userId] else [],
+        capacityIdHeader = if capacityId <> null then [#"x-ms-caller-capacity-id" = capacityId] else []
+    in
+        Workspace.GetRequestHeaders(tenantId) & workspaceHeader & userIdHeader & capacityIdHeader;
+
+Workspace.RetryHandler = (count, optional delayFunction as function) =>
+    RetryHandler(count, Workspace.DefaultErrorHandler, delayFunction);
+
+Workspace.DefaultErrorHandler = (state) => DefaultErrorHandler("Workspace", state);
+
+Workspace.DefaultWebResponseHandlers = [
+    302 = Workspace.DefaultErrorHandler,
+    400 = Workspace.DefaultErrorHandler,
+    403 = AuthHandler(Workspace.DefaultErrorHandler),
+    404 = Workspace.DefaultErrorHandler,
+    500 = Workspace.DefaultErrorHandler,
+    503 = Workspace.DefaultErrorHandler
+];
+
+Workspace.GetJsonContents = (
+    url as text,
+    headers as record,
+    context as record,
+    optional body as any,
+    optional additionalHandlers as record,
+    optional cacheKey as text,
+    optional cacheHours as number,
+    optional disableCaching as logical
+) =>
+    let
+        handlers = Workspace.DefaultWebResponseHandlers & (additionalHandlers ?? []),
+        result = if cacheKey <> null and cacheHours <> null
+            then Web.JsonContentsWithCaching(url, headers, body, handlers, cacheKey, cacheHours, context)
+            else Web.JsonContents(url, headers, body, handlers, context, if disableCaching = true then [Iteration = 1] else null)
+    in
+        result;
 
 // -----------------------------------------------------
 // | 3. Shared by both Group and Workspace.
 // -----------------------------------------------------
+
 FormatEntitiesForDataflow = (
-    baseUrl as text,
-    workspaceId as text,
-    workspaceType as text,
-    dataflowId as text,
+    entityAccessorType as text,
     entities as list,
     defaultCulture as text,
-    isWorkspace as logical,
-    optional credential as record,
-    optional options as nullable record
+    getEntityMashupJson as function,
+    getEntityPartitionData as function,
+    options as nullable record,
+    context as record
 ) as nullable table =>
     let
         // get the attributes and partitions
@@ -699,7 +1184,7 @@ FormatEntitiesForDataflow = (
         transformed = Table.TransformColumns(expandEntity, {
             {"attributes", TableTypeFromAttributes},
             // if culture is null we inherit from the model
-            {"culture", each if (_ = null) then defaultCulture else _},
+            {"culture", each _ ?? defaultCulture},
             {"isStreaming", (x) => x[#"$type"]? = "StreamingRefreshPolicy"}
         }),
 
@@ -707,14 +1192,68 @@ FormatEntitiesForDataflow = (
         noErrors = Table.RemoveRowsWithErrors(transformed),
         renameAttributes = Table.RenameColumns(noErrors, {{"attributes", "tableType"}}),
 
-        withData =
-                Table.AddColumn(renameAttributes, "Data",
-                    each if (AllPartitionsDefinedAndHaveLocations([partitions])) then
-                            GetEntity(baseUrl, workspaceId, workspaceType, dataflowId, [partitions], [tableType], [name], isWorkspace, [culture], credential, options)
-                         else
-                            #table([tableType], {}),
-                type table),
+        _enableFolding = options[EnableFolding]? <> false,
+        enableFolding = Diagnostics.Trace(TraceLevel.Information,
+            [
+                Name="FormatEntities/AccessorType",
+                Data=[],
+                SafeData=[EnableFolding=_enableFolding, EntityAccessorType=entityAccessorType] & context
+            ],
+            _enableFolding),
 
+        entityData = (row) => [
+            entityName = row[name],
+            tableType = row[tableType],
+            culture = row[culture],
+
+            partitions = row[partitions],
+            // convert the list of partitions to a table
+            // TODO: if we want to support partition keys, we would include the relevant columns here,
+            // and then filter down to only the relevant partitions.
+            asTable = Table.FromList(partitions, Splitter.SplitByNothing()),
+            expandPartitions = Table.ExpandRecordColumn(asTable, "Column1", {"location", "fileFormatSettings", "name", "cdm:traits"}),
+            partitionsWithExistingLocation = Table.SelectRows(expandPartitions, each [location] <> null),
+            fetchPartition = Table.AddColumn(
+                partitionsWithExistingLocation,
+                "data",
+                each getEntityPartitionData(_, entityName, tableType, culture), tableType),
+            dataPartitions = Table.SelectRows(fetchPartition, each not Table.IsEmpty([data])),
+            dataOnly = Table.SelectColumns(dataPartitions, "data"),
+            expandEntity = Table.ExpandTableColumn(dataOnly, "data", Type.TableSchema(tableType)[Name]),
+            entityFromPartitions = Table.View(null, [GetType = () => tableType, GetRows = () => expandEntity]),
+
+            _entityMashupExpression = try GetEntityMashupExpression(getEntityMashupJson, entityName, enableFolding, context),
+
+            ReadContent = if AllPartitionsDefinedAndHaveLocations(row[partitions])
+                then entityFromPartitions
+                else #table(row[tableType], {}),
+
+            MashupExpression = if _entityMashupExpression[HasError]
+                then error Error.Record(
+                    NonPii("DataSource.Error"),
+                    NonPii("Failed to get entity mashup expression."),
+                    [Error=try Text.FromBinary(Json.FromValue(_entityMashupExpression[Error])) otherwise "Unknown error.", AccessorType=NonPii("MashupExpression")])
+                else _entityMashupExpression[Value],
+
+            MashupExpressionReadContentOnFailure = let
+                entityMashupExpression = if _entityMashupExpression[HasError]
+                    then Diagnostics.Trace(TraceLevel.Information,
+                        [
+                            Name="FormatEntities/GetExpression",
+                            Data=[Error=try Text.FromBinary(Json.FromValue(_entityMashupExpression[Error])) otherwise "Unknown error."],
+                            SafeData=[AccessorType="MashupExpressionReadContentOnFailure"] & context
+                        ],
+                        null)
+                    else _entityMashupExpression[Value],
+                result = entityMashupExpression ??
+                    (if AllPartitionsDefinedAndHaveLocations(row[partitions])
+                        then entityFromPartitions
+                        else #table(row[tableType], {}))
+            in
+                result
+        ],
+
+        withData = Table.AddColumn(renameAttributes, "Data", each Record.Field(entityData(_), entityAccessorType), type table),
         cleanup = Table.RemoveColumns(withData, {"partitions"})
     in
         if (Table.IsEmpty(noErrors)) then null else cleanup;
@@ -742,105 +1281,55 @@ AllPartitionsDefinedAndHaveLocations = (optional partitions as list) =>
         or List.MatchesAll(partitions, each Record.Field(_, "location") = null)) then false
         else true;
 
-GetEntity = (
-    baseUrl as text,
-    workspaceId as text,
-    workspaceType as text,
-    dataflowId as text,
-    partitions as list,
-    tableType as type,
-    entityName as text,
-    isWorkspace as logical,
-    optional culture as text,
-    optional credential as record,
-    optional options as nullable record
-) as table =>
+GetEntityMashupExpression = (getEntityMashupJson as function, entityName as text, enableFolding as logical, context as record) =>
     let
-        // Try to get and use the entity accessor from the service
-        entityFromServer = if not isWorkspace and options[EnableFolding]? <> false
-            then try GetEntityFromServer(credential, baseUrl, dataflowId, entityName) otherwise null
-            else null,
-
-        // convert the list of partitions to a table
-        // TODO: if we want to support partition keys, we would include the relevant columns here,
-        // and then filter down to only the relevant partitions.
-        asTable = Table.FromList(partitions, Splitter.SplitByNothing()),
-        expandPartitions = Table.ExpandRecordColumn(asTable, "Column1", {"location", "fileFormatSettings", "name", "cdm:traits"}),
-        partitionsWithExistingLocation = Table.SelectRows(expandPartitions, each [location] <> null),
-        fetchPartition = Table.AddColumn(partitionsWithExistingLocation, "data", each GetEntityPartition(baseUrl, workspaceId, workspaceType, dataflowId, [location], tableType, entityName, isWorkspace, [name], [fileFormatSettings], culture, credential, [#"cdm:traits"]), tableType),
-        dataPartitions = Table.SelectRows(fetchPartition, each not Table.IsEmpty([data])),
-        dataOnly = Table.SelectColumns(dataPartitions, "data"),
-        expandEntity = Table.ExpandTableColumn(dataOnly, "data", Type.TableSchema(tableType)[Name]),
-        entity = entityFromServer ?? expandEntity
+        response = getEntityMashupJson(entityName),
+        accessorFromResponse = response[accessor]? ?? response[Accessor],
+        accessor = if enableFolding
+            then accessorFromResponse
+            else "Table.StopFolding(" & accessorFromResponse & ")",
+        dataSourceSetting = response[dataSourceSetting]? ?? response[DataSourceSetting],
+        accessorSettings = response[accessorSettings]
     in
-        Table.View(null, [GetType = () => tableType, GetRows = () => entity]);
+        GetEntityFromAccessor(accessor, dataSourceSetting, accessorSettings, context);
 
-GetEntityFromServer = (credential, baseUrl, dataflowId, entityName) =>
-    let
-        url = Uri.Combine(baseUrl, Text.Format("/api/dataflowConnector/dataflow/#{0}/storageAccess/#{1}", {dataflowId, entityName})),
-        headers = Group.AuthHeader(credential)[Headers] & [Accept = "application/json"],
-        response = Web.JsonContents(url, [Headers = headers]),
-        accessor = response[accessor],
-        dataSourceSetting = response[dataSourceSetting]
-    in
-        GetEntityFromAccessor(accessor, dataSourceSetting);
+GetEntityFromAccessor = (accessor as text, dataSourceSetting as text, accessorSettings as record, context as record) =>
+    Extension.InvokeWithCredentials(
+        (dataSource) => let
+            evaluatedSettings = Expression.Evaluate(dataSourceSetting),
+            extraTokenFields = List.Select(Record.FieldNames(evaluatedSettings), each Text.StartsWith(_, "AccessToken:")),
+            properties = (evaluatedSettings[Properties]? ?? []) & Record.SelectFields(evaluatedSettings, extraTokenFields),
+            withCorrectedProperties = Record.RemoveFields(evaluatedSettings, extraTokenFields) & [Properties = properties],
+            withAccessorSettings = List.Accumulate(
+                Record.FieldNames(accessorSettings),
+                withCorrectedProperties,
+                (settings, field) =>
+                    Record.SetAtPath(settings, { "Properties", field }, Record.Field(accessorSettings, field)))
+        in
+            withAccessorSettings,
+        () => WithNativeQueryPermission(accessor, context));
 
-GetEntityFromAccessor = (accessor, dataSourceSetting) => Extension.InvokeWithCredentials(
-    (dataSource) => Expression.Evaluate(dataSourceSetting),
-    () => WithNativeQueryPermission(accessor));
+// TODO Remove these when DFE engine fixes the accessor expression
+DfeFixups = [
+    Function.Equals = "",
+    Exemplar.GetExemplar = ""
+];
 
-WithNativeQueryPermission = (accessor) =>
+WithNativeQueryPermission = (accessor as text, context as record) =>
     Extension.InvokeWithPermissions(
         (permission) => permission[PermissionKind] = "NativeQuery",
-        () => Expression.Evaluate(accessor, #shared));
+        () => try Expression.Evaluate(accessor, #shared & DfeFixups) catch (e) =>
+                    Diagnostics.Trace(TraceLevel.Warning,
+                        [
+                            Name="MashupInvocation/Error",
+                            Data=[Error=try Text.FromBinary(Json.FromValue(e)) otherwise "Unknown error."],
+                            SafeData=context
+                        ],
+                        error e));
 
-GetEntityPartition = (
-    baseUrl as text,
-    workspaceId as text,
-    workspaceType as text,
-    dataflowId as text,
-    location as text,
-    tableType as type,
-    entityName as text,
-    isWorkspace as logical,
-    partitionName as text,
-    format as nullable record,
-    culture as nullable text,
-    credential as nullable record,
-    traits as nullable list
-) as table =>
-    let
-        isPartitionFolder = List.Contains(traits ?? {}, "is.partition.folder"),
-        contentTable =
-            if isPartitionFolder then
-                let 
-                    partitions = GetQualifiedPartitions(baseUrl, workspaceId, workspaceType, dataflowId, entityName, location),
-                    storageAccess = Workspace.GetStorageAccess(baseUrl, workspaceId, workspaceType, dataflowId, "" /* location */, entityName, "Read"),
-                    contentsTable = Table.AddColumn(partitions, "content", each GetEntityFile([qualifiedUri], tableType, storageAccess[AccessType], storageAccess[Sas], [columnHeaders = true], culture, traits)),
-                    dataPartitions = Table.SelectRows(contentsTable, each not Table.IsEmpty([content])),
-                    dataOnly = Table.SelectColumns(dataPartitions, "content"), 
-                    contents = Table.ExpandTableColumn(dataOnly, "content", Type.TableSchema(tableType)[Name])
-                in 
-                    contents
-            else 
-                let
-                    // Get the blob with SAS / adls storage url with storage type and connect
-                    storageAccess =
-                        if (isWorkspace) then
-                            Workspace.GetStorageAccess(baseUrl, workspaceId, workspaceType, dataflowId, location, entityName, "Read")
-                        else
-                            Group.GetStorageAccess(credential, baseUrl, dataflowId, partitionName, entityName),
-
-                    contents = GetEntityFile(storageAccess[URL], tableType, storageAccess[AccessType], storageAccess[Sas], format, culture, traits)
-                in 
-                    contents
-    in
-        contentTable;
-
-//
 // format is defined in the DLX spec and contains the CSV document settings.
 // expected fields:
-// - fileExtension 
+// - fileExtension
 // - formatSettings
 // ---- columnHeaders (bool)
 // ---- delimiter (string)
@@ -870,10 +1359,12 @@ GetEntityFile = (
             else
                 DefaultFormatSettings,
 
+        blobOptions = Blob.GetBlobOptions(),
+
         // check if the access type is blob or ADLSgV2
         contents = if (accessType = "BlobContainerSas" or accessType = "BlobSas")
-                   then Blob.Contents(entityUrl, Blob.GetBlobOptions(), sas)
-                   else DataLake.Contents(entityUrl, accessType, sas),
+                   then Blob.Contents(entityUrl, blobOptions, sas)
+                   else DataLake.Contents(entityUrl, accessType, blobOptions, sas),
 
         // Build the csv arguments
         csvArgs =
@@ -917,143 +1408,10 @@ GetEntityFile = (
     in
         withType;
 
-GetQualifiedPartitions = (baseUrl as text, workspaceId as text, workspaceType as text, dataflowId as text, entityName as text, location as text) as table =>
-    let 
-        // Location example: "https://<<account>>.blob.core.windows.net:443/<<container>>/<<entityName>>/<<snapshot>>/"
-        locationWithoutSnapshot = Text.BeforeDelimiter(location, "@"), // removing @snapshot format, ?snapshot should be taken care of by Uri.Parts
-        uri = Uri.Parts(locationWithoutSnapshot),
-        pathParams = Text.Split(uri[Path], "/"),
-        pathParamsCount = List.Count(pathParams),
-        baseUri = Text.Combine({uri[Scheme], uri[Host]}, "://"), // https://<<account>>.blob.core.windows.net:443
-        containerUri = Text.Combine({baseUri, pathParams{1}}, "/"), // https://<<account>>.blob.core.windows.net:443/<<container>>
-        entityPrefix = Text.Combine(List.Range(pathParams, 2, pathParamsCount), "/"), // <<entityName>>/<<snapshot>>
-        // listing blobs under a directory
-        storageAccess = Workspace.GetStorageAccess(baseUrl, workspaceId, workspaceType, dataflowId, "" /* location */, entityName, "List"),
-        queryParams = Uri.BuildQueryString([restype = "container", comp = "list", prefix = entityPrefix]),
-        convertSas = (sas as text) as record => Uri.Parts("https://temp/?" & Text.Trim(Text.Trim(sas, "?"), "&"))[Query],
-        blobTableWithName = GetPages(containerUri & "?" & queryParams, convertSas(storageAccess[Sas])),
-        fquTable = Table.AddColumn(blobTableWithName, "qualifiedUri", each Text.Combine({containerUri, [Name]}, "/"))
-    in
-        Table.SelectColumns(fquTable, "qualifiedUri");
-
-GetPages = (uri as text, sas as record) as table =>
-    let
-        getPage = (uri as text) => [
-            response = Xml.Tables(Web.Contents(uri, [ManualCredentials = true, CredentialQuery = sas])),
-            blobs = if Record.HasFields(response{0}?[Blobs]{0}, "Blob") then Table.ToList(Table.SelectColumns(Record.Field(response{0}?[Blobs]{0}, "Blob"), "Name")) else {},
-            nextMarker = if not Type.Is(Value.Type(response{0}[NextMarker]), type text) then null else response{0}[NextMarker]
-        ],
-        blobList = List.Combine(List.Generate(
-            () => getPage(uri), 
-            each _ <> null,
-            each if [nextMarker] = null then null else getPage(Text.Combine({uri, [nextMarker] }, "&marker=")),
-            each [blobs]
-        )),
-        blobTableWithName = Table.FromList(blobList, null, {"Name"})
-    in 
-        blobTableWithName;
-
-ProcessRelationships = (entities as table, identity as text, dataflowId as text, relationships as nullable list) as table =>
-    let
-        // format the relationships table
-        relationshipTable = FormatRelationships(relationships),
-
-        // set relationship identity for each entity - this value needs to be globally unique.
-        withIdentity = Table.AddColumn(entities, "DataWithId",
-                           each Table.ReplaceRelationshipIdentity([Data], Text.Format("#{0}/#{1}/#{2}", {identity, dataflowId, [entity]})),
-                           type table),
-
-        entitiesWithRelationships =
-            Table.AddColumn(withIdentity, "DataWithRelationships", (row) => ApplyRelationships(row, withIdentity, relationshipTable)),
-
-        // rename the [DataWithRelationships] column to [Data]
-        replaceDataTable = Table.RenameColumns(Table.RemoveColumns(entitiesWithRelationships, {"Data"}), {{"DataWithRelationships", "Data"}})
-    in
-        if (relationships = null or List.IsEmpty(relationships)) then
-            entities
-        else
-            replaceDataTable;
-
-FormatRelationships = (relationships as list) as table =>
-    let
-        emptyRelationshipsTable = #table(type [fromEntity = text, fromAttributes = { text }, toEntity = text, toAttributes = { text }], {}),
-        selectedFields = List.Transform(relationships, each Record.SelectFields(_, {"fromAttribute", "toAttribute", "$type"})),
-        relationshipsTable = Table.FromRecords(selectedFields),
-        expandFromAttribute = Table.ExpandRecordColumn(relationshipsTable, "fromAttribute", {"entityName", "attributeName"}, {"fromEntity", "fromAttributeName"}),
-        expandToAttribute = Table.ExpandRecordColumn(expandFromAttribute, "toAttribute", {"entityName", "attributeName"}, {"toEntity", "toAttributeName"}),
-        rename = Table.RenameColumns(expandToAttribute,{{"$type", "relationshipType"}}),
-        calcFrom = Table.AddColumn(rename, "fromAttributes", each
-            if ([relationshipType] = "SingleKeyRelationship") then
-                {[fromAttributeName]}
-            else null,
-            type { text }),
-        calcTo = Table.AddColumn(calcFrom, "toAttributes", each
-            if ([relationshipType] = "SingleKeyRelationship") then
-                {[toAttributeName]}
-            else null,
-            type { text }),
-        finalTable = Table.SelectColumns(calcTo, {"fromEntity", "fromAttributes", "toEntity", "toAttributes"})
-    in
-        finalTable;
-
-ApplyRelationships = (entity as record, entites as table, relationshipTable as table) as table =>
-    let
-        // filter down to the relationships for the current entity
-        relationships = Table.ToRecords(Table.SelectRows(relationshipTable, each _[fromEntity] = entity[entity])),
-        entityDataWithID = entity[DataWithId],
-        dataWithKeys = [Data = entityDataWithID, Keys = {}],
-
-        // For every row in the relationship table, add and then remove a nested join column.
-            // The result of List.Accumulate() will be a table with all relationships defined.
-       DataWithRelationshipsKeys = List.Accumulate(
-                relationships,
-                dataWithKeys,
-                // "state" is our accumulated entity table with relationships
-                // "current" is the current relationship record to process
-                (state, current) => AddRelationshipMetadata(state, current, entites, relationships)),
-
-        keysList = DataWithRelationshipsKeys[Keys],
-        distinctKeys = List.Distinct(keysList),
-        DataWithRelationships = DataWithRelationshipsKeys[Data],
-
-        //Check that the table has no primary key
-        //The primary key should set to the tables after adding all the relationships metadata
-        entityWithKeys = if (List.Count(Table.Keys(DataWithRelationships)) = 0) then
-                            Table.AddKey(DataWithRelationships, distinctKeys, true)
-                        else
-                            DataWithRelationships
-
-    in
-        // "relationships" will be empty if there are no relationships defined for this entity
-        if (List.IsEmpty(relationships)) then
-            entity[DataWithId]
-        else
-            entityWithKeys;
-
-AddRelationshipMetadata = (fromEntity as record, currentRelationship as record, entities as table, relevantRelationships as list) as record =>
-    let
-        fromEntityData = fromEntity[Data],
-        toEntityRow = entities{[entity=currentRelationship[toEntity]]}?,
-        joinedTable = Utility.JoinTables(fromEntityData, toEntityRow[DataWithId], currentRelationship[fromAttributes], currentRelationship[toAttributes]),
-
-        keysList = fromEntity[Keys],
-        addFromAttributes = List.InsertRange(keysList, List.Count(keysList), currentRelationship[fromAttributes]),
-
-        calculateRelationships = [Data = joinedTable, Keys = addFromAttributes]
-    in
-        // Additional check that that the "to" entity and "from / to" attributes actually exists.
-        // If it does not, the relationship will be ignored, and we
-        // return the original table (state).
-        if (toEntityRow <> null and
-            List.ContainsAll(Table.ColumnNames(fromEntityData), (currentRelationship[fromAttributes])) and
-            List.ContainsAll(Table.ColumnNames(toEntityRow[DataWithId]),(currentRelationship[toAttributes])))
-        then calculateRelationships
-        else fromEntity;
-
 // -----------------------------------------------------
 // | 4. Storage (DataLake, Blob)
 // -----------------------------------------------------
-DataLake.Contents = (entityUrl as text, accessType, sas) =>
+DataLake.Contents = (entityUrl as text, accessType, blobOptions, sas) =>
     Extension.InvokeWithCredentials(
         (datasource) =>
             if (accessType = "Adls2Sas")
@@ -1061,7 +1419,7 @@ DataLake.Contents = (entityUrl as text, accessType, sas) =>
             else if (accessType = "Adls2AsUser")
             then DataLake.GetAdlsOperationUserCredentials()
             else DataLake.GetAzureDataLakeStorageCredentials(),
-        () => AzureStorage.DataLakeContents(entityUrl));
+        () => AzureStorage.DataLakeContents(entityUrl, blobOptions));
 
 Blob.Contents = (entityUrl as text, blobOptions, sas) =>
     Extension.InvokeWithCredentials(
@@ -1085,7 +1443,9 @@ DataLake.GetUserPuidFromToken = (token as text) =>
 DataLake.GetAzureDataLakeStorageCredentials = () =>
     let
         currentCredentials = Extension.CurrentCredential(),
-        prop = "AccessToken:" & AadAdlsStorageResource
+        // Note: Trimmed the end slash because the credentials properties are set it up with the trailing shash trimmed at
+        // https://powerbi.visualstudio.com/Power%20Query/_git/power-query?path=/private/Product/Mashup/OAuth/TokenCredential.cs&version=GBmaster&line=59&lineEnd=59&lineStartColumn=65&lineEndColumn=72&lineStyle=plain&_a=contents
+        prop = "AccessToken:" & Text.TrimEnd(AadAdlsStorageResource, "/")
     in
         currentCredentials & [access_token = Record.FieldOrDefault(currentCredentials[Properties], prop, currentCredentials[access_token])];
 
@@ -1096,23 +1456,9 @@ DataLake.GetAzureDataLakeStorageCredentials = () =>
 Blob.GetBlobOptions = () =>
     let
         props = Extension.CurrentApplication(),
-        block =
-            if (props[BlockSize]? <> null) then
-                [BlockSize = props[BlockSize]]
-            else
-                [],
-        request =
-            if (props[RequestSize]? <> null) then
-                block & [RequestSize = props[RequestSize]]
-            else
-                block,
-        concurrent =
-            if (props[ConcurrentRequests]? <> null) then
-                request & [ConcurrentRequests = props[ConcurrentRequests]]
-            else
-                request
+        fields = {"BlockSize", "RequestSize", "ConcurrentRequests"}
     in
-        concurrent;
+        if props = null then [] else Record.SelectFields(props, fields, MissingField.Ignore);
 
 // -----------------------------------------------------
 // | 5. Utility
@@ -1150,7 +1496,7 @@ Utility.GetUrlWithEnv = (baseUrlList as record, env as text, default as text) as
 
 Encoding.ToCodePageId = (encoding) =>
     let
-        codepageResult = try Number.IsNumber(encoding) otherwise null,
+        codepageResult = try Number.IsFiniteNumber(encoding) otherwise null,
         encodingNameToUpper = Text.Upper(encoding),
         codepageId = Record.FieldOrDefault(CodepageIdEncodingMap, encodingNameToUpper, null)
     in
@@ -1158,24 +1504,42 @@ Encoding.ToCodePageId = (encoding) =>
         else if codepageId <> null then codepageId
         else error "Unsupported encoding '" & encoding & "' received from settings";
 
-Value.IfNull = (a, b) =>
-    if a <> null then a
-        else b;
-
+// NOTE: Producer is expected to return [status=..., response=....]
 Value.WaitFor = (producer as function, delay as function, optional count as number) as any =>
     let
         list = List.Generate(
-            () => {0, null},
-            (state) => state{0} <> null and (count = null or state{0} < (count + 1)), //first row is {0, null} and doesn't invoke the producer.
-            (state) => if state{1} <> null
+            () => {0, [response = null, status = 200]},
+            (state) => state{0} <> null and (count = null or state{0} < (count + 1)), //first row is {0, [null and status 200]} and doesn't invoke the producer.
+            (state) => if state{0} > 0 and state{1}[status] = 200 // check if we want to retry based on status code or invoke the producer on first iteration
                 then {null, state{1}}
-                else {1 + state{0}, Function.InvokeAfter(() => producer(state{0}), delay(state{0}))}, 
+                else {1 + state{0}, Function.InvokeAfter(() => producer(state{0}), delay(state{0}))},
             (state) => state{1}),
-        result = List.Last(list)
+        result = List.Last(list)[response]
     in
         result;
 
-Number.IsNumber = (value as number) as logical => not Number.IsNaN(value) and value <> Number.PositiveInfinity and value <> Number.NegativeInfinity;
+Number.IsFiniteNumber = (value as number) as logical =>
+    not Number.IsNaN(value) and value <> Number.PositiveInfinity and value <> Number.NegativeInfinity;
+
+Value.ToText = (value, optional depth) =>
+    let
+        nextDepth = if depth = null then 3 else depth - 1,
+        result = if depth = 0 then "..."
+            else if value is null then "<null>"
+            else if value is function then Record.FieldOrDefault(Value.Metadata(Value.Type(value)), "Documentation.Name", "<function>")
+            else if value is table then "#table({" & Text.Combine(Table.ColumnNames(value), ",") & "},{" & Text.Combine(
+                List.Transform(Table.ToRows(Table.FirstN(value, 2)), each @Value.ToText(_, nextDepth)), "},#(cr)#(lf){") & "})"
+                //& "Row Count (" & Number.ToText(Table.RowCount(value)) & ")"
+            else if value is list then "{" & Text.Combine(List.Transform(List.FirstN(value, 10), each @Value.ToText(_, nextDepth)), ",") & "}"
+            else if value is record then "[" & Text.Combine(List.Transform(Record.FieldNames(value), each _ & "=" & @Value.ToText(Record.Field(value, _), nextDepth)), ",") & "]"
+            else if value is type then List.First(Table.Schema(#table({"type"}, {{value}}))[TypeName], "<type>")
+            else if value is action then "action"
+            else Text.From(value)
+    in
+        try result otherwise "<error>";
+
+Value.ConvertToLogical = (a) =>
+    a <> null and a <> "" and Logical.From(a);
 
 // Replacing back the non url friendly characters which were switched on Encode
 Uri.Base64UrlDecode = (s) => Binary.FromText(Text.Replace(Text.Replace(s, "-", "+"), "_", "/") & {"", "", "==", "="}{Number.Mod(Text.Length(s), 4)}, BinaryEncoding.Base64);
@@ -1189,71 +1553,201 @@ Uri.FromParts = (parts) =>
     in
         uri;
 
-Web.JsonContents = (url as text, optional options as record, optional retryableErrorCodes as list, optional retryCount as number) =>
+Record.SetAtPath = (r, fields, value) =>
+    if fields = {}
+        then value
+        else let
+            curr = if r is record then r else [],
+            field0 = fields{0},
+            fieldValue = if List.Count(fields) = 1
+                then value
+                else @Record.SetAtPath(
+                    Record.FieldOrDefault(curr, field0, []),
+                    List.Skip(fields, 1),
+                    value)
+        in
+            curr & Record.AddField([], field0, fieldValue);
+
+NonPii = (x) => x meta [Is.Pii = false];
+
+// Web handler methods
+
+AuthHandler = (errorHandler as function) =>
+    (state) =>
+        let
+            alreadyRefreshed = state[Refreshed]? = true,
+            refreshFailed = not Web.TryRefreshToken(),
+            traceMessage = if alreadyRefreshed
+                then "Attempting auth refresh after successful refresh"
+                else "Auth refresh failed"
+        in
+            if alreadyRefreshed or refreshFailed
+                then  errorHandler(Diagnostics.Trace(TraceLevel.Warning, traceMessage, state))
+                else state & [Refreshed = true];
+
+RetryHandler = (count, errorHandler as function, optional delayFunction as function) =>
     let
-        shouldRetry = retryableErrorCodes <> null and not List.IsEmpty(retryableErrorCodes),
-        nonEmptyOptions = Value.IfNull(options, []),
-        baseUrl = url,
-        response = if shouldRetry then Web.ContentsCustomRetry(baseUrl, retryableErrorCodes, options, retryCount)
-                                  else Web.Contents(baseUrl, nonEmptyOptions & [ManualStatusHandling = ApiErrorStatusCodes]),
-        jsonResponse = Json.Document(response) meta Value.Metadata(response),
-        responseStatusCode = Record.FieldOrDefault(Value.Metadata(jsonResponse), "Response.Status", 0)
+        delay = delayFunction ?? ((i) => i * 0.2)
     in
-        if List.Contains(ApiErrorStatusCodes, responseStatusCode) then Web.ErrorResponse(url, jsonResponse) else jsonResponse;
+        (state) =>
+            if state[Iteration] < count
+                then Function.InvokeAfter(() => state, #duration(0, 0, 0, delay(state[Iteration])))
+                else errorHandler(state);
 
-Web.ErrorResponse = (url as text, jsonResponse as record) => 
-    let 
-        responseStatusCode = Record.FieldOrDefault(Value.Metadata(jsonResponse), "Response.Status", 0),
-        requestId = Record.FieldOrDefault(Value.Metadata(jsonResponse)[Headers], "RequestId", ""),
+JsonHandler = (state) => state & [
+    Response = Json.Document(state[Response]) meta Value.Metadata(state[Response]),
+    Complete = true
+];
 
-        errorCode = jsonResponse[error][code],
-        errorMessage = jsonResponse[error][message]? ?? jsonResponse[error][pbi.error][parameters][ErrorMessage]? ?? errorCode,
-        errorDetails = if List.IsEmpty(jsonResponse[error][pbi.error][details]) then errorMessage 
-                                           else Text.Combine(jsonResponse[error][pbi.error][details], " "),
-        ppdfErrorResponse =
-                    error Error.Record(
-                        "DataSource.Error",
-                        jsonResponse[errorCode]? ?? "Unspecified error",
-                        jsonResponse[errorDetails]?),
-        pbiErrorResponse = 
-                    error Error.Record(
-                        errorCode,
-                        errorMessage,
-                        [
-                            Error = errorDetails,
-                            #"RequestId" = requestId,
-                            #"RequestUrl" = url
-                        ]
-                    )
+CompleteHandler = (state) => state & [Complete = true];
 
-    in
-        if jsonResponse[error]? = null then ppdfErrorResponse else pbiErrorResponse;
+// Web functions
 
-// Convergence: Identical
-Web.ContentsCustomRetry = (url as text, retryableErrorCodes as list, optional options as record, optional count as number) =>
+DefaultErrorHandler = (platform as text, state as record) =>
     let
-        waitForResult = Value.WaitFor(
-            (iteration) =>
+        // Note: Error response not expected to be excessively large
+        rawResponse = state[Response],
+        bufferedResponse = try Binary.Buffer(rawResponse) otherwise rawResponse,
+        responseMetadata = Value.Metadata(rawResponse) ?? [],
+        status = responseMetadata[Response.Status]?,
+        jsonResponseText = try Text.FromBinary(bufferedResponse) otherwise "<encoding error>",
+        errorRecord = try
+        let
+            jsonResponse = Json.Document(bufferedResponse),
+            requestId = Record.FieldOrDefault(responseMetadata[Headers], "RequestId", ""),
+            errorCode = jsonResponse[error]?[code]?,
+            errorMessage = jsonResponse[error]?[message]? ?? jsonResponse[error]?[pbi.error]?[parameters]?[ErrorMessage]? ?? jsonResponseText,
+            errorDetails = if List.IsEmpty(jsonResponse[error]?[pbi.error]?[details]? ?? {})
+                then errorMessage
+                else Text.Combine(jsonResponse[error][pbi.error][details], " ")
+        in
+            Error.Record(
+                NonPii("DataSource.Error"),
+                NonPii(Extension.LoadString("DownstreamServiceCallFailure")),
+                [
+                    Error = errorDetails,
+                    ErrorCode = errorCode,
+                    #"RequestId" = requestId,
+                    ErrorMessage = errorMessage
+                ],
+                { NonPii(status) }),
+        tracedErrorRecord = Diagnostics.Trace(TraceLevel.Error, [
+                Name = platform & "/Error",
+                Data = if errorRecord[HasError]
+                    then [ Error = Text.Format(Extension.LoadString("ErrorParsingJsonInHttpResponse"), { jsonResponseText }) ]
+                    else [ Error = Value.ToText(errorRecord[Value]) ],
+                SafeData = [ StatusCode = status ]
+            ],
+            if errorRecord[HasError]
+                then Error.Record(
+                    NonPii("DataSource.Error"),
+                    NonPii(Extension.LoadString("DownstreamServiceCallFailure")),
+                    [
+                        ErrorMessage = jsonResponseText
+                    ],
+                    { NonPii(status) })
+                else errorRecord[Value])
+    in
+        error tracedErrorRecord;
+
+Web.BaseWebContentsOptions = (context as record) as record =>
+    [ SafeRequestHeaders = {ClientRequestIdHeader, ClientSessionIdHeader}, SafeResponseHeaders = {}, TraceData = context ];
+
+// Caching Design
+
+// Connector has a two caches:
+//   * Time based cache, implemented in Web.JsonContentsWithCaching
+//   * Web response caching, implmented in Web.Contents.
+
+// Web.JsonContentsWithCaching ultimately calls Web.Contents. Each
+// request should follow the following constraints:
+//   * Cache responses in at most one cache.
+//   * Don't cache certain types of requests, such as those which
+//     might hold authentication tokens.
+
+// Web.JsonContentsWithCaching avoids using the cache in Web.Contents
+// by passing Iteration=1 in its state. This sets Web.Contents option
+// IsRefresh=true which causes the request to be made without using
+// a previously cached response. The result of the request may still
+// be cached!
+
+// All calls to Web.JsonContents can similarly bypass the cache by
+// setting Iteration=1.
+
+Web.JsonContentsWithCaching = (
+    url as text,
+    headers as record,
+    body as any,
+    handlers as record,
+    cacheKeyPrefix as text,
+    cacheHours as number,
+    context as record,
+    optional startState as nullable record
+) as any =>
+    let
+        now = DateTimeZone.RemoveZone(DateTimeZone.UtcNow()),
+        hoursForSuffix = Number.RoundDown(Duration.TotalHours(now - #datetime(2023, 1, 1, 0, 0, 0))),
+        cacheKeySuffix = Text.From(cacheHours * Number.IntegerDivide(hoursForSuffix, cacheHours)),
+        // Note: cacheKeyPrefix is sufficiently unique so that URL isn't required as part of cacheKey
+        cacheKey =  cacheKeyPrefix & cacheKeySuffix,
+        // Note: Iteration > 0 forces no further caching on the web request
+        jsonContents = Web.JsonContents(url, headers, body, handlers, context, (startState ?? []) & [Iteration = 1]),
+        jsonBinary = Json.FromValue(jsonContents),
+        serializedJson = Extension.Cache()[Metadata][Serialized](cacheKey, () => try jsonBinary otherwise #binary({})),
+        contents = if serializedJson <> #binary({})
+            then Json.Document(serializedJson)
+            else jsonContents
+    in
+        contents;
+
+Web.JsonContents = (
+    url as text,
+    extraHeaders as record,
+    body as any,
+    handlers as record,
+    context as record,
+    optional startState as nullable record
+) as any =>
+    let
+        commonOptions = CommonOptions(),
+        commonHeaders = commonOptions[Headers],
+        bodyHeader = if body <> null then [#"Content-Type" = "application/json;charset=UTF-8"] else [],
+        headerOptions = [Headers = commonHeaders & extraHeaders & bodyHeader],
+        bodyOptions = if body <> null then [Content = Json.FromValue(body)] else [],
+        requestOptions = Web.BaseWebContentsOptions(context) & commonOptions & headerOptions & bodyOptions
+    in
+        Http.Request(url, requestOptions, handlers & [200 = JsonHandler], (startState ?? []));
+
+Http.Request = (url as text, options as record, handlers as record, optional startState as nullable record) =>
+    let
+        handledStatuses = List.Buffer(List.Transform(Record.FieldNames(handlers), Number.From)),
+        withStatusHandling = options & [ManualStatusHandling = handledStatuses],
+        list = List.Generate(
+            () => [Iteration = 0, Url = url, Response = null, Complete = false, Return = false] & (startState ?? []),
+            (state) => not state[Return],
+            (state) => if state[Complete] then state & [Return = true] else
                 let
-                    options2 = if options = null then [] else options,
-                    options3 = if iteration=0 then options2 else options2 & [IsRetry=true],
-
-                    result = Web.Contents(url, options3 & [ManualStatusHandling = retryableErrorCodes]),
-
-                    // make sure buffered is executed before Value.Metadata to ensure we don't make double request.
-                    buffered = Binary.Buffer(result),
-                    status = if (buffered = null or Value.Metadata(result)[Response.Status] <> 200)
-                        then Value.Metadata(result)[Response.Status]
-                        else 200,
-                    actualResult = if List.MatchesAny(retryableErrorCodes, each _ = status) then null else buffered
+                    response = Web.Contents(url, withStatusHandling & [IsRetry = state[Iteration] > 0]),
+                    status = Value.Metadata(response)[Response.Status]? ?? 200,
+                    handler = Record.FieldOrDefault(handlers, Text.From(status, "")),
+                    partial = state & [Iteration = state[Iteration] + 1, Response = response, Complete = false],
+                    nextState = if handler = null then partial & [Complete = true] else partial & handler(partial)
                 in
-                    actualResult,
-            (iteration) => #duration(0, 0, 0, iteration*0.2 ),
-            count)
+                    nextState),
+        result = List.Last(list)[Response]
     in
-        waitForResult;
+        result;
+
+Web.TryRefreshToken = () as logical =>
+    let
+        forceRefreshOfTokens = true
+    in
+        Extension.CurrentCredential(forceRefreshOfTokens) <> null; // Force refresh of token.
 
 PowerPlatformDataflows = [
+    Type = "Custom",
+    MakeResourcePath = (optional options) => if (options[IsInternalRewrite]? <> null) then "PowerPlatformDataflowsInternal" else "PowerPlatformDataflows",
+    ParseResourcePath = (resource) => { },
      Authentication = [
         Aad = [
             AuthorizationUri = AadAuthorizationUri,
@@ -1265,6 +1759,16 @@ PowerPlatformDataflows = [
                 CallbackUrl = AadRedirectUrl
             ]
         ]
+    ],
+    ApplicationProperties = [
+        // TODO: Consider removing all code related to commented out properties
+        // as they have never been active.
+        // BlockSize = [PropertyType = Text.Type, IsRequired = false],
+        // RequestSize = [PropertyType = Text.Type, IsRequired = false],
+        // ConcurrentRequests = [PropertyType = Text.Type, IsRequired = false],
+        PBIEndpointUrl = [PropertyType = Text.Type, IsRequired = false],
+        PBI_CapacityObjectId = [PropertyType = Text.Type, IsRequired = false],
+        PBI_ClusterUrl = [PropertyType = Text.Type, IsRequired = false]
     ],
     Label = Extension.LoadString("DataSourceLabel"),
 
@@ -1284,22 +1788,22 @@ PowerPlatformDataflows = [
         #"powerplatform-dataflows" = [
             GetDSR = (optional options, optional navigation) =>
                 let
-                    workspace = navigation{0}?[workspaceId]?,
-                    group = navigation{0}?[groupId]?,
-                    dataflow = navigation{2}?[dataflowId]?,
-                    entity = navigation{4}?[entity]?,
+                    workspace = navigation{2}?[workspaceId]?,
+                    group = navigation{2}?[groupId]?,
+                    dataflow = navigation{4}?[dataflowId]?,
+                    entity = navigation{6}?[entity]?,
                     count = List.Count(navigation),
-                    matchWorkspace = List.FirstN({[workspaceId=workspace], "Data", [dataflowId=dataflow], "Data", [entity=entity], "Data"}, count),
-                    matchGroup = List.FirstN({[groupId=group], "Data", [dataflowId=dataflow], "Data", [entity=entity], "Data"}, count),
+                    matchWorkspace = List.FirstN({[Id="Workspaces"], "Data", [workspaceId=workspace], "Data", [dataflowId=dataflow], "Data", [entity=entity], "Data"}, count),
+                    matchGroup = List.FirstN({[Id="Environments"], "Data", [groupId=group], "Data", [dataflowId=dataflow], "Data", [entity=entity], "Data"}, count),
                     isMatchWorkspace = List.FirstN(matchWorkspace, count) = navigation,
                     isMatchGroup = List.FirstN(matchGroup, count) = navigation,
                     match = if isMatchWorkspace then matchWorkspace else matchGroup,
                     isValid = Number.IsEven(count) and (isMatchWorkspace or isMatchGroup),
                     address = if navigation = null then []
                         else if not isValid then ...
-                        else Record.RenameFields(Record.Combine(List.RemoveItems(match, {"Data"})), {{"workspaceId", "workspace"}, {"dataflowId", "dataflow"}, {"groupId", "group"}}, MissingField.Ignore)
+                        else Record.RenameFields(Record.Combine(List.RemoveItems(List.Skip(match, 1), {"Data"})), {{"workspaceId", "workspace"}, {"dataflowId", "dataflow"}, {"groupId", "group"}}, MissingField.Ignore)
                 in
-                    [ protocol = "powerplatform-dataflows", address = address ],
+                    if (options[IsInternalRewrite]? <> null) then ... else [ protocol = "powerplatform-dataflows", address = address ],
             GetFormula = (dsr, optional options) =>
                 let
                     address = ValidateAddressRecord(dsr[address]),
@@ -1341,14 +1845,15 @@ PowerPlatformDataflows = [
 
 ValidateOptions = (options, validOptionsMap) as record =>
     let
+        VisibleKeys = Table.SelectRows(validOptionsMap, each not [Hidden])[Name],
         ValidKeys = Table.Column(validOptionsMap, "Name"),
         InvalidKey = List.First(List.Difference(Record.FieldNames(options), ValidKeys)),
-        InvalidKeyText = Text.Format(Extension.LoadString("InvalidOptionsKey"), {InvalidKey, Text.Combine(ValidKeys, ",")}),
+        InvalidKeyText = Text.Format(Extension.LoadString("InvalidOptionsKey"), {InvalidKey, Text.Combine(VisibleKeys, ",")}),
         ValidateValue = (name, optionType, default, validate, value) =>
                 if (value is null and (Type.IsNullable(optionType) or default <> null))
                     or (Type.Is(Value.Type(value), optionType) and validate(value)) then null
                 else Text.Format(Extension.LoadString("InvalidOptionsValue"), {name, value}),
-        InvalidValues = List.RemoveNulls(Table.TransformRows(validOptionsMap, 
+        InvalidValues = List.RemoveNulls(Table.TransformRows(validOptionsMap,
                 each ValidateValue([Name],[Type],[Default],[Validate], Record.FieldOrDefault(options, [Name], [Default])))),
         DefaultOptions = Record.FromTable(Table.RenameColumns(Table.SelectColumns(validOptionsMap,{"Name","Default"}),{"Default","Value"})),
         NullNotAllowedFields = List.RemoveNulls(Table.TransformRows(validOptionsMap,
@@ -1489,5 +1994,6 @@ Extension.InvokeWithCredentials = try #shared[Extension.InvokeWithCredentials] o
 Extension.CurrentCredential = try #shared[Extension.CurrentCredential] otherwise error "Extensibility module not loaded";
 Extension.CurrentApplication = try #shared[Extension.CurrentApplication] otherwise error "Extensibility module not loaded";
 SqlDatabase.View = try #shared[SqlDatabase.View] otherwise error "SqlDatabase module not loaded";
-Environment.FeatureSwitch = try #shared[Environment.FeatureSwitch] otherwise "Environment module not loaded";
-List.ParallelInvoke = try #shared[List.ParallelInvoke] otherwise "ParallelEvaluation module not loaded";
+Environment.FeatureSwitch = try #shared[Environment.FeatureSwitch] otherwise error "Environment module not loaded";
+List.ParallelInvoke = try #shared[List.ParallelInvoke] otherwise error "ParallelEvaluation module not loaded";
+Parquet.Document =  try #shared[Parquet.Document] otherwise (binary, optional options) => error Error.Record("DataSource.Error", Extension.LoadString("ParquetModuleNotSupported"));

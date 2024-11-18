@@ -1,0 +1,8 @@
+﻿(table as table ) as table =>
+let
+      #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+     expCol = Table.ExpandRecordColumn( #"Removed Columns", "Column1", {"id", "accountId", "title", "description", "briefDescription", "parentIds", "superParentIds", "sharedIds", "responsibleIds", "status", "importance", "createdDate", "updatedDate", "dates", "scope", "authorIds", "customStatusId", "hasAttachments", "permalink", "priority", "followedByMe", "followerIds", "superTaskIds", "subTaskIds", "dependencyIds", "metadata", "customFields","inheritedCustomColumnIds"}, {"id", "accountId", "title", "description", "briefDescription", "parentIds", "superParentIds", "sharedIds", "responsibleIds", "status", "importance", "createdDate", "updatedDate", "dates", "scope", "authorIds", "customStatusId", "hasAttachments", "permalink", "priority", "followedByMe", "followerIds", "superTaskIds", "subTaskIds", "dependencyIds", "metadata", "customFields","inheritedCustomColumnIds"}),
+     transform = Table.TransformColumnTypes(expCol,{{"id", type text}, {"accountId", type text}, {"title", type text}, {"description", type text}, {"briefDescription", type text}, {"createdDate", type datetime}, {"updatedDate", type datetime}, {"scope", type text}, {"customStatusId", type text}, {"hasAttachments", type logical}, {"permalink", type text}, {"priority", type text}, {"followedByMe", type logical}})
+
+in
+    transform

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,43 +118,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Uvezite podatke iz toka podataka</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Tokovi podataka</value>
   </data>
-  <data name="dataflows.caption" xml:space="preserve">
+  <data name="dataflows.caption" errorCode="003" xml:space="preserve">
     <value>Uvezite podatke iz toka podataka</value>
   </data>
-  <data name="dataflows.longDescription" xml:space="preserve">
+  <data name="dataflows.longDescription" errorCode="004" xml:space="preserve">
     <value>Povežite se sa svim tokovima podataka servisa kojima možete pristupati, a zatim odaberite entitete koje želite koristiti.</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
     <value>Tokovi podataka</value>
   </data>
-  <data name="dataflows.description" xml:space="preserve">
+  <data name="dataflows.description" errorCode="006" xml:space="preserve">
     <value>Uvezite podatke iz toka podataka</value>
   </data>
-  <data name="Environments" xml:space="preserve">
+  <data name="Environments" errorCode="007" xml:space="preserve">
     <value>Okruženja</value>
   </data>
-  <data name="Workspaces" xml:space="preserve">
+  <data name="Workspaces" errorCode="008" xml:space="preserve">
     <value>Radni prostori</value>
   </data>
-  <data name="EnvironmentError" xml:space="preserve">
+  <data name="EnvironmentError" errorCode="009" xml:space="preserve">
     <value>Došlo je do pogreške prilikom odgovora na otkrivanje okruženja</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="010" xml:space="preserve">
     <value>'#{0}' nisu valjane mogućnosti. Valjane su mogućnosti: '#{1}'</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="011" xml:space="preserve">
     <value>Ova funkcija ne podržava mogućnost '#{0}' s vrijednošću '#{1}'.</value>
   </data>
-  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityHotDataSuffix" errorCode="012" xml:space="preserve">
     <value>_StreamingData_Hot</value>
   </data>
-  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityArchivedDataSuffix" errorCode="013" xml:space="preserve">
     <value>_ArchivedData_Cold</value>
+  </data>
+  <data name="ParquetModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Nije moguće učitati te podatke jer su pohranjeni u formatu Parquet</value>
+  </data>
+  <data name="Errors.NoErrorCodeFormat" errorCode="015" xml:space="preserve">
+    <value>#{0} (Kôd odgovora: #{1})</value>
+  </data>
+  <data name="Errors.UnspecifiedError" errorCode="016" xml:space="preserve">
+    <value>Temeljna usluga prijavila je odgovor o pogrešci</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="017" xml:space="preserve">
+    <value>Došlo je do pogreške iznimke pri raščlanjivanju odgovora greške sa web servisa: '#{0}'.</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="018" xml:space="preserve">
+    <value>Poziv servisa niže razine ka URL-u“'#{0}“ nije uspio uz kod statusa #.</value>
   </data>
 </root>

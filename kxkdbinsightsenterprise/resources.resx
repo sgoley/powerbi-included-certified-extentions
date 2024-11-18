@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="kxkdbinsightsenterprise_Help" xml:space="preserve">
+    <value>Connect to KX kdb Insights Enterprise</value>
+    <comment/>
+  </data>
+  <data name="kxkdbinsightsenterprise_Name" xml:space="preserve">
+    <value>KX kdb Insights Enterprise</value>
+    <comment/>
+  </data>
+  <data name="UserInput_URLCaption" xml:space="preserve">
+    <value>Hostname</value>
+    <comment/>
+  </data>
+  <data name="UserInput_URLDesc" xml:space="preserve">
+    <value>The URL at which your KX kdb Insights Enterprise is hosted</value>
+    <comment/>
+  </data>
+  <data name="kxkdbinsightsenterprise_Desc" xml:space="preserve">
+    <value>Imports data from KX kdb Insights Enterprise</value>
+    <comment/>
+  </data>
+  <data name="DefaultIs" xml:space="preserve">
+    <value>Default is</value>
+    <comment/>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>(default)</value>
+    <comment/>
+  </data>
+  <data name="AdvancedOptions" xml:space="preserve">
+    <value>Advanced Options</value>
+    <comment/>
+  </data>
+  <data name="LimitDesc" xml:space="preserve">
+    <value>Optional limit</value>
+    <comment/>
+  </data>
+  <data name="LimitDescLong" xml:space="preserve">
+    <value>Optional limit</value>
+    <comment/>
+  </data>
+  <data name="param_startTS_example" xml:space="preserve">
+    <value>2023-06-14T00:00:00.369730</value>
+    <comment/>
+  </data>
+  <data name="param_startTS_caption" xml:space="preserve">
+    <value>Start Time</value>
+    <comment/>
+  </data>
+  <data name="param_startTS_desc" xml:space="preserve">
+    <value>Inclusive start time of period of interest. It is recommended that this field is always used to limit scope of data in the response and to maximize query efficiency.</value>
+    <comment/>
+  </data>
+  <data name="param_endTS_example" xml:space="preserve">
+    <value>2023-06-14T00:00:00.369730</value>
+    <comment/>
+  </data>
+  <data name="param_endTS_caption" xml:space="preserve">
+    <value>End Time</value>
+    <comment/>
+  </data>
+  <data name="param_endTS_desc" xml:space="preserve">
+    <value>Exclusive end time of period of interest. It is recommended that this field is always used to limit scope of data in the response and to maximize query efficiency.</value>
+    <comment/>
+  </data>
+  <data name="function_getData_name" xml:space="preserve">
+    <value>Load data using GetData API with optional parameters</value>
+    <comment/>
+  </data>
+  <data name="param_filter_example" xml:space="preserve">
+    <value>[["&lt;=", "valFloat", 100], ["within", "qual", [0,2]]]</value>
+    <comment/>
+  </data>
+  <data name="param_filter_caption" xml:space="preserve">
+    <value>Filter</value>
+    <comment/>
+  </data>
+  <data name="param_filter_desc" xml:space="preserve">
+    <value>The filter parameter is used for applying custom filtering to the query. It's specified via a list of triples where each triple has the form (operator; column name; values).</value>
+    <comment/>
+  </data>
+  <data name="param_agg_example" xml:space="preserve">
+    <value>["sensorID"] or [["c1", "avg", "valFloat"], ["c2", "min", "qual"]]</value>
+    <comment/>
+  </data>
+  <data name="param_agg_caption" xml:space="preserve">
+    <value>Aggregation</value>
+    <comment/>
+  </data>
+  <data name="param_agg_desc" xml:space="preserve">
+    <value>The agg parameter specifies the columns and/or aggregations to return after selecting the data. Argument is specified as a list of symbols, or as a list of lists of symbols. Behavior differs depending on whether the parameter is specified as a list or list of lists.  If specified as a list of symbols, then those columns are selected and returned from the table across DAPs.</value>
+    <comment/>
+  </data>
+  <data name="error_reason_invalid_url" xml:space="preserve">
+    <value>Invalid URL</value>
+    <comment/>
+  </data>
+  <data name="error_message_url_scheme" xml:space="preserve">
+    <value>Default HTTP is not valid. Please supply the full URL with scheme https://.</value>
+    <comment/>
+  </data>
+  <data name="error_detail_url" xml:space="preserve">
+    <value>URL: </value>
+    <comment/>
+  </data>
+  <data name="error_login" xml:space="preserve">
+    <value>Failed to login.</value>
+    <comment/>
+  </data>
+  <data name="error_param_agg" xml:space="preserve">
+    <value>Parameter 'agg' must be a text.</value>
+    <comment/>
+  </data>
+  <data name="error_param_filter" xml:space="preserve">
+    <value>Parameter 'filter' must be a text.</value>
+    <comment/>
+  </data>
+  <data name="error_param_startTS" xml:space="preserve">
+    <value>Parameter 'startTS' must be a date or datetime type.</value>
+    <comment/>
+  </data>
+  <data name="error_param_endTS" xml:space="preserve">
+    <value>Parameter 'endTS' must be a date or datetime type.</value>
+    <comment/>
+  </data>
+  <data name="error_reason_status" xml:space="preserve">
+    <value>Status Code </value>
+    <comment/>
+  </data>
+  <data name="error_message_status" xml:space="preserve">
+    <value>"Reason '#{0}'. If this problem persists, contact your support team and include these technical details. "</value>
+    <comment/>
+  </data>
+  <data name="error_param_groupBy" xml:space="preserve">
+    <value>Parameter 'groupBy' must be a text.</value>
+    <comment/>
+  </data>
+  <data name="param_groupBy_example" xml:space="preserve">
+    <value>["sensorID", "qual"]</value>
+    <comment/>
+  </data>
+  <data name="param_groupBy_caption" xml:space="preserve">
+    <value>Group By</value>
+    <comment/>
+  </data>
+  <data name="param_groupBy_desc" xml:space="preserve">
+    <value>The groupBy paramter specifies the columns which define the by-clause used in the selection of the data. This can be used in conjunction with agg parameter to perform aggregations across column values.</value>
+    <comment/>
+  </data>
+  <data name="error_userinput_reason" xml:space="preserve">
+    <value>InvalidInputError</value>
+    <comment/>
+  </data>
+  <data name="error_userinput_message" xml:space="preserve">
+    <value>The value does not conform to any valid input format. Please check the examples provided and our documentation at https://code.kx.com/insights/api/database/query/get-data.html and try again.</value>
+    <comment/>
+  </data>
+  <data name="error_userinput_detail" xml:space="preserve">
+    <value>Invalid input: </value>
+    <comment/>
+  </data>
+  <data name="error_servererror" xml:space="preserve">
+    <value>Server Error</value>
+    <comment/>
+  </data>
+  <data name="error_nodetails" xml:space="preserve">
+    <value>No details available</value>
+    <comment/>
+  </data>
+  <data name="error_aggWithGroupby" xml:space="preserve">
+    <value>You must supply a valid "aggregation" when using "group by"</value>
+    <comment/>
+  </data>
+  <data name="error_missingrequiredparams" xml:space="preserve">
+    <value>MissingRequiredParameters</value>
+    <comment/>
+  </data>
+  <data name="error_provideTS" xml:space="preserve">
+    <value>Please provide startTS and endTS when applying function on your data.</value>
+    <comment/>
+  </data>
+  <data name="error_missingparams" xml:space="preserve">
+    <value>Missing parameters:</value>
+    <comment/>
+  </data>
+</root>

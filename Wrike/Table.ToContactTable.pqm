@@ -1,0 +1,10 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "firstName", "lastName", "type", "profiles", "avatarUrl", "timezone", "locale", "deleted", "metadata", "title", "companyName", "phone", "location", "workScheduleId", "memberIds", "myTeam","jobRoleId"}, {"id", "firstName", "lastName", "type", "profiles", "avatarUrl", "timezone", "locale", "deleted", "metadata", "title", "companyName", "phone", "location", "workScheduleId", "memberIds", "myTeam","jobRoleId"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Column1",{{"id", type text}, {"firstName", type text}, {"lastName", type text}, {"type", type text}}),
+    #"Expanded profiles" = Table.ExpandListColumn(#"Changed Type", "profiles"),
+    #"Expanded profiles1" = Table.ExpandRecordColumn(#"Expanded profiles", "profiles", {"accountId", "email", "role", "external", "admin", "owner"}, {"accountId", "email", "role", "external", "admin", "owner"}),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Expanded profiles1",{{"accountId", type text}, {"email", type text}, {"role", type text}, {"external", type logical}, {"admin", type logical}, {"owner", type logical}, {"avatarUrl", type text}, {"timezone", type text}, {"locale", type text}, {"deleted", type logical}, {"title", type text}, {"companyName", type text}, {"phone", type text}, {"location", type text}, {"workScheduleId", type text}, {"myTeam", type logical}, {"jobRoleId", type text}})
+in
+    #"Changed Type1"

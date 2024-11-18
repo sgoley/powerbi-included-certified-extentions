@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,43 +118,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Importa i dati da un flusso di dati</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Flussi di dati</value>
   </data>
-  <data name="dataflows.caption" xml:space="preserve">
+  <data name="dataflows.caption" errorCode="003" xml:space="preserve">
     <value>Importa i dati da un flusso di dati</value>
   </data>
-  <data name="dataflows.longDescription" xml:space="preserve">
+  <data name="dataflows.longDescription" errorCode="004" xml:space="preserve">
     <value>Consente di connettersi a tutti i flussi di dati a cui si ha accesso e di scegliere le entità che si intende usare</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
     <value>Flussi di dati</value>
   </data>
-  <data name="dataflows.description" xml:space="preserve">
+  <data name="dataflows.description" errorCode="006" xml:space="preserve">
     <value>Importa i dati da un flusso di dati</value>
   </data>
-  <data name="Environments" xml:space="preserve">
+  <data name="Environments" errorCode="007" xml:space="preserve">
     <value>Ambienti</value>
   </data>
-  <data name="Workspaces" xml:space="preserve">
+  <data name="Workspaces" errorCode="008" xml:space="preserve">
     <value>Aree di lavoro</value>
   </data>
-  <data name="EnvironmentError" xml:space="preserve">
+  <data name="EnvironmentError" errorCode="009" xml:space="preserve">
     <value>È stato trovato un errore nella risposta di individuazione dell'ambiente</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="010" xml:space="preserve">
     <value>'#{0}' non sono opzioni valide. Le opzioni valide sono: '#{1}'</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="011" xml:space="preserve">
     <value>Questa funzione non supporta l'opzione '#{0}' con il valore '#{1}'.</value>
   </data>
-  <data name="StreamingEntityHotDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityHotDataSuffix" errorCode="012" xml:space="preserve">
     <value>_StreamingData_Hot</value>
   </data>
-  <data name="StreamingEntityArchivedDataSuffix" xml:space="preserve">
+  <data name="StreamingEntityArchivedDataSuffix" errorCode="013" xml:space="preserve">
     <value>_ArchivedData_Cold</value>
+  </data>
+  <data name="ParquetModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Non è stato possibile caricare i dati perché sono stati archiviati nel formato Parquet</value>
+  </data>
+  <data name="Errors.NoErrorCodeFormat" errorCode="015" xml:space="preserve">
+    <value>#{0} (codice di risposta: #{1})</value>
+  </data>
+  <data name="Errors.UnspecifiedError" errorCode="016" xml:space="preserve">
+    <value>Il servizio sottostante ha segnalato una risposta di errore</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="017" xml:space="preserve">
+    <value>Eccezione durante l'analisi della risposta di errore dal servizio web '#{0}'.</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="018" xml:space="preserve">
+    <value>La chiamata del servizio downstream con codice di stato '#{0}' non è riuscita.</value>
   </data>
 </root>

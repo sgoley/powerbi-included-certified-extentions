@@ -1,0 +1,7 @@
+﻿(table as table ) as table => 
+let
+ #"Removed Columns" = if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+ #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "accountId", "title", "createdDate", "updatedDate", "description","briefDescription", "sharedIds", "parentIds", "childIds", "superParentIds", "scope", "hasAttachments","attachmentCount", "permalink", "workflowId", "metadata", "customFields","inheritedCustomColumnIds","customColumnIds","customItemTypeId"}, {"id", "accountId", "title", "createdDate", "updatedDate", "description","briefDescription", "sharedIds", "parentIds", "childIds", "superParentIds", "scope", "hasAttachments","attachmentCount", "permalink", "workflowId", "metadata", "customFields","inheritedCustomColumnIds","customColumnIds","customItemTypeId"}),
+ #"Changed Type" = Table.TransformColumnTypes(#"Expanded Column1",{{"id", type text}, {"accountId", type text},{"attachmentCount", type number}, {"title", type text}, {"createdDate", type datetime}, {"updatedDate", type datetime}, {"description", type text},{"briefDescription", type text}, {"scope", type text}, {"hasAttachments", type logical}, {"permalink", type text}, {"workflowId", type text}, {"customItemTypeId", type text}})
+in
+    #"Changed Type"

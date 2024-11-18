@@ -1,0 +1,5 @@
+(Timestamp as text) =>
+    let
+        DateTimeZone.UTC = DateTimeZone.FromText(Timestamp)
+    in
+        DateTimeZone.ToLocal(DateTimeZone.UTC)

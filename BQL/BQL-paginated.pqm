@@ -1,0 +1,416 @@
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    // Load common library functions
+    Utils = Extension.LoadFunction("BQL-utils.pqm"),
+    EscapeQuery = Utils[EscapeQuery],
+    Diagnostics.LogValue = Utils[LogValue],
+    Diagnostics.LogTrace= Utils[LogTrace],
+    Value.WaitFor = Utils[WaitFor],
+    Table.ToNavigationTable = Utils[ToNavigationTable],
+    CheckGraphQLErrors = Utils[CheckGraphQLErrors],
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.PollRetryAttemptsPaginated = Configuration[PollRetryAttemptsPaginated],
+    Configuration.PollDelayPaginated= Configuration[PollDelayPaginated],
+
+    RequestBqlDataPaginated = (
+        query as text,
+        startOffset  as number,
+        sendPostRequestFn as function
+    ) =>
+        let
+            escapedQuery = EscapeQuery(query),
+            body = "{""query"":"""
+                & "query{ "
+                & "  bqlPaginated( "
+                & "    request: { "
+                & "      expression: \""" & escapedQuery & "\"" "
+                & "      startOffset: " & Text.From(startOffset) & ", "
+                & "      autoPageSize: true  "
+                & "    } "
+                & "  ){ "
+                & "    paginatedResponse{ "
+                & "      ... on Error{ "
+                & "        errorCategory "
+                & "        errorMessage "
+                & "      } "
+                & "      ... on QueryStartResponse{ "
+                & "        requestId "
+                & "        status "
+                & "      } "
+                & "      ... on QueryDataResponse{ "
+                & "        metadata{ "
+                & "          tableId "
+                & "          columns{ "
+                & "            name "
+                & "            type "
+                & "          } "
+                & "        } "
+                & "        status "
+                & "        data{ "
+                & "          tableId "
+                & "          rows "
+                & "        } "
+                & "        pageInfo{ "
+                & "          hasNextPage "
+                & "          startOffset "
+                & "          count "
+                & "        } "
+                & "      } "
+                & "    } "
+                & "    legacyResponse{ "
+                & "      ... on BqlDirectAsyncStartResponse { "
+                & "         ticket "
+                & "      } "
+                & "      ... on BqlDirectDataResponse { "
+                & "        results{ "
+                & "          id "
+                & "          data{ "
+                & "            tableVal{ "
+                & "              headers "
+                & "              columns { "
+                & "                  ... on BqlNumColumn { "
+                & "                    numColumn "
+                & "                  } "
+                & "                  ... on BqlStringColumn { "
+                & "                    strColumn "
+                & "                  } "
+                & "                  ... on BqlDateColumn {  "
+                & "                    dateColumn "
+                & "                  } "
+                & "                  ... on BqlNumColumnRange { "
+                & "                    numVal "
+                & "                    length "
+                & "                  } "
+                & "                  ... on BqlDateColumnRange { "
+                & "                    dateVal "
+                & "                    length "
+                & "                  } "
+                & "                  ... on BqlStringColumnRange { "
+                & "                    strVal "
+                & "                    length "
+                & "                  } "
+                & "              } "
+                & "            } "
+                & "          } "
+                & "        } "
+                & "      } "
+                & ""
+                & "    } "
+                & "  } "
+                & "} "
+                & """,""variables"":{}}",
+
+                body1 = Diagnostics.LogValue("Request body", body),
+                rawResult = sendPostRequestFn(body1, 0),
+                rawResultText =  Text.FromBinary(rawResult),
+                truncatedRawResultText = Text.Start(rawResultText, 1000),
+                rawResultText1 = Diagnostics.LogTrace(
+                    TraceLevel.Information,
+                    Text.Combine({"Raw response (truncated): ", truncatedRawResultText}),
+                    rawResultText
+                ),
+                parsedResult = try Json.Document(rawResultText1)
+                    otherwise error Error.Record(
+                        "Invalid Response",
+                        "Unable to read data due to invalid response format.",
+                        rawResultText1
+                    )
+        in
+            parsedResult,
+
+    ValidatePaginatedResponse = (response as record) =>
+        let
+            withAttributeCheck = if response[data] <> null
+                    and response[data][bqlPaginated][paginatedResponse]
+                        <> null
+                then response
+                else error Error.Record("Invalid Response", "Response lacks expected attributes."),
+            withErrorResponseCheck = if Record.HasFields(
+                    withAttributeCheck[data][bqlPaginated][paginatedResponse],
+                    "errorCategory"
+                )
+                then error Error.Record(
+                    withAttributeCheck[data][bqlPaginated][paginatedResponse][errorCategory],
+                    withAttributeCheck[data][bqlPaginated][paginatedResponse][errorMessage]
+                )
+                else withAttributeCheck
+        in
+            withErrorResponseCheck,
+
+    LoadPaginatedData = (
+        firstPage as record,
+        offset as number,
+        sendPostRequestFn as function
+    )  =>
+        let
+            validatedFirstPage = ValidatePaginatedResponse(firstPage),
+            data = LoadPaginatedDataNoError(validatedFirstPage, offset, sendPostRequestFn)
+        in
+            data,
+
+    RequestAndValidateBqlDataPaginatedCheck = (requestId as text, startOffset  as number, sendPostRequestFn as function) =>
+        let
+            result = RequestBqlDataPaginatedCheck(requestId, startOffset, sendPostRequestFn),
+            withGraphqlErrorCheck = CheckGraphQLErrors(result),
+            validatedResult = ValidateQueryCheckResponse(withGraphqlErrorCheck)
+        in
+            validatedResult,
+
+    RequestBqlDataPaginatedCheck = (requestId as text, startOffset  as number, sendPostRequestFn as function) =>
+        let
+        body = "{""query"":"""
+
+            & "query{ "
+            & "  queryCheck( "
+            & "      requestId: \""" & requestId & "\"" "
+            & "      startOffset: " & Text.From(startOffset) & ", "
+            & "      autoPageSize: true "
+            & "  ){ "
+
+            & "      ... on Error {  "
+            & "      errorCategory, "
+            & "      errorMessage "
+            & "    } "
+
+            & "    ... on QueryStartResponse{ "
+            & "      requestId "
+            & "      status "
+            & "    } "
+
+            & "    ... on QueryDataResponse{ "
+            & "      metadata{ "
+            & "        tableId "
+            & "        columns{ "
+            & "          name "
+            & "          type "
+            & "        } "
+            & "      } "
+            & "      status "
+            & "      data{ "
+            & "        tableId "
+            & "        rows "
+            & "      }  "
+
+            & "     pageInfo{  "
+            & "        hasNextPage "
+            & "        startOffset "
+            & "        count "
+            & "     } "
+
+            & "    }  "
+            & "  }  "
+            & "}  "
+
+            & """,""variables"":{}}",
+
+            body1 = Diagnostics.LogValue("Request body", body),
+            rawResult = sendPostRequestFn(body1, 0),
+            rawResultText =  Text.FromBinary(rawResult),
+            truncatedRawResultText = Text.Start(rawResultText, 1000),
+            rawResultText1 = Diagnostics.LogTrace(
+                TraceLevel.Information,
+                Text.Combine({"Raw response (truncated): ", truncatedRawResultText}),
+                rawResultText
+            ),
+            parsedResult = try Json.Document(rawResultText1)
+                otherwise error Error.Record(
+                    "Invalid Response",
+                    "Unable to read data due to invalid response format.",
+                    rawResultText1
+                )
+        in
+            parsedResult,
+
+    ValidateQueryCheckResponse = (response as record) =>
+        let
+            withAttributeCheck = if response[data] <> null
+                    and response[data][queryCheck] <> null
+                then response
+                else error Error.Record("Invalid Response", "Response lacks expected attributes."),
+            withErrorResponseCheck = if Record.HasFields(
+                    withAttributeCheck[data][queryCheck],
+                    "errorCategory"
+                )
+                then error Error.Record(
+                    withAttributeCheck[data][queryCheck][errorCategory],
+                    withAttributeCheck[data][queryCheck][errorMessage]
+                )
+                else withAttributeCheck
+        in
+            withErrorResponseCheck,
+
+    LoadPaginatedDataNoError = (
+        firstPage as record,
+        startOffset as number,
+        sendPostRequestFn as function
+    )  =>
+        let
+            firstPageResponse = firstPage[data][bqlPaginated][paginatedResponse],
+            isRequestIdResponse = Record.HasFields(firstPageResponse, "requestId"),
+            requestId = if (isRequestIdResponse) then firstPageResponse[requestId] else null,
+            firstPageAlreadyWithData = Record.HasFields(firstPageResponse,"data"),
+            dataIsReadyToLoad = firstPageResponse[status] = "COMPLETE",
+            firstPageWithData = if firstPageAlreadyWithData
+                    then firstPageResponse[data]
+                else if dataIsReadyToLoad
+                    then RequestAndValidateBqlDataPaginatedCheck(requestId, startOffset, sendPostRequestFn)
+                else WaitToLoadPaginated(requestId, startOffset, sendPostRequestFn),
+            nextPages = List.Generate(
+                () => [
+                    page = firstPageWithData,
+                    hasNextPage = true,
+                    startOffset = startOffset,
+                    count = firstPageWithData[data][queryCheck][pageInfo][count]
+                ],
+                (currPage) => currPage[hasNextPage]=true,
+                (currPage) => [
+                    startOffset = currPage[startOffset] + currPage[count],
+                    page = RequestAndValidateBqlDataPaginatedCheck(requestId, startOffset, sendPostRequestFn),
+                    hasNextPage = currPage[page][data][queryCheck][pageInfo][hasNextPage],
+                    count = currPage[page][data][queryCheck][pageInfo][count]
+                ],
+                (currPage) => currPage[page]
+            ),
+
+            listOfPages = if (isRequestIdResponse) then nextPages else {firstPage},
+
+            allDataList = List.Accumulate(
+                listOfPages,
+                {},
+                (state, curpage) => List.Combine({
+                    state,
+                    if (isRequestIdResponse) then
+                        curpage[data][queryCheck][data]
+                    else
+                        curpage[data][bqlPaginated][paginatedResponse][data]
+                })
+            ),
+
+            metadata = if (isRequestIdResponse) then
+                listOfPages{0}[data][queryCheck][metadata]
+            else
+                listOfPages{0}[data][bqlPaginated][paginatedResponse][metadata],
+
+            columnsMetadata = Record.FromList(
+                List.Transform(metadata, (i) => i[columns]),
+                List.Transform(metadata, (i) => i[tableId])
+            ),
+
+            rowsByTableIdRecord = List.Accumulate(
+                allDataList,
+                [],
+                (state,data) =>
+                    if Record.HasFields(state,data[tableId]) then
+                        Record.AddField(
+                            Record.RemoveFields(state,data[tableId]),
+                            data[tableId],
+                            List.Combine({
+                                Record.Field(state, data[tableId]),
+                                data[rows]
+                            })
+                        )
+                    else
+                        Record.AddField(state,data[tableId],
+                            data[rows]
+                        )
+            ),
+
+            tablesRecord = List.Accumulate(
+                Record.FieldNames(rowsByTableIdRecord),
+                [],
+                (state, tableId) =>
+                Record.AddField(
+                        state,
+                        tableId,
+                        CreateTypedTable(
+                            Record.Field(columnsMetadata, tableId),
+                            Record.Field(rowsByTableIdRecord, tableId)
+                        )
+                )
+            ),
+
+            finalTables = GetTableValuePaginated(tablesRecord)
+        in
+            finalTables,
+
+    WaitToLoadPaginated = (requestId as text, startOffset as number, sendPostRequestFn as function) =>
+        let
+            waitForResult = Value.WaitFor(
+                (iteration) =>
+                    let
+                        page = RequestAndValidateBqlDataPaginatedCheck(requestId, startOffset, sendPostRequestFn),
+                        pageResponse = page[data][queryCheck],
+                        actualPage =  if pageResponse[status]="RUNNING" then null else page
+                    in
+                        actualPage,
+                (iteration) => #duration(0, 0, 0, Configuration.PollDelayPaginated),
+                Configuration.PollRetryAttemptsPaginated
+            )
+        in
+            if waitForResult = null
+            then error Error.Record("Server Error", "Request has timed out (polling retry attempts exceeded.)")
+            else waitForResult,
+
+    CreateTypedTable = (colmetadata as list, rows as list) =>
+        let
+
+            GetColumnType = (columnType as text) =>
+                let
+                    typeName =      if (columnType = "STRING")   then type text
+                            else if (columnType = "INT")      then type number
+                            else if (columnType = "FLOAT")    then type number
+                            else if (columnType = "BOOLEAN")  then type logical
+                            else if (columnType = "DATE")     then type date
+                            else if (columnType = "DATETIME") then type datetime
+                            else error Error.Record("Get column type error", "Unknown input data type.")
+                in
+                    typeName,
+            columnsNames = List.Transform(colmetadata, (i) => i[name]),
+            columnsTypes = List.Transform(colmetadata, (i) => GetColumnType(i[type])),
+            finalTable = Table.FromRows(
+                rows,
+                columnsNames
+            ),
+            typeTransformList =  List.Zip({columnsNames, columnsTypes}),
+            tableWithTypes = Table.TransformColumnTypes(
+                finalTable,
+                typeTransformList,
+                "en-US"
+            )
+        in
+            tableWithTypes,
+
+    GetTableValuePaginated = (tablesRecord as record) =>
+        let
+            objects = #table(
+                {"Name",  "Key",   "Data", "ItemKind", "ItemName", "IsLeaf"},
+                List.Transform(
+                    Record.FieldNames(tablesRecord),
+                    (tableName) => {
+                        tableName,
+                        tableName,
+                        Record.Field(tablesRecord, tableName),
+                        "Table",
+                        "Table",
+                        true
+                    }
+                )
+            ),
+            table = if List.Count(Record.FieldNames(tablesRecord)) = 1
+                    then Record.FieldValues(tablesRecord){0}
+                    else Table.ToNavigationTable(objects, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+        in
+            table
+in
+    [
+        RequestBqlDataPaginated = RequestBqlDataPaginated,
+        LoadPaginatedData = LoadPaginatedData
+    ]

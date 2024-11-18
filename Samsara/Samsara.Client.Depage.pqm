@@ -1,0 +1,66 @@
+let
+    /**
+     * Read all pages of data from the backend.
+     * 
+     * @param Context Current state used for the request.
+     * @param Request Parameters for the network call like headers, query parameters, etc.
+     * @returns All the raw backend responses in a list.
+     * @raises Modeled network errors if there was a fatal error depaging the API.
+     */
+    Depage = (Context as record, Request as record) =>
+        let
+            Samsara.Client.Retry = Context[Extension.LoadFunction](Context, "Samsara.Client.Retry.pqm"),
+
+            After = Context[After]?,
+            Delay = Context[Delay]?,
+            PageNo = Context[PageNo]? ?? 1,
+
+            Query = Request[Query]?,
+            PagedQuery = if After = null then Query
+                         else if Query = null then [ after = After ]
+                         else Record.Combine({ Query, [ after = After ] }),
+            PagedRequest = [
+                Url = Request[Url],
+                Headers = Request[Headers],
+                Body = Request[Body]?,
+                Query = PagedQuery,
+                Force = Request[Force]?
+            ],
+            PageLimit = Request[Limit]? ?? Number.PositiveInfinity,
+
+            Content = try if Delay <> null
+                then Function.InvokeAfter(() => Samsara.Client.Retry(Context, PagedRequest), Delay)
+                else Samsara.Client.Retry(Context, PagedRequest),
+            
+            Json.ParsingError = (e) => Error.Record(
+                Extension.LoadString("ErrorFatal"),
+                Extension.LoadString("ErrorServerUnknown"),
+                [ Cause = "JSON parsing failure", Tag = "fault" ],
+                { "JSON Parsing" }
+            ), 
+            ResponseHeaders = if Content[HasError]
+                then error Content[Error]
+                else Value.Metadata(Content[Value])[Headers],
+            ResponseJson = if Content[HasError]
+                then error Content[Error]
+                else try Json.Document(Content[Value]) catch (e) => error Json.ParsingError(e),
+
+            Data = if ResponseJson[data] <> null and ResponseJson[data] <> []
+                then ResponseJson[data]
+                else {},
+            Data.AsList = if Data is list
+                then Data
+                else { Data },
+            RetryAfter.Text = ResponseHeaders[#"Retry-After"]?,
+            RetryAfter.Number = try Number.FromText(RetryAfter.Text) otherwise null,
+            NextDelay = if RetryAfter.Number = null then null else #duration(0, 0, 0, RetryAfter.Number),
+            Pagination = ResponseJson[pagination]?,
+            NextAfter = if Pagination = null then null else Pagination[endCursor],
+            MoreDataAvailable = if Pagination = null then false else Pagination[hasNextPage],
+            NextContext = Context & [ Delay = NextDelay, After = NextAfter, PageNo = PageNo + 1 ]
+        in
+            if MoreDataAvailable and PageNo < PageLimit 
+                then Data.AsList & @Depage(NextContext, Request) 
+                else Data.AsList 
+    in
+        Depage

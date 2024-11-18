@@ -1,0 +1,32 @@
+query BiAppsNextPage($requestId: String!) {
+  biAppsNextPage(requestId: $requestId) {
+    ... on QueryStartResponse {
+      requestId
+      status
+    }
+    ... on QueryDataResponse {
+      requestId
+      metadata {
+        tableId
+        columns {
+          name
+          type
+        }
+      }
+      status
+      data {
+        tableId
+        rows
+      }
+      pageInfo {
+        hasNextPage
+        startOffset
+        count
+      }
+    }
+    ... on Error {
+      errorCategory
+      errorMessage
+    }
+  }
+}

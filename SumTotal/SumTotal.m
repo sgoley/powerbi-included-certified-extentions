@@ -1,5 +1,5 @@
 ﻿// This file contains your Data Connector logic
-[Version = "2.0.0"]
+[Version = "2.2.0"]
 section SumTotal;
 
 //Constants
@@ -38,10 +38,21 @@ SumTotalType = type function (
 
 SumTotalNavTable = (url as text) as table =>
     let
-        urlParts = if Text.Contains(url, "?") then Text.Split(url,"?") else null,
-        apiURL =  if Text.Contains(url, "?") then urlParts{0} else url,
-        rowVersionPart =  if Text.Contains(url, "?") then urlParts{1}  else null,
-        odataEntities = OData.Feed(Uri.Combine(apiURL,"/odata/api/"), null, [ Implementation = "2.0" ])
+        urlParts = if Text.Contains(url, "?") then Uri.Parts(url) else null,
+        apiURL =  if Text.Contains(url, "?") then urlParts[Host] else url,
+        queryStringParts =  if Text.Contains(url, "?") then urlParts[Query]  else null,
+        rowVersionIdValue = if Text.Contains(url, "?") and Record.HasFields(queryStringParts, {"rowVersionId"}) then queryStringParts[rowVersionId] else "0",
+        rowVersionDecimalValue = if Text.Contains(url, "?") and Record.HasFields(queryStringParts, {"rowVersionDecimal"}) then queryStringParts[rowVersionDecimal] else "0",
+        isActiveValue = if Text.Contains(url, "?") and Record.HasFields(queryStringParts, {"isActive"}) then queryStringParts[isActive] else "true",
+        isDeletedValue = if Text.Contains(url, "?") and Record.HasFields(queryStringParts, {"isDeleted"}) then queryStringParts[isDeleted] else "false",
+        odataUrl = Uri.Combine(apiURL,"/odata/api/"),
+        odataEntities = OData.Feed(odataUrl, null, [ Implementation = "2.0",Query =
+                                [
+                                    rowVersionId = rowVersionIdValue,
+                                    rowVersionDecimal = rowVersionDecimalValue,
+                                    isActive = isActiveValue,
+                                    isDeleted = isDeletedValue
+                                ] ])
     in
         odataEntities;
 

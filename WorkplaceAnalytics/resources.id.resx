@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Opsi tingkat lanjut</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Data agregat</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Granularitas data</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Pilih data Tingkat baris untuk memuat hasil kueri mentah atau data Agregat untuk mendorong kueri ke database dan mendapatkan hasil agregat. Untuk hasil terbaik, pilih data Tingkat baris hanya jika Anda memilih mode Impor Konektivitas Data.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Data tingkat baris</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Akun Organisasi</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Sambungkan ke Data Workplace Analytics</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Menyambungkan ke Data Viva Insights</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Analitik Workplace</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Layanan Online</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Analitik Workplace</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Nama tabel</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Sambungkan ke Data Workplace Analytics</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Jika kueri Wawasan tingkat lanjut menghasilkan lebih dari satu tabel, tentukan tabel mana yang akan disambungkan.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Menyambungkan ke Data Viva Insights</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Granularitas data Agregat saat ini tidak didukung saat menyambungkan ke hasil kueri dengan menentukan nama atau pengidentifikasi kueri. Pilih granularitas data Tingkat baris untuk tersambung ke hasil kueri.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Granularitas data tingkat baris saat ini hanya didukung saat menyambungkan ke hasil kueri. Pilih granularitas data Agregat untuk tersambung ke kumpulan metrik Orang umum atau tentukan nama atau pengidentifikasi kueri.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Format atau nilai header Autentikasi WWW yang tidak terduga selama autentikasi.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Respons tidak terduga dari server selama autentikasi.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Granularitas data tingkat baris tidak didukung untuk sumber data ini. Pilih Granularitas data agregat sebagai gantinya.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Menghasilkan tabel dengan atribut yang terlihat dan metrik per minggu untuk setiap karyawan yang diukur dalam partisi.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>Pengidentifikasi Kueri</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Temukan ini di Workplace Analytics dengan membuka Hasil Kueri, menyalin tautan kueri yang diinginkan, dan mengekstrak 32 digit terakhir ID (GUID) yang muncul di URL.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>Di aplikasi wawasan tingkat lanjut, buka Analisis &gt; Hasil kueri, temukan kueri Anda, dan pilih Tautan untuk mendapatkan pengidentifikasi kueri.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Nama Kueri</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Masukkan nama kueri persis seperti yang ditemukan di tab Hasil Kueri Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Masukkan nama kueri yang ditemukan di halaman hasil Kueri &gt; Analisis di aplikasi wawasan tingkat lanjut.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Impor metrik dan data atribut mingguan dari Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Metrik Orang Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Tipe skema</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Pilih Dipivot untuk memuat atribut organisasi sebagai kolom individu atau Tidak dipivot untuk memuat atribut organisasi sebagai pasangan nilai-kunci, seperti Nama atribut = Organisasi, Nilai atribut = Keuangan.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Dipivot</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Tanpa pivot</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Pengidentifikasi Partisi</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Temukan ini di Workplace Analytics dengan membuka profil pengguna dan memilih Informasi Saya</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>Di aplikasi wawasan tingkat lanjut, buka Analisis &gt; Hasil kueri, temukan kueri Anda, dan pilih Tautan untuk mendapatkan pengidentifikasi partisi.</value>
   </data>
 </root>

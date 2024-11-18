@@ -156,6 +156,30 @@
   <data name="InvalidParametersMesg6" xml:space="preserve">
     <value>The parameter 'Custom' should not be empty when you select 'Custom' as the Time mode</value>
   </data>
+  <data name="InvalidParametersMesg7" xml:space="preserve">
+    <value>Enter proper IMOs</value>
+  </data>
+  <data name="InvalidParametersMesg8" xml:space="preserve">
+    <value>Enter valid start date</value>
+  </data>
+   <data name="InvalidParametersMesg9" xml:space="preserve">
+    <value>Enter valid end date</value>
+  </data>
+  <data name="InvalidParametersMesg10" xml:space="preserve">
+    <value>Enter valid date range, the parameter 'Start' should less than 'End'</value>
+  </data>
+  <data name="InvalidParametersMesg11" xml:space="preserve">
+    <value>The paramter 'Location Code' should contain alphabet and special character '-' eg. AS-ASH</value>
+  </data>
+  <data name="InvalidParametersMesg12" xml:space="preserve">
+    <value>The paramter 'Comma Separated IMOs' should contain number and special character ',' eg. 1234567, 2222222</value>
+  </data>
+  <data name="InvalidParametersMesg13" xml:space="preserve">
+    <value>Error occured during expanding the table</value>
+  </data>
+  <data name="NoContent" xml:space="preserve">
+    <value>204 No Content</value>
+  </data>
   <data name="LogoutUri" xml:space="preserve">
     <value>https://login.microsoftonline.com/logout.srf</value>
   </data>
@@ -169,12 +193,30 @@
     <value>Custom TQL Query</value>
   </data>
   <data name="TreeNodeGaloreDataLabel" xml:space="preserve">
-    <value>Vessel Insight Data</value>
+    <value>Vessel Insight Data (deprecated)</value>
+  </data>
+  <data name="AssetViewLabel" xml:space="preserve">
+    <value>Vessel Insight Data 2.0</value>
   </data>
   <data name="VesselInfoAll" xml:space="preserve">
     <value>Vessel Info (All Vessels)</value>
   </data>
   <data name="VIVessel" xml:space="preserve">
     <value>§VI_Vessel_Generic</value>
+  </data>
+  <data name="TreeNodeVoyageLabel" xml:space="preserve">
+    <value>Voyage</value>
+  </data>
+  <data name="TreeNodeVoyageImoLabel" xml:space="preserve">
+    <value>Latest</value>
+  </data>
+  <data name="TreeNodeVoyageLocationDecoderLabel" xml:space="preserve">
+    <value>Location Decoder</value>
+  </data>
+  <data name="TreeNodeVoyageHistoryLabel" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="TreeNodeLocationHistoryLabel" xml:space="preserve">
+    <value>Location History</value>
   </data>
 </root>

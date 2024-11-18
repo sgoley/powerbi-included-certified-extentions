@@ -1,12 +1,12 @@
 ﻿// Data Connector logic for Cognite Data Fusion.
-[Version = "1.0.6"]
+[Version = "1.0.8"]
 section Cognite;
 
 CogniteDefaults = [
     Environment = "https://api.cognitedata.com",
     ApiVersion = "v1",
     MaxUriSize = 900,      // To avoid Power BI giving Invalid URI: The Uri scheme is too long.
-    Version = "1.0.6"      // Is it possible to read this value from the section above?
+    Version = "1.0.8"      // Is it possible to read this value from the section above?
 ];
 
 isUrl = (input as text) => Text.StartsWith(input, "http://") or Text.StartsWith(input, "https://");
@@ -15,10 +15,10 @@ isUrl = (input as text) => Text.StartsWith(input, "http://") or Text.StartsWith(
 createUrls = (project as text, optional environment as text) =>
     let
         environment =
-            if isUrl(project) // If project is an URL, then we will use the URL for calculating the apiUrl (service URL will still be URL override i.e project)
-            then project
-            else if environment <> null // If environment is set then we use the environment
+            if environment <> null // If environment is set then we use the environment
             then environment
+            else if isUrl(project) // If project is an URL, then we will use the URL for calculating the apiUrl (service URL will still be URL override i.e project)
+            then project
             else CogniteDefaults[Environment], // If no environment is set and no URL override, then use the default api cluster URL.
         parts = Uri.Parts(environment),
         hasScheme = isUrl(environment),
@@ -28,9 +28,21 @@ createUrls = (project as text, optional environment as text) =>
         host = if hasScheme then parts[Host] else parts[Host] & ".cognitedata.com",
         scheme = if hasScheme then parts[Scheme] else "https",
         apiUrl = Text.Combine({scheme, "://", host, port}),
-        serviceUrl = if isUrl(project) then project else Text.Combine({ apiUrl, path}) // For service URL we use the full URL override if supplied.
+        queryUrl = if isUrl(project) then project else Text.Combine({apiUrl, path}),
+        query = Uri.Parts(queryUrl)[Query],
+        renamed = Record.RenameFields(query, {{"tenantID", "tenantId"}, {"tenantid", "tenantId"}}, 1),
+        tenantId =
+            if Record.HasFields(renamed, "tenantId")
+            then "?" & Uri.BuildQueryString(Record.SelectFields(renamed, "tenantId"))
+            else "",
+
+        // Base url is the URL up to but not including the project name
+        baseUrl = Text.Combine({Text.BeforeDelimiter(queryUrl, "/projects/"), "projects"}, "/"),
+        // For service URL we use the full URL override if supplied, but excluding any resource and filters etc so AAD
+        // authentication still works.
+        serviceUrl = Text.Combine({baseUrl, Text.BeforeDelimiter(Text.BeforeDelimiter(Text.AfterDelimiter(queryUrl, "/projects/"), "?"), "/")}, "/") & tenantId
     in
-        [ ApiUrl=apiUrl, ServiceUrl=serviceUrl ];
+        [ ApiUrl=apiUrl, ServiceUrl=serviceUrl, QueryUrl=queryUrl ];
 
 [DataSource.Kind="Cognite", Publish="Cognite.UI"]
 shared Cognite.Contents = Value.ReplaceType(CogniteImpl, CogniteType);
@@ -133,15 +145,15 @@ CogniteImpl = (project as text, optional environment as text) =>
         // We also allow for the project argument to set the full service URL (since Power BI Service does
         // not support optional parameters). Thus for the service you may supply the full URL with
         // environment, version and project e.g: https://api.cognitedata.com/odata/v1/projects/<project>/
-        serviceUrl = createUrls(project, environment)[ServiceUrl],
+        queryUrl = createUrls(project, environment)[QueryUrl],
         //set expected headers for API
         headers = Record.Combine({ defaultHeaders, authHeaders }),
-        source = OData.Feed(serviceUrl, null, [ Concurrent=true, Implementation="2.0", MaxUriLength=32768, Headers=headers ]),
+        source = OData.Feed(queryUrl, null, [ Concurrent=true, Implementation="2.0", MaxUriLength=32768, Headers=headers ]),
 
         // Append customized version of Timeseries Aggregate function. We do this to adapt the function to take a
         // list of tags instead of a comma separated string of tags.
 
-        rowsToReplace = Table.SelectRows(source, each [Name]="TimeseriesAggregate"),
+        rowsToReplace = Table.SelectRows(source, each Record.HasFields(_, {"Name"}) and [Name]="TimeseriesAggregate"),
         navTable =
             if Table.RowCount(rowsToReplace) = 1 then
                 let
@@ -184,12 +196,11 @@ TimeseriesAggregate = (TimeSeriesAggregatesFunction as function) as function =>
     let
         ReplacementFunction = (Tags as list, Granularity as text, Start as datetimezone, optional End as datetimezone) as table =>
             let
-                //Partition the list of tags
-                partitions = PartitionTags(Tags),
                 Tags = List.Transform(Tags, (x) => Uri.EscapeDataString(x)),
+                partitions = PartitionTags(Tags),
 
                 // The query returns a record with a table that we can expand later.
-                query = (Tags as text) => [Expandable=TimeSeriesAggregatesFunction(Tags, Granularity, Start, End)],
+                query = (Tags as text) => [Expandable=TimeSeriesAggregatesFunction(Uri.EscapeDataString(Tags), Granularity, Start, End)],
                 // Apply query to list of partitions
                 aggregates = List.Transform(partitions, query),
                 // Combine the result. We use Table.Expand* instead of Table.Combine in order to handle a high number of tables and avoid duplicate queries.
@@ -210,7 +221,7 @@ TimeseriesAggregate = (TimeSeriesAggregatesFunction as function) as function =>
 // The maximum size of a partition is defined in CogniteDefaults, and is used to restrict the size of each request to CDF.
 PartitionTags = (InputTagList as list) as list =>
     let
-        maxTagSize = List.Max(List.Transform(InputTagList, Text.Length)),
+        maxTagSize = List.Max(List.Transform(InputTagList, Text.Length)) + 3, // Add 3 for one escaped comma per tag, i.e %2C
         partitions = Number.IntegerDivide(CogniteDefaults[MaxUriSize], maxTagSize),
         nTags = List.Count(InputTagList),
         partitionSize = List.Min({nTags, partitions}),

@@ -162,7 +162,10 @@
     <value>No Facilities</value>
   </data>
   <data name="NoLocations.Error" xml:space="preserve">
-    <value>No Locations</value>
+    <value>No Locations for Facility</value>
+  </data>
+  <data name="NoReports.Error" xml:space="preserve">
+    <value>No Reports for Facility</value>
   </data>
   <data name="NoReportsOrLocations.Error" xml:space="preserve">
     <value>No Reports or Locations</value>

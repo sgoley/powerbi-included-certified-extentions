@@ -1,0 +1,11 @@
+/**
+ * Get the current UTC time as a RFC3339 string.
+ */
+() =>
+    let
+        Format.RFC3339 = "yyyy-MM-ddTHH:mm:ss.fffZ"
+    in
+        DateTimeZone.ToText(
+            DateTimeZone.FixedLocalNow(),
+            [ Format = Format.RFC3339 ]
+        )

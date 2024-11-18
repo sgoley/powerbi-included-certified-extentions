@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>الاتصال بـ Dataverse عبر نقطة نهاية SQL التابعة لها</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>مجال البيئة</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>مجال البيئة</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>حدد بيئة Dataverse المراد الاتصال بها. هذا الحقل اختياري ويتم عرض كل بيئات Dataverse المتوفرة للمستخدم المسجّل دخوله على شاشة "اختيار البيانات" في حالة عدم تحديده</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>اتصل بمثيل Dataverse (Dynamics 365 وPowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>مجال '#{0}' لا يدعمه موصل Dataverse.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>تحميل البيانات من جدول بيئات غير مباشر غير مدعم.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>'#{0}' ليست خيارات صالحة. الخيارات الصالحة هي: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>لا تدعم هذه الدالة الخيار'#{0}' بالقيمة '#{1}'.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>تنسيق اسم الخادم '#{0}' غير صالح.  الرجاء إزالة مخطط مثل "https://" من اسم الخادم.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>تضمين أعمدة العلاقات</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>الخيارات</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>تحدد خيارات الاتصال بمثيل Dataverse الخاص بك</value>
   </data>
 </root>

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,57 +118,57 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="001" xml:space="preserve">
     <value>AtScale кубове</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="002" xml:space="preserve">
     <value>Импортирайте/извършете DirectQuery за данни на куб от AtScale.</value>
   </data>
-  <data name="Label" xml:space="preserve">
+  <data name="Label" errorCode="003" xml:space="preserve">
     <value>AtScale кубове</value>
   </data>
-  <data name="AtScaleCubes_Description" xml:space="preserve">
+  <data name="AtScaleCubes_Description" errorCode="004" xml:space="preserve">
     <value>Import/DirectQuery данни на куб от AtScale.</value>
   </data>
-  <data name="AtScaleCubes_LongDescription" xml:space="preserve">
+  <data name="AtScaleCubes_LongDescription" errorCode="005" xml:space="preserve">
     <value>
-Връща данни за куб от AtScale на сървъра &lt;code&gt;server&lt;/code&gt;. Опционален параметър на запис, &lt;code&gt;options&lt;/code&gt;, може да бъде указан за управление на следните опции:
+Връща данни за куб от AtScale на сървъра &lt;code&gt;server&lt;/code&gt;. Може да се зададе незадължителен параметър на записа, &lt;code&gt;опции&lt;/code&gt;, за да се контролират следните опции:
 &lt;ul&gt;
         &lt;li&gt;&lt;code&gt;TypedMeasureColumns&lt;/code&gt;: Логическа стойност, показваща дали типовете, посочени в многоизмерния или табуларния модел, ще бъдат използвани за типовете на добавените колони с мярка. Когато е зададен на false, типът „number“ ще се използва за всички колони с мярка. Стойността по подразбиране за тази опция е false.&lt;/li&gt;
-        &lt;li&gt;&lt;code&gt;CommandTimeout&lt;/code&gt;: продължителност (в секунди), която управлява колко дълго заявката от страна на сървъра има право да се изпълнява, преди да бъде отказана. Стойността по подразбиране зависи от драйвера. &lt;/li&gt;
-        &lt;li&gt;&lt;code&gt;ConnectionTimeout&lt;/code&gt;: Продължителност (в секунди), която управлява колко дълго да се изчака, преди да се откаже опит за създаване на връзка със сървъра. Стойността по подразбиране зависи от драйвера. &lt;/li&gt;
+        &lt;li&gt;&lt;code&gt;CommandTimeout&lt;/code&gt;: Продължителност (в секунди), която контролира колко време може да се изпълнява заявката от страна на сървъра, преди да бъде отменена. Стойността по подразбиране е зависима от драйвера. &lt;/li&gt;
+        &lt;li&gt;&lt;code&gt;ConnectionTimeout&lt;/code&gt;: Продължителност (в секунди), която контролира колко време да се изчака, преди да се прекрати опитът за установяване на връзка със сървъра. Стойността по подразбиране е зависима от драйвера. &lt;/li&gt;
 
 &lt;/ul&gt;
-Параметърът за запис е зададен като [option1 = value1, option2 = value2...].</value>
+Параметърът на записа се задава като [опция1 = стойност1, опция2 = стойност2...].</value>
   </data>
-  <data name="AtScaleCubes_ExampleDescription" xml:space="preserve">
+  <data name="AtScaleCubes_ExampleDescription" errorCode="006" xml:space="preserve">
     <value>Посочете данните за куба в куб на AtScale.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
+  <data name="FormulaTitle" errorCode="007" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AuthenticationLabel" errorCode="008" xml:space="preserve">
     <value>AtScale</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
+  <data name="ServerParameterCaption" errorCode="009" xml:space="preserve">
     <value>Сървър</value>
   </data>
-  <data name="ServerParameterDescription" xml:space="preserve">
+  <data name="ServerParameterDescription" errorCode="010" xml:space="preserve">
     <value>Укажете URL адреса на сървъра на AtScale</value>
   </data>
-  <data name="OptionsParameterCaption" xml:space="preserve">
+  <data name="OptionsParameterCaption" errorCode="011" xml:space="preserve">
     <value>Опции</value>
   </data>
-  <data name="OptionsParameterDescription" xml:space="preserve">
+  <data name="OptionsParameterDescription" errorCode="012" xml:space="preserve">
     <value>Посочете опциите за свързване със сървъра на AtScale</value>
   </data>
-  <data name="InvalidServerNameError" xml:space="preserve">
+  <data name="InvalidServerNameError" errorCode="013" xml:space="preserve">
     <value>Указано е невалидно име на сървър. Името на сървъра трябва да е във формат „http(s)://contoso.atscale.com:10502/xmla/...“, като номерът на порта е опционален.</value>
   </data>
-  <data name="InvalidOptionsKey" xml:space="preserve">
+  <data name="InvalidOptionsKey" errorCode="014" xml:space="preserve">
     <value>„#{0}“ не е валидна опция на AtScale. Валидни опции са: „#{1}“</value>
   </data>
-  <data name="InvalidOptionsValue" xml:space="preserve">
+  <data name="InvalidOptionsValue" errorCode="015" xml:space="preserve">
     <value>Тази функция на AtScale не поддържа опцията „#{0}“ със стойност „#{1}“</value>
   </data>
 </root>

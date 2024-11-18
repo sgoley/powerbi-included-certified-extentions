@@ -121,7 +121,7 @@
     <value>URL API REST MicroStrategy</value>
   </data>
   <data name="ApiUrlDesc" xml:space="preserve">
-    <value>URL API REST MicroStrategy personale (ad es. https://nomeimpresa.microstrategy.com/MicroStrategyLibrary/)</value>
+    <value>Immettere un URL ambiente valido (per impostazione predefinita viene utilizzato quello di autenticazione di Library): https://.../MicroStrategyLibrary. Per l'autenticazione OIDC, aggiungere il #parametro OIDCMode alla fine dell'URL ambiente valido: https://.../MicroStrategyLibrary/#OIDCMode.</value>
   </data>
   <data name="AuthMode" xml:space="preserve">
     <value>Modalità di autenticazione</value>
@@ -133,16 +133,13 @@
     <value>Importa dati da dataset MicroStrategy</value>
   </data>
   <data name="DataSourceName" xml:space="preserve">
-    <value>MicroStrategy per Power BI</value>
+    <value>MicroStrategy for Power BI</value>
   </data>
   <data name="DefaultMark" xml:space="preserve">
     <value>(impostazione predefinita)</value>
   </data>
   <data name="ErrorContents" xml:space="preserve">
     <value>Impossibile ottenere contenuti da</value>
-  </data>
-  <data name="ErrorPrompted" xml:space="preserve">
-    <value>I report richiesti non sono supportati.</value>
   </data>
   <data name="Locale" xml:space="preserve">
     <value>it</value>
@@ -151,10 +148,10 @@
     <value>LDAP</value>
   </data>
   <data name="LimitDesc" xml:space="preserve">
-    <value>Numero massimo di elementi restituiti per pagina</value>
+    <value>Righe di dati recuperate per richiesta</value>
   </data>
   <data name="LimitDescLong" xml:space="preserve">
-    <value>Numero massimo di elementi restituiti per una singola richiesta per controllare il comportamento del paging.</value>
+    <value>Numero massimo di righe restituite in una singola richiesta. Utilizzato per controllare il comportamento di paginazione.</value>
   </data>
   <data name="PersonalObjects" xml:space="preserve">
     <value>Oggetti personali</value>
@@ -171,7 +168,34 @@
   <data name="TimeoutDescLong" xml:space="preserve">
     <value>Impostazione timeout per richiesta HTTP sul server API REST.</value>
   </data>
+  <data name="DefaultIs" xml:space="preserve">
+    <value>L'impostazione predefinita è</value>
+  </data>
   <data name="AdvancedOptions" xml:space="preserve">
     <value>Opzioni avanzate</value>
+  </data>
+  <data name="ErrorPrivilege" xml:space="preserve">
+    <value>Non si dispone del privilegio UsePowerBI per questo progetto.</value>
+  </data>
+  <data name="PromptsCloseAll" xml:space="preserve">
+    <value>Chiudi tutti i prompt</value>
+  </data>
+  <data name="ErrorPromptedOldEnv" xml:space="preserve">
+    <value>I report con prompt sono supportati solo in MicroStrategy 11.1.3 e versioni successive.</value>
+  </data>
+  <data name="AuthBasicName" xml:space="preserve">
+    <value>Standard/LDAP</value>
+  </data>
+  <data name="ErrorWrongTimeoutInput" xml:space="preserve">
+    <value>Il timeout non può essere inferiore a 0</value>
+  </data>
+  <data name="ErrorPrompted" xml:space="preserve">
+    <value>I report richiesti non sono supportati.</value>
+  </data>
+  <data name="AuthOAuthName" xml:space="preserve">
+    <value>Library/OIDC</value>
+  </data>
+  <data name="ApiUrlSample" xml:space="preserve">
+    <value>https://mycompany.microstrategy.com/MicroStrategyLibrary/</value>
   </data>
 </root>

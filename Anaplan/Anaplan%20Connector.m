@@ -1,11 +1,131 @@
-[Version = "1.0.3"]
+[Version = "2.3.0"]
 section Anaplan;
+
+// OAuth2 values
+redirect_uri = "https://oauth.powerbi.com/views/oauthredirect.html";
+logout_uri = "https://login.microsoftonline.com/logout.srf";
+scope_prefix = "";
+scopes = {
+    "openid"
+};
+
+//basic auth url values
+prodApiHost = "https://api.anaplan.com";
+prodAuthHost = "https://us1a.app.anaplan.com";
+
+// Login window dimensions
+windowWidth = 850;
+windowHeight = 1200;
+codeVerifier = Text.NewGuid() & Text.NewGuid();
+
+ClientIds = [
+	chimera = "hV0MX4pUs4AyFvjEe1TuQ2D4uCc1qKTn",
+	r2p2 = "UqDxVaF80i2I0kDvREDQ8UqoOo7yeGz8",
+	rke = "qDAbpAhINMHv3S1G7N8kIHas4OOJCZgG",
+	ast = "ozy670BBq1j4dkSIJtKnA3jsmUL8etdp",
+	gst = "ky6c2RtYrLSQO1BY9izCVhFcQzvVg3bP",
+	aus_stg = "meUM999HWMA9R966XdMPNmyaJkP7j4lQ",
+	aus_prod = "HhjwtBUkCnOw4c4U7s5YVlthhDTW0c27",
+	ca_stg = "kVBkaQFH3PXDehVsvylxv3TZyPAhgT4C",
+	ca_prod = "cThN0RZSzFmNqMUjOe8hiN6q25XWQox6",
+	eu_prod = "l1mKhyPY4dCJEoxDOr6VZNomeQE9gMoT"
+];
+
+// Helper functions
+Base64UrlEncodeWithoutPadding = (hash as binary) as text =>
+    let
+        base64Encoded = Binary.ToText(hash, BinaryEncoding.Base64),
+        base64UrlEncoded = Text.Replace(Text.Replace(base64Encoded, "+", "-"), "/", "_"),
+        withoutPadding = Text.TrimEnd(base64UrlEncoded, "=")
+    in 
+        withoutPadding;
+
+// OAuth2 functions
+StartLogin = (resourceUrl, state, display) =>
+    let
+        // we'll generate our code verifier using Guids
+        codeVerifier = Text.NewGuid() & Text.NewGuid(),
+        json = Json.Document(resourceUrl),
+        oauthAuthUrl = json[authUrl],
+        oauthHost = if oauthAuthUrl <> null and IsValidUrl(oauthAuthUrl) then Uri.Parts(oauthAuthUrl)[Host] else Uri.Parts(prodAuthHost)[Host],
+
+        AuthorizeUrl = "https://" & oauthHost & "/auth/authorize?" & Uri.BuildQueryString([
+            client_id = PickClientId(oauthHost),
+            response_type = "code",            
+            code_challenge_method = "plain",
+            code_challenge = codeVerifier,
+            state = state,
+            redirect_uri = redirect_uri])
+    in
+        [
+            LoginUri = AuthorizeUrl,
+            CallbackUri = redirect_uri,
+            WindowHeight = windowHeight,
+            WindowWidth = windowWidth,
+            Context = [ codeVerifier = codeVerifier, tokenHost = oauthHost]
+        ];
+
+// access_token, refresh_token, expires all become available from the evaluation of TokenMethod
+// to utilize the value of access_token anywhere: Extension.CurrentCredential()[access_token]
+// onPowerBI forum: In FinishLogin, it's just all of the properties on the top-level record other than the three we define explicitly (access_token, refresh_token, expires). 
+// So if you wanted to set an extra value "token", you'd return the record [access_token="None", token="token"].
+// The inconsistency is that when you call Extension.CurrentCredential, the record you get back will look like [AuthenticationKind="OAuth", access_token="None", Properties=[token="token"]]
+// and the values all have to be text
+FinishLogin = (context, callbackUri, state) =>
+    let
+        parts = Uri.Parts(callbackUri)[Query]
+    in
+        TokenMethod(parts[code], "authorization_code", context[tokenHost]?, context);
+
+Refresh = (clientApplication, dataSourcePath, oldCredential) =>
+    let
+		token_host = if (Record.HasFields(oldCredential, "tokenHost") and oldCredential[tokenHost] <> null) then oldCredential[tokenHost] else TokenHostNotFoundMessage,
+        result =  TokenMethod(oldCredential[refresh_token], "refresh_token", token_host)
+    in
+        result;
+
+TokenMethod = (fieldValue, grantType, optional tokenHost, optional context) =>
+    let
+        codeVerifier = if (context <> null) then [code_verifier = context[codeVerifier]?] else [],
+		token_host = if (tokenHost <> null) then tokenHost else prodAuthHost,
+        codeParameter = if (grantType = "authorization_code") then [ code = fieldValue ] else [ refresh_token = fieldValue ],
+        query = codeVerifier & codeParameter & [
+            client_id = PickClientId(tokenHost),
+            grant_type = grantType,
+            redirect_uri = redirect_uri
+        ],
+        full_token_uri = "https://" & token_host & "/oauth/token",
+        Response = Web.Contents(full_token_uri, [
+            Content = Text.ToBinary(Uri.BuildQueryString(query)),
+            Headers=[
+            #"Content-type" = "application/x-www-form-urlencoded",
+            #"Accept" = "application/json",
+            #"X-AUTH-TOKEN" = "true"]]),
+        Parts = Json.Document(Response)
+    in
+        // check for error in response
+        if (Parts[error]? <> null) then 
+            error Error.Record(Parts[error], Parts[message]?)
+        else
+            Parts & [ tokenHost = tokenHost ];
+
+PickClientId = (oauthHost as text) =>
+    let
+        clientId = if (Text.Contains(oauthHost, "chimera")) then ClientIds[chimera] 
+					else if(Text.Contains(oauthHost, "r2p2")) then ClientIds[r2p2] 
+					else if(Text.Contains(oauthHost, "amazon")) then ClientIds[ast] 
+					else if(Text.Contains(oauthHost, "google")) then ClientIds[gst] 
+					else if(Text.Contains(oauthHost, "au1a.app2-stg")) then ClientIds[aus_stg]
+					else if(Text.Contains(oauthHost, "au1a.app2.anaplan")) then ClientIds[aus_prod]
+					else if(Text.Contains(oauthHost, "ca1a.app-stg.anaplan")) then ClientIds[ca_stg]
+					else if(Text.Contains(oauthHost, "ca1a.app.anaplan") or Text.Contains(oauthHost, "ca2a.app.anaplan") or Text.Contains(oauthHost, "ca.app.anaplan")) then ClientIds[ca_prod]
+					else if(Text.Contains(oauthHost, "eu3.app.anaplan")) then ClientIds[eu_prod]
+					else ClientIds[rke]
+    in
+        clientId;
 
 /// Data Source Kind description
 Anaplan = [
-    Authentication = [
-        UsernamePassword = []
-    ],
     TestConnection = (dataSourcePath) => 
         let
             json = Json.Document(dataSourcePath),
@@ -13,14 +133,22 @@ Anaplan = [
             authUrl = json[authUrl]
         in
             { "Anaplan.Contents", apiUrl, authUrl},
-    Label = "Anaplan Connector"
+    Authentication = [
+        OAuth = [
+            StartLogin=StartLogin,
+            FinishLogin=FinishLogin,
+            Refresh=Refresh
+        ],
+        UsernamePassword = []
+    ],
+    Label = Extension.LoadString("Anaplan")
 ];
 
 /// Data Source UI publishing description
 Anaplan.Publish = [
     Beta = false,
     Category = "Other",
-    ButtonText = { "Anaplan Connector", "Anaplan Connector" }, 
+    ButtonText = { "Anaplan", "Anaplan" }, 
     LearnMoreUrl = "https://powerbi.microsoft.com/",
     SourceImage = AnaplanPowerBIConnector.Icons,
     SourceTypeImage = AnaplanPowerBIConnector.Icons
@@ -57,6 +185,12 @@ TaskInProgressMessage = [
     Message = Extension.LoadString("TaskInProgressMsg"),
     MessageTable = #table({Header},{{Message}})
 ];
+
+TokenHostNotFoundMessage = [
+    Header = Extension.LoadString("TokenHostNotFound"),
+    Message = Extension.LoadString("TokenHostNotFoundMsg"),
+    MessageTable = #table({Header},{{Message}})
+];
  
 [DataSource.Kind="Anaplan", Publish="Anaplan.Publish"]
 shared Anaplan.Contents = Value.ReplaceType(Anaplan.Connect, AnaplanType);
@@ -72,8 +206,8 @@ AnaplanType = type function (
     ]),
     authUrl as (type text meta [
         Documentation.FieldCaption = "Anaplan Auth URL",
-        Documentation.FieldDescription = "Ex: https://auth.anaplan.com",
-        Documentation.SampleValues = {"https://auth.anaplan.com"}
+        Documentation.FieldDescription = "Ex: https://us1a.app.anaplan.com",
+        Documentation.SampleValues = {"https://us1a.app.anaplan.com"}
     ])
     )
     as table meta [
@@ -83,19 +217,24 @@ AnaplanType = type function (
 ///
 /// Validates if user inputted URL is valid by checking first for "https" and that the user entered a host
 ///
-IsValidUrl = (url as text) as logical => (Uri.Parts(url)[Scheme] = "https" and Uri.Parts(url)[Host] <> null);
+IsValidUrl = (url as text) as logical => (Uri.Parts(url)[Scheme] = "https" and Uri.Parts(url)[Host] <> null and Text.Contains(Uri.Parts(url)[Host], "anaplan"));
 
 ///
 /// Main entry point of connector that takes as arguments user input
 ///
 Anaplan.Connect = (apiUrl as text, authUrl as text) as table =>
     let 
-        apiUrl = if apiUrl <> null and IsValidUrl(apiUrl) then (apiUrl & Extension.LoadString("APIVersionPath")) else Extension.LoadString("AnaplanProdApiUrl") & Extension.LoadString("APIVersionPath"),
-        authUrl = if authUrl <> null and IsValidUrl(authUrl) then authUrl else Extension.LoadString("AnaplanProdAuthUrl"),
-        apiTokenTry = GetApiToken(authUrl, false), 
-        authUrlValidated = if apiTokenTry <> null then authUrl else if GetApiToken(Extension.LoadString("AnaplanProdAuthUrl"), false) <> null then Extension.LoadString("AnaplanProdAuthUrl") else Extension.CurrentCredential(true),
-        apiToken = GetApiToken(authUrlValidated, false),
-        configParams = List.Buffer({apiToken[tokenValue], apiUrl, authUrl}),
+        credential = Extension.CurrentCredential() as record,
+        configParams = if Record.HasFields(credential, "Username") then
+          let
+              apiUrl = if apiUrl <> null and IsValidUrl(apiUrl) then (apiUrl & Extension.LoadString("APIVersionPath")) else prodApiHost & Extension.LoadString("APIVersionPath"),
+              authUrl = if authUrl <> null and IsValidUrl(authUrl) then authUrl else prodAuthHost,
+              apiTokenTry = GetApiToken(authUrl, false),
+              authUrlValidated = if apiTokenTry <> null then authUrl else if GetApiToken(prodAuthHost, false) <> null then prodAuthHost else Extension.CurrentCredential(true),
+              apiToken = GetApiToken(authUrlValidated, false)
+          in
+              List.Buffer({apiToken[tokenValue], apiUrl, authUrl})
+        else List.Buffer({Extension.CurrentCredential()[access_token], apiUrl & Extension.LoadString("APIVersionPath")}),
         source = GetWorkspacesTable(configParams)
     in 
         source as table;
@@ -280,7 +419,7 @@ GetExportTasks = (url as text, exportKey as text, configParams as list) as table
 */
 
 ///
-/// Tests Chunk counts and limit count to 99
+/// Tests Chunk counts and limit count to 499
 ///
 GetChunkCount = (url as text, exportKey as text, configParams as list) as table =>
     let 
@@ -307,8 +446,8 @@ GetChunkCount = (url as text, exportKey as text, configParams as list) as table 
         
         downloadFile = if metadataTest > 200 then ErrorTable(5, metadataTest) else
             (if chunkCount=null then ErrorTable(2, numexportKey) else
-            (if chunkCount>=100 then ErrorTable(3, numexportKey)
-            else DownloadFileChunks(url, exportKey, configParams, chunkCount)))    
+            (if chunkCount>=500 then ErrorTable(3, numexportKey)
+            else DownloadFileChunks(url, exportKey, configParams, chunkCount)))   
         
     in
         downloadFile;
@@ -383,20 +522,9 @@ GetWebContentsExportRunSuccess = (url as text, exportKey as text, configParams a
         exportUrl = url & "exports/"  & exportKey & "/tasks",
         fileUrl = url & "files/" & exportKey,
         body = "{""localeName"":""en_US""}",
-
-        pastExportRunsJson = Json.Document(Binary.Buffer(Web.Contents(exportUrl, 
-            [Headers = [#"Authorization" = Extension.LoadString("AnaplanAuthTokenPrefix") & apiTokenValue, #"Content-Type"="application/json", #"x-aconnect-client"=Extension.LoadString("AConnectHeaderValue"), #"User-Agent"=Extension.LoadString("AConnectHeaderValue")] ]))),
-
-        hasRecentExportRuns = () => 
-            let 
-                hasRecentlyRun = (creationEpoch) => Duration.TotalMinutes(DateTime.LocalNow() - Date.UtcToLocal(Date.ToDateTime(creationEpoch))) < Number.FromText(Extension.LoadString("RecentTaskRunThreshold")),
-                hasRunRecently = if pastExportRunsJson[tasks]? <> null then List.MatchesAny(pastExportRunsJson[tasks], each hasRecentlyRun(_[creationTime])) else false
-            in 
-                hasRunRecently,        
         
-        exportRunResp = if not hasRecentExportRuns() then Json.Document(Binary.Buffer(Web.Contents(exportUrl, [Headers = [#"Authorization" = Extension.LoadString("AnaplanAuthTokenPrefix") & apiTokenValue, #"Content-Type"="application/json", #"x-aconnect-client"=Extension.LoadString("AConnectHeaderValue"), #"User-Agent"=Extension.LoadString("AConnectHeaderValue")], 
-            Content = Text.ToBinary(body), ManualStatusHandling = {500, 501, 502, 503}]))) 
-                else  [ task = List.Select(pastExportRunsJson[tasks], each _[creationTime] = List.Max(List.Transform(pastExportRunsJson[tasks], each _[creationTime]))){0} ],
+        exportRunResp = Json.Document(Binary.Buffer(Web.Contents(exportUrl, [Headers = [#"Authorization" = Extension.LoadString("AnaplanAuthTokenPrefix") & apiTokenValue, #"Content-Type"="application/json", #"x-aconnect-client"=Extension.LoadString("AConnectHeaderValue"), #"User-Agent"=Extension.LoadString("AConnectHeaderValue")], 
+            Content = Text.ToBinary(body), ManualStatusHandling = {500, 501, 502, 503}]))),
         
         fileDownload = (taskId as text) =>
             let
@@ -571,3 +699,13 @@ Date.ToDateTime = (epoch as number) as any => #datetime(1970,1,1,0,0,0) + #durat
 Date.CurrentEpoch = () as number => Duration.TotalSeconds(DateTimeZone.UtcNow() - #datetimezone(1970, 1, 1, 0, 0, 0, 0, 0));
 
 Date.UtcToLocal = (utc as datetime) => DateTimeZone.RemoveZone(DateTimeZone.ToLocal(DateTime.AddZone(utc,0)));
+
+Extension.LoadFunction = (name as text) =>
+    let
+        binary = Extension.Contents(name),
+        asText = Text.FromBinary(binary)
+    in
+        Expression.Evaluate(asText, #shared);
+
+Diagnostics = Extension.LoadFunction("Diagnostics.pqm");
+Diagnostics.LogValue = Diagnostics[LogValue];

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,31 +118,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Connect to Microsoft Teams Personal Analytics</value>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Povežite se sa Microsoft Teams ličnom analitikom</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Microsoft Teams Personal Analytics</value>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Microsoft Teams lična analitika</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Microsoft Teams Personal Analytics</value>
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
+    <value>Microsoft Teams lična analitika</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
-    <value>&lt;p&gt;The Teams Analytics connector enables you to get insights into your usage of Teams. Data is available for both your personal activity in Teams as well as the activity in Teams you are a member of.&lt;/p&gt;
-&lt;p&gt;Data is available for prior 90 days. &lt;/p&gt;
-&lt;p&gt; For details of the types of data available, please refer to the following help documentation: &lt;/p&gt;
+  <data name="LongDescription" errorCode="004" xml:space="preserve">
+    <value>&lt;p&gt;Konektor za Teams analitiku omogućava vam da dobijate uvide o korišćenju usluge Teams. Podaci su dostupni i za vaše lične aktivnosti i za aktivnosti u timovima čiji ste član.&lt;/p&gt;
+&lt;p&gt;Podaci su dostupni za prethodnih 90 dana. &lt;/p&gt;
+&lt;p&gt; Detalje o tome koji tipovi podataka su dostupni potražite u sledećoj dokumentaciji za pomoć: &lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;b&gt;Teams Usage:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/teams-usage-report&lt;/li&gt;
-&lt;li&gt;&lt;b&gt;Teams User Activity:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Upotreba usluge Teams:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/teams-usage-report&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Aktivnosti korisnika u usluzi Teams:&lt;/b&gt; https://docs.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports/user-activity-report&lt;/li&gt;
 &lt;/ul&gt;</value>
   </data>
-  <data name="TeamsActivityLabel" xml:space="preserve">
-    <value>Teams usage</value>
+  <data name="TeamsActivityLabel" errorCode="005" xml:space="preserve">
+    <value>Upotreba usluge Teams</value>
   </data>
-  <data name="TeamsSummaryActivityLabel" xml:space="preserve">
-    <value>Teams usage summary</value>
+  <data name="TeamsSummaryActivityLabel" errorCode="006" xml:space="preserve">
+    <value>Rezime upotrebe usluge Teams</value>
   </data>
-  <data name="UserActivityLabel" xml:space="preserve">
-    <value>Teams user activity</value>
+  <data name="UserActivityLabel" errorCode="007" xml:space="preserve">
+    <value>Aktivnosti korisnika u usluzi Teams</value>
   </data>
 </root>

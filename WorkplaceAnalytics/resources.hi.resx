@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>उन्नत विकल्प</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>समेकित डेटा</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>डेटा ग्रैन्युलैरिटी</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>डेटाबेस में क्वेरीज़ को पुश करने और समेकित परिणाम प्राप्त करने के लिए अपरिष्कृत क्वेरी परिणाम या समेकित डेटा लोड करने के लिए पंक्ति-स्तरीय डेटा का चयन करें. बेहतर परिणामों के लिए, पंक्ति-स्तरीय डेटा का चयन केवल तभी करें, जब आप ‘डेटा कनेक्टिविटी आयात करें’ मोड चुनें.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>पंक्ति-स्तर डेटा</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>संगठनात्मक खाता</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>कार्यस्थल विश्लेषण डेटा से कनेक्ट करें</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Viva Insights डेटा से कनेक्ट करें</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>कार्यस्थल विश्लेषण</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Microsoft Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>ऑनलाइन सेवाएँ</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>कार्यस्थल विश्लेषण</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>तालिका का नाम</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>कार्यस्थल विश्लेषण डेटा से कनेक्ट करें</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>यदि उन्नत इनसाइट्स क्वेरी आउटपुट एक से अधिक तालिका का आउटपुट देता है, तो निर्दिष्ट करें कि किस तालिका से कनेक्ट करना है.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Microsoft Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Viva Insights डेटा से कनेक्ट करें</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>क्वेरी नाम या पहचानकर्ता निर्दिष्ट करके क्वेरी परिणामों से कनेक्ट करते समय वर्तमान में एकीकृत डेटा ग्रैन्युलैरिटी समर्थित नहीं है. क्वेरी परिणामों से कनेक्ट करने के लिए पंक्ति-स्तर डेटा ग्रैन्युलैरिटी का चयन करें.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>पंक्ति-स्तरीय डेटा ग्रैन्युलैरिटी वर्तमान में केवल क्वेरी परिणामों से कनेक्ट करते समय समर्थित है. व्यक्ति मैट्रिक्स के सामान्य सेट से कनेक्ट करने के लिए एकीकृत डेटा ग्रैन्युलैरिटी का चयन करें या कोई क्वेरी नाम या पहचानकर्ता निर्दिष्ट करें.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>प्रमाणीकरण के दौरान शीर्ष लेख फ़ॉर्मेट या मान का अनपेक्षित WWW-प्रमाणन.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>प्रमाणीकरण के दौरान सर्वर से अनपेक्षित प्रतिसाद.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>इस डेटा स्रोत के लिए पंक्ति-स्तरीय डेटा ग्रैन्युलैरिटी समर्थित नहीं है. इसके बजाय एकीकृत डेटा ग्रैन्युलैरिटी का चयन करें.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>विभाजन में प्रत्येक मापित कर्मचारी के लिए दृश्यमान विशेषताओं और प्रत्येक सप्ताह के मैट्रिक्स वाली एक तालिका लौटाता है.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>क्वेरी पहचानकर्ता</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>अपने क्वेरी परिणामों को खोलकर, इच्छित क्वेरी लिंक की प्रतिलिपि बनाकर और URL में दिखाई देने वाली अंतिम 32 अंकों की ID (GUID) को निकालकर Workplace Analytics में इसे ढूँढ़ें.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>उन्नत इनसाइट्स ऐप में, क्वेरी परिणाम &gt; विश्लेषण पर जाएँ, अपनी क्वेरी ढूँढें और क्वेरी पहचानकर्ता पाने के लिए लिंक को चुनें.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>क्वेरी का नाम</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>क्वेरी नाम को ठीक उसी प्रकार इनपुट करें, जैसा कि यह Workplace Analytics क्वेरी परिणाम टैब पर पाया जाता है</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>क्वेरी का नाम डालें, जैसा वह उन्नत इनसाइट्स ऐप में विश्लेषण &gt; क्वेरी परिणाम पेज पर पाया जाता है.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>कार्यस्थल विश्लेषण से साप्ताहिक मेट्रिक्स और विशेषता डेटा को आयात करें.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contoso के व्यक्ति मैट्रिक्स</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>स्कीमा प्रकार</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>संगठनात्मक विशेषताओं को व्यक्तिगत स्तंभों के रूप में लोड करने के लिए Pivoted का चयन करें या कुंजी-मान युग्मों के रूप में संगठनात्मक विशेषताओं को लोड करने के लिए अनपिवट किया गया, जैसे विशेषता नाम = संगठन, विशेषता मान = वित्त.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Pivoted</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>अनपिवट किया गया</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>विभाजन पहचानकर्ता</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>अपनी उपयोगकर्ता प्रोफ़ाइल खोलकर और मेरी जानकारी का चयन करके Workplace Analytics में इसे ढूँढ़ें</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>उन्नत इनसाइट्स ऐप में, क्वेरी परिणाम &gt; विश्लेषण पर जाएँ, अपनी क्वेरी ढूँढें और विभाजन पहचानकर्ता पाने के लिए लिंक को चुनें.</value>
   </data>
 </root>

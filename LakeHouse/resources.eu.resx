@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>Inportatu datuak Lakehouse biltegi batetik</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Lakehouse</value>
+  </data>
+  <data name="lakehouse.caption" errorCode="003" xml:space="preserve">
+    <value>Inportatu datuak Lakehouse biltegi batetik</value>
+  </data>
+  <data name="lakehouse.longDescription" errorCode="004" xml:space="preserve">
+    <value>Konektatu sarbidea duzun Lakehouse biltegi guztietara eta aukeratu erabili nahi dituzun entitateak</value>
+  </data>
+  <data name="DataSourceLabel" errorCode="005" xml:space="preserve">
+    <value>Lakehouse</value>
+  </data>
+  <data name="lakehouse.description" errorCode="006" xml:space="preserve">
+    <value>Inportatu datuak Lakehouse biltegi batetik</value>
+  </data>
+  <data name="Workspaces" errorCode="007" xml:space="preserve">
+    <value>Laneko areak</value>
+  </data>
+  <data name="WorkspaceId" errorCode="008" xml:space="preserve">
+    <value>WorkspaceId</value>
+  </data>
+  <data name="LakeHouseArtifactId" errorCode="009" xml:space="preserve">
+    <value>LakehouseArtifactId</value>
+  </data>
+  <data name="LakeHouses" errorCode="010" xml:space="preserve">
+    <value>Lakehouse biltegiak</value>
+  </data>
+  <data name="Files" errorCode="011" xml:space="preserve">
+    <value>Fitxategiak</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="012" xml:space="preserve">
+    <value>‘#{0}’ ez dira baliozko aukerak. Hauek dira baliozkoak: ‘#{1}’</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="013" xml:space="preserve">
+    <value>Funtzio honek ez du onartzen ‘#{0}’ aukera ‘#{1}’ balioarekin.</value>
+  </data>
+  <data name="DeltaModuleNotSupported" errorCode="014" xml:space="preserve">
+    <value>Delta formatuan gorde direlako ezin izan ditugu kargatu datuak</value>
+  </data>
+  <data name="MultiTableInsertNotSupported" errorCode="015" xml:space="preserve">
+    <value>Lakehouse konektoreak ez du onartzen hainbat taula sartzea.</value>
+  </data>
+  <data name="MultiTableDeleteInVersionNotSupported" errorCode="016" xml:space="preserve">
+    <value>Lakehouse konektoreak ez du onartzen bertsio batean hainbat taula ezabatzea.</value>
+  </data>
+  <data name="MultiTableInsertInVersionNotSupported" errorCode="017" xml:space="preserve">
+    <value>Lakehouse konektoreak ez du onartzen bertsio batean hainbat taula sartzea.</value>
+  </data>
+  <data name="MultipleVersionsWithSameGuid" errorCode="018" xml:space="preserve">
+    <value>GUID edo GUID bera duten hainbat bertsio ez datoz bat hautatzailearen "#{0}" bertsioarekin. Ezin da prozesatu eragiketa.</value>
+  </data>
+  <data name="InvalidTableName" errorCode="019" xml:space="preserve">
+    <value>Taulek maiuskulak edo minuskulak, zenbakiak edo azpimarra soilik izan ditzakete.</value>
+  </data>
+  <data name="CannotDeletePublishedVersion" errorCode="020" xml:space="preserve">
+    <value>Ezin da ezabatu argitaratutako bertsioa.</value>
+  </data>
+  <data name="VersionedLakehouseTableInsertError" errorCode="021" xml:space="preserve">
+    <value>Errorea gertatu da bertsio batean lakehouse taula bat sortzean.</value>
+  </data>
+  <data name="VersionedLakehouseDeleteExistingTableError" errorCode="022" xml:space="preserve">
+    <value>Errorea gertatu da bertsio batean zegoen lakehouse taula bat ezabatzean.</value>
+  </data>
+  <data name="LakehouseOldDfeVersionCommitError" errorCode="023" xml:space="preserve">
+    <value>Errorea gertatu da bertsioa balidatzean.</value>
+  </data>
+  <data name="VersionedLakehouseTableDeleteError" errorCode="024" xml:space="preserve">
+    <value>Errorea gertatu da bertsio batean taulako datuak ezabatzean.</value>
+  </data>
+  <data name="LakehouseVersionDeleteError" errorCode="025" xml:space="preserve">
+    <value>Errorea gertatu da bertsioa ezabatzean.</value>
+  </data>
+  <data name="LakehouseVersionCommitError" errorCode="026" xml:space="preserve">
+    <value>Errorea gertatu da bertsioa balidatzean.</value>
+  </data>
+  <data name="LakehouseVersionInsertError" errorCode="027" xml:space="preserve">
+    <value>Errorea gertatu da bertsioa txertatzean.</value>
+  </data>
+  <data name="LakehouseNonVersionedDeleteError" errorCode="028" xml:space="preserve">
+    <value>Ezin izan dira ezabatu errenkadak.</value>
+  </data>
+  <data name="LakehouseNonVersionedInsertError" errorCode="029" xml:space="preserve">
+    <value>Ezin izan da txertatu taula bat.</value>
+  </data>
+  <data name="VersionedLakehouseTableReplaceError" errorCode="030" xml:space="preserve">
+    <value>Errorea gertatu da bertsio batean taula bateko edukia datu berriekin ordezkatzean: #{0}.</value>
+  </data>
+  <data name="VersionedLakehouseTableCreateError" errorCode="031" xml:space="preserve">
+    <value>Errorea gertatu da bertsio batean lakehouse taula bat sortzean</value>
+  </data>
+  <data name="MetadataRefreshError" errorCode="032" xml:space="preserve">
+    <value>Ezin izan dira freskatu metadatuak: #{0}, #{1} egoera</value>
+  </data>
+  <data name="TraceMessageWithDetails" errorCode="033" xml:space="preserve">
+    <value>#{0}, BarneSalbuespena: #{1}</value>
+  </data>
+  <data name="DownstreamServiceCallFailure" errorCode="034" xml:space="preserve">
+    <value>“#{0}” URLrako zerbitzu-deiak huts egin du #{1} egoera-kodearekin.</value>
+  </data>
+  <data name="DownstreamServiceCallFailureWithErrorCode" errorCode="035" xml:space="preserve">
+    <value>“{0}” URLrako zerbitzu-deiak huts egin du {1} egoera-kodearekin. Errore-kodea: {2}</value>
+  </data>
+  <data name="FinalErrorMessageWithDetails" errorCode="036" xml:space="preserve">
+    <value>#{0}, Azpiko errorea: #{1}</value>
+  </data>
+  <data name="ErrorParsingJsonInHttpResponse" errorCode="037" xml:space="preserve">
+    <value>“#{0}” salbuespenaren analisiaren errorearen erantzuna aurkitu da web-zerbitzutik.</value>
+  </data>
+  <data name="MetadataRefreshErrorWithDetail" errorCode="038" xml:space="preserve">
+    <value>Ezin da taula bat sortu Lakehouse biltegiko SQL katalogoan, metadatuak freskatzearen hutsegitearen ondorioz. Lakehouse biltegiaren IDa: #{0}, sortaren IDa: #{1}, azpiko errorea: #{2}</value>
+  </data>
+  <data name="DownstreamServiceCallError" errorCode="039" xml:space="preserve">
+    <value>Huts egin du '#{0}' URLra egindako downstream zerbitzu-deiak. Errore-kodea: '#{1}' eta errore-mezua: '#{2}'.</value>
+  </data>
+  <data name="TableCreationFailureError" errorCode="040" xml:space="preserve">
+    <value>Ezin da sortu taularik. Azpiko errorea: "#{0}".</value>
+  </data>
+  <data name="MetadataRefreshParseResponseError" errorCode="041" xml:space="preserve">
+    <value>Balio ez duen erantzun bat jaso da metadatuak sinkronizatzeko zerbitzuko Lakehouse-ko identifikatzailea: #{0} eta sortaren identifikatzailea: #{1}. Azpiko errorea: '#{2}'.</value>
+  </data>
+  <data name="StagingLakehouseInInvalidState" errorCode="042" xml:space="preserve">
+    <value>Fasekatzeko datuen biltegia ez dago zuzen konfiguratuta. Datuen biltegiaren IDa: #{0}. Sortu laguntza-eskaera errore-txosten honekin. Kontsultatu aka.ms/fabricstaginglakehousefix</value>
+  </data>
+  <data name="MetadataRefreshUnableToSyncTable" errorCode="043" xml:space="preserve">
+    <value>Ahal bezain beste saiakera egin arren, ezin izan da taula bat sortu Lakehouseko SQL katalogoan, Lakehouse-ko identifikatzailea: #{0} eta sortaren identifikatzailea: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshNothingInProgress" errorCode="044" xml:space="preserve">
+    <value>Ahal bezain beste saiakera egin arren, ezin izan da taula bat sortu Lakehouseko SQL katalogoan, ez dagoelako ezer abian, Lakehouse-ko identifikatzailea: #{0} eta TableName: #{1}.</value>
+  </data>
+  <data name="MetadataRefreshBatchError" errorCode="045" xml:space="preserve">
+    <value>Ezin da taula bat sortu Lakehouse biltegiko SQL katalogoan, metadatuak freskatzearen hutsegitearen ondorioz. Lakehouse-ko identifikatzailea: #{0}, sortaren identifikatzailea: #{1}, azpiko errore-kodea: '#{2}', errorea: #{3}</value>
+  </data>
+  <data name="ArtifactInInvalidState" errorCode="046" xml:space="preserve">
+    <value>#{2} IDa duen {0} artefaktuak #{1} balio ez duen egoera batean dago. Egoera: #{3}. Egoera: #{4}.</value>
+  </data>
+  <data name="NoSqlEndPoint" errorCode="047" xml:space="preserve">
+    <value>Ezin da SQL-ren amaiera-puntua aurkitu</value>
+  </data>
+</root>

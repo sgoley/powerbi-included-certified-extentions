@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Rozšírené možnosti</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Agregované údaje</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Granularita údajov</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Vyberte možnosť Údaje na úrovni riadkov na načítanie nespracovaných výsledkov dotazov alebo Agregované údaje na odoslanie dotazov do databázy a získanie agregovaných výsledkov. Najlepšie výsledky dosiahnete výberom údajov na úrovni riadkov len vtedy, ak vyberiete režim Importovať údaje s pripojením.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Údaje na úrovni riadkov</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Konto organizácie</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Pripojenie k údajom služby Workplace Analytics</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Pripojenie k údajom v službe Viva Prehľady</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Prehľady</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Online služby</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Názov tabuľky</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Pripojenie k údajom služby Workplace Analytics</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Ak dotaz Rozšírené prehľady vypíše viac ako jednu tabuľku, zadajte, ku ktorej tabuľke sa chcete pripojiť.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Prehľady</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Pripojenie k údajom v službe Viva Prehľady</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Granularita agregovaných údajov nie je momentálne podporovaná pri pripájaní k výsledkom dotazu zadaním názvu alebo identifikátora dotazu. Ak sa chcete pripojiť k výsledkom dotazu, vyberte granularitu údajov na úrovni riadkov.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Granularita údajov na úrovni riadkov je v súčasnosti podporovaná len pri pripájaní k výsledkom dotazov. Ak sa chcete pripojiť k všeobecnému súboru metrík osôb alebo zadať názov alebo identifikátor dotazu, vyberte možnost granularita agregovaných údajov.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Počas overovania sa vyskytol neočakávaný formát alebo hodnota hlavičky WWW-Authenticate.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Počas overovania sa vyskytla neočakávaná odpoveď zo servera.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Granularita údajov na úrovni riadkov nie je pre tento zdroj údajov podporovaná. Vyberte namiesto toho granularitu agregovaných údajov.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Vráti tabuľku s viditeľnými atribútmi a týždennými metrikami pre každého meraného zamestnanca v danej oblasti.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identifikátor dotazu</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Identifikátory dotazov</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Môžete ho nájsť v službe Workplace Analytics otvorením výsledkov dotazu, skopírovaním požadovaného prepojenia na dotaz a vyňatím posledného 32-miestneho ID (GUID), ktoré sa zobrazí v URL adrese.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>V aplikácii Rozšírené prehľady prejdite na položky Analýza &gt; Výsledky dotazu, nájdite dotaz a výberom položky Prepojenie získajte identifikátor dotazu.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Názov dotazu</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Názov dotazu zadajte presne v tvare, v akom je zobrazený na karte Výsledky dotazu v službe Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Zadajte názov dotazu tak, ako sa nachádza na stránke Analýza &gt; Výsledky dotazu v aplikácii Rozšírené prehľady.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Importujte týždenné metriky a údaje atribútov zo služby Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Metrika osôb v spoločnosti Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Typ schémy</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Ak chcete načítať atribúty organizácie ako jednotlivé stĺpce, vyberte možnosť Kontingenčné. Ak chcete načítať atribúty organizácie ako páry s kľúčom a hodnotou, ako napríklad Názov atribútu = Organizácia, Hodnota atribútu = Financie, vyberte možnosť Nekontingenčné.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Kontingenčné</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Zrušená kontingenčnosť</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Identifikátor oblasti</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Túto vlastnosť nájdete v službe Workplace Analytics po otvorení profilu používateľa a výbere možnosti Moje informácie.</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>V aplikácii Rozšírené prehľady prejdite na položky Analýza &gt; Výsledky dotazu, nájdite dotaz a výberom položky Prepojenie získajte identifikátor oblasti.</value>
   </data>
 </root>

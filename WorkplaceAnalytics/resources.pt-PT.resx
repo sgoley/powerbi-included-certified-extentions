@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Opções avançadas</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Dados agregados</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Granularidade de dados</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Selecione Dados a nível de linha para carregar os resultados em bruto da consulta ou Dados agregados para empurrar as consultas para a base de dados e obter resultados agregados. Para melhores resultados, selecionar Dados a nível de linha apenas se escolher o modo Importar Conetividade de Dados.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Dados ao nível da linha</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Conta Organizacional</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Ligar aos Dados da Análise do Local de Trabalho</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Ligar a Dados do Viva Insights</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Análise do Local de Trabalho</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Informações Viva</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Serviços Online</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Análise do Local de Trabalho</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Nome da tabela</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Ligar aos Dados da Análise do Local de Trabalho</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Se a consulta de Informações avançadas produzir mais do que uma tabela, especifique a tabela à qual ligar.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Informações Viva</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Ligar a Dados do Viva Insights</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>A granularidade de dados agregados não é atualmente suportada ao ligar aos resultados da consulta ao especificar um nome ou identificador de consulta. Selecione a granularidade de dados ao nível da linha para ligar aos resultados da consulta.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Atualmente, a granularidade dos dados ao nível da linha só é suportada ao ligar aos resultados da consulta. Selecione Granularidade de dados agregados para ligar a um conjunto geral de métricas de Pessoa ou especifique um nome ou identificador de consulta.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Formato ou valor inesperado do cabeçalho WWW-Authenticate durante a autenticação.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Resposta inesperada do servidor durante a autenticação.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>A granularidade de dados ao nível da linha não é suportada para esta origem de dados. Em vez disso, selecione Granularidade de dados agregados.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Devolve uma tabela com atributos visíveis e métricas semanais para cada funcionário medido na partição.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identificador de Consulta</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Identificadores de Consulta</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Encontre isto no serviço Informações sobre Tendências Empresariais ao abrir os Resultados da Consulta, copiar a ligação de consulta pretendida e extrair o último ID de 32 dígitos (GUID) que aparece no URL.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>Na aplicação informações avançadas, aceda a Análise &gt; Resultados da consulta, encontre a sua consulta e selecione Associar para obter o identificador da consulta.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Nome da Consulta</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Introduza o nome da consulta exatamente como é apresentado no separador Resultados da Consulta de Informações sobre Tendências Empresariais</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Introduza o nome da consulta tal como foi encontrado na página de resultados Análise &gt; Resultados da consulta na aplicação de informações avançadas.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/pt-pt/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Importar métricas e dados de atributos semanais de Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Métricas de Pessoa da Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Tipo de esquema</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Selecione Dinamizado para carregar atributos organizacionais como colunas individuais ou Unpivoted para carregar atributos organizacionais como pares chave-valor, como Nome do atributo = Organização, Valor do atributo = Finanças.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Dinamizado</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Não dinamizado</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Identificador de Partição</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Encontre isto no serviço Informações sobre Tendências Empresariais ao abrir o seu perfil de utilizador e selecionar As Minhas Informações</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>Na aplicação informações avançadas, aceda a Análise &gt; Resultados da consulta, encontre a sua consulta e selecione Associar para obter o identificador de partições.</value>
   </data>
 </root>

@@ -1,0 +1,10 @@
+﻿(table as table ) as table =>
+let
+    #"Removed Columns" =  if(Table.HasColumns(table,{"Column2"})) then Table.RemoveColumns(table,{"Column2"}) else table,
+    #"Expanded Column1" = Table.ExpandRecordColumn(#"Removed Columns", "Column1", {"id", "title", "childIds", "scope", "customColumnIds", "space","project"}, {"id", "title", "childIds", "scope", "customColumnIds", "space","project"}),
+    #"Expanded project" = Table.ExpandRecordColumn(#"Expanded Column1", "project", {"authorId", "ownerIds", "customStatusId", "createdDate", "contractType", "startDate", "endDate"}, {"authorId", "ownerIds", "customStatusId", "createdDate", "contractType", "startDate", "endDate"}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded project",{{"id", type text}, {"title", type text}, {"scope", type text}, {"space", type logical},{"authorId", type text}, {"customStatusId", type text}, {"createdDate", type datetime}, {"contractType", type text}, {"startDate", type datetime}, {"endDate", type datetime}}),
+    #"Reordered Columns" = Table.ReorderColumns(#"Changed Type",{"id", "title", "childIds", "authorId", "ownerIds", "customStatusId", "createdDate", "contractType", "startDate", "endDate", "scope", "customColumnIds", "space"})
+
+in
+    #"Reordered Columns"

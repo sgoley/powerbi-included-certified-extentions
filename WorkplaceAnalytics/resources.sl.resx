@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Dodatne možnosti</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Združeni podatki</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Granularnost podatkov</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Izberite »Podatki na ravni vrstice«, če želite naložiti neobdelane rezultate poizvedbe ali združene podatke v poizvedbe v zbirko podatkov in pridobiti združene rezultate. Za najboljše rezultate izberite podatke na ravni vrstice le, če izberete način »Uvozi povezljivost podatkov«.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Podatki na ravni vrstice</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Račun organizacije</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Ustvarite povezavo do podatkov Analitike delovnega mesta</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Vzpostavljanje povezave s podatki Vpogledov Viva</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Analitika delovnega mesta</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Vpogledi Viva</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Spletne storitve</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Analitika delovnega mesta</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Ime tabele</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Ustvarite povezavo do podatkov Analitike delovnega mesta</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Če poizvedba naprednih vpogledov ustvari več tabel, določite, s katero tabelo želite vzpostaviti povezavo.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Vpogledi Viva</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Vzpostavljanje povezave s podatki Vpogledov Viva</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Zrnatost združenih podatkov trenutno ni podprta, če vzpostavljate povezavo z rezultati poizvedbe tako, da navedete ime ali identifikator poizvedbe. Če želite vzpostaviti povezavo z rezultati poizvedbe, izberite granularnost podatkov na ravni vrstice.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Granularnost podatkov na ravni vrstice je trenutno podprta le pri vzpostavljanju povezave z rezultati poizvedbe. Če se želite povezati s splošnim naborom metričnih podatkov oseb ali določiti ime ali identifikator poizvedbe, izberite zrnatost združenih podatkov.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Nepričakovana oblika zapisa glave WWW ali vrednost pri preverjanju pristnosti.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Nepričakovan odgovor strežnika pri preverjanju pristnosti.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Granularnost podatkov na ravni vrstice ni podprta za ta vir podatkov. Namesto tega izberite granularnost združenih podatkov.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Pridobi tabelo z vidnimi atributi in metriko na teden za vsakega izmerjenega zaposlenega na particiji.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identifikator poizvedbe</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Identifikatorji poizvedb</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>To najdete v storitvi Analitika delovnega mesta tako, da odprete rezultate poizvedbe, kopirate povezavo želene poizvedbe in izvlečete zadnji 32-mestni ID (GUID), ki je prikazan v naslovu URL.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>V aplikaciji Advanced Insights odprite Analiza &gt; Rezultati poizvedbe, poiščite svojo poizvedbo in izberite povezavo, da prejmete identifikator poizvedbe.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Ime poizvedbe</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Vnesite ime poizvedbe točno tako, kot je prikazano na zavihku z rezultati poizvedbe Analitike delovnega mesta</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Vnesite ime poizvedbe, kot je navedeno na strani Analiza &gt; Rezultati poizvedbe v aplikaciji Advanced Insights.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Uvozite tedensko metriko in podatke atributov iz Analitike delovnega mesta.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Metrika osebe v podjetju Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Vrsta sheme</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Izberite »Zavrteno«, če želite naložiti atribute organizacije kot posamezne stolpce ali »Odvrteno«, če želite naložiti atribute organizacije kot pare »ključa in vrednosti«, kot so ime atributa = organizacija, vrednost atributa = finance.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Zavrteno</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Odvrteno</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Identifikator particije</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>To najdete v storitvi Analitika delovnega mesta tako, da odprete svoj profil uporabnika in izberete »Moji podatki«.</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>V aplikaciji Advanced Insights odprite Analiza &gt; Rezultati poizvedbe, poiščite svojo poizvedbo in izberite povezavo, da prejmete identifikator particije.</value>
   </data>
 </root>

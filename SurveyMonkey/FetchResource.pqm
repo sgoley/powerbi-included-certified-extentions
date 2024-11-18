@@ -1,6 +1,6 @@
 ﻿let 
     GetNextLink = (response) as nullable text => Record.FieldOrDefault(Record.FieldOrDefault(response, "links"), "next"),
-
+    QueryString = "skip_family=presentation&skip_display_type=file_upload",
     // The getNextPage function takes a single argument and is expected to return a nullable table
     Table.GenerateByPage = (getNextPage as function) as table =>
         let        
@@ -46,13 +46,13 @@
 
     SurveyMonkey.GetSurveys = (api_url as text, access_token as text) as table =>
         let
-            #"Converted to Table" = GetAllPagesByNextLink(api_url & "/v3/surveys", access_token)
+            #"Converted to Table" = GetAllPagesByNextLink(api_url & "/v3/surveys?per_page=1000", access_token)
         in
             #"Converted to Table",
 
     SurveyMonkey.GetSurveyResponses = (api_url as text, surveyId as text, access_token as text) =>
         let
-            responses = GetAllPagesByNextLink(api_url & "/v3/surveys/" & surveyId & "/responses/bulk?per_page=100", access_token),
+            responses = GetAllPagesByNextLink(api_url & "/v3/internal/surveys/" & surveyId & "/responses/bulk/pbi?per_page=200&" & QueryString, access_token),
             responseList = Table.ToRecords(responses)
         in
             responseList

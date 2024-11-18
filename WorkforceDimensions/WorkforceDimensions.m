@@ -1,5 +1,5 @@
 ﻿// This file contains your Data Connector logic
-[Version = "1.0.2"]
+[Version = "1.0.3"]
 section WorkforceDimensions;
 
 DAYS_REQUEST_LIMIT = 100;
@@ -38,7 +38,7 @@ TIME_DATA_FIELDS = {{"Shift Total Wages", type number, 81}, {"Amount", type numb
              {"Paycode Name", type text, 30}, {"Paycode Type", type text, 40}};
 
 
-[DataSource.Kind="WorkforceDimensions", Publish="WorkforceDimensions.Publish"]
+[DataSource.Kind="WorkforceDimensions"]
 shared WorkforceDimensions.Contents = Value.ReplaceType(WorkforceDimensionsImpl, WorkforceDimensionsType);
 
 

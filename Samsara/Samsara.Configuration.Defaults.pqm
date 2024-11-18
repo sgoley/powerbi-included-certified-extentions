@@ -1,0 +1,41 @@
+/**
+ * Create the default state for data retrieval. This will
+ * serve as the context for the rest of the data load flow.
+ *
+ * @param AccessToken Some token we can use to authenticate with our backend.
+ * @param Region Either "US" or "EU", chosen by the customer.
+ * @param Version This client's version.
+ * @returns The default state record.
+ */
+(AccessToken as text, Region as text, Version as text) =>
+    let
+        BaseUrl = if Region = "US"
+            then "https://data-connector.samsara.com/data-connectors"
+            else "https://data-connector.eu.samsara.com/data-connectors"
+    in
+        [
+            // These are static values that we don't
+            // expect the server to override, but do
+            // want to share as global constants.
+            AccessToken = AccessToken,
+            Region = Region,
+            Version = Version,
+            BaseUrl = BaseUrl,
+            Retry.Max.Count = 3,
+            Retry.Backoff.Base = 1,
+            Retry.Backoff.Multiplier = 2,
+            Retry.Backoff.RandomFactor = 1,
+
+            // To let us swap in a mock HTTP client for unit tests
+            Web.Contents = Web.Contents, 
+
+            // These are server override-able, dynamic
+            // configuration values for our run.
+            MaxTimeRangeMonths = 6,
+            RequestTimeoutSeconds = 30,
+            LatestEndTime = DateTimeZone.FixedLocalNow(),
+            SupportedTablesTypes = { 
+                "ApiBased",
+                "CustomReports"
+            }
+        ]

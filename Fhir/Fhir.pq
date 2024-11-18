@@ -1,5 +1,20 @@
-﻿[Version = "1.0.1"]
+﻿[Version = "1.0.5"]
 section Fhir;
+
+GetAuthorizationUriForCommonTenant = () as text => 
+    let
+        // We want the connector to use production instances of the data source.
+        // If we're running in a PPE host environment, override the AAD endpoint to use global.
+        defaultAadUri = "https://login.microsoftonline.com/",
+        isPpeCloud = Environment.FeatureSwitch("Cloud", "global") = "ppe",
+        aadUriEnvConfig = Environment.FeatureSwitch("AzureActiveDirectoryUri", defaultAadUri),
+        aadUri =
+            if (isPpeCloud) then
+                defaultAadUri
+            else
+                aadUriEnvConfig
+    in
+        Uri.Combine(aadUri, "/common/oauth2/authorize");
 
 // Data Source Kind description
 Fhir = [
@@ -7,12 +22,7 @@ Fhir = [
     TestConnection = (dataSourcePath) => { "Fhir.Contents", dataSourcePath },
     Authentication = [
         Aad = [
-            AuthorizationUri = "https://login.windows.net/common/oauth2/authorize",
-            DefaultClientApplication = [
-                ClientId = "a672d62c-fc7b-4e81-a576-e60dc46e951d",
-                ClientSecret = "",
-                CallbackUrl = "https://preview.powerbi.com/views/oauthredirect.html"
-            ]
+            AuthorizationUri = (resource) => GetAuthorizationUriForCommonTenant()
         ],
         Anonymous = []
     ],
@@ -40,7 +50,7 @@ Fhir.Contents.Type = type function (
     ]),
     optional searchQuery as (type text meta [
         Documentation.FieldCaption = Extension.LoadString("SearchQueryFieldCaption"),
-        Documentation.FieldDescription = Extension.LoadString("SearchQueryFieldCaption"),
+        Documentation.FieldDescription = Extension.LoadString("SearchQueryFieldDescription"),
         Documentation.SampleValues = { "Patient?address-postalcode=98052" }
     ])
 )
@@ -76,7 +86,14 @@ FhirNavTable = (url as text, optional searchQuery as text) as table =>
             let
                 metadataResources = Metadata[ResourceList],
                 intersectWithQuery =
-                    if queryString <> null then
+                    // if queryString is null, Text.Split() in GetResourceListFromQueryString() function will throw an exception:
+                    // "We cannot convert the value null to type Text."
+                    //
+                    // if queryString is "", the result of GetResourceListFromQueryString is {""}, 
+                    // and the result of List.Intersect is {},
+                    // no resouces will be returned to the users in this case,
+                    // so if queryString is "", just ignore it, and return all metadataResources to the users
+                    if queryString <> null and queryString <> "" then
                         List.Intersect({ GetResourceListFromQueryString(queryString), metadataResources })
                     else
                         metadataResources,
@@ -154,18 +171,12 @@ Fhir.View = (baseUrl as text, resourceTypeName as text, fhirVersion as text, opt
             // Calculates the final URL based on the current state.
             CalculateUrl = (foldedQuery as text) as text =>
                 let
-                    constantQueryTerms = "_count=100",
-                    foldedQueryWithConstantTerms = if foldedQuery = "" then constantQueryTerms else foldedQuery & "&" & constantQueryTerms,
-                    baseUrlWithTrailingSlash = if Text.EndsWith(baseUrl, "/") then baseUrl else baseUrl & "/",
-                    urlWithoutFolding =
-                        if searchQuery <> null then
-                            Uri.Combine(baseUrlWithTrailingSlash, Text.TrimStart(searchQuery, "/"))
-                        else
-                           Uri.Combine(baseUrlWithTrailingSlash, resourceTypeName),
-                    shouldAppendQuestionMark = Record.FieldCount(Uri.Parts(urlWithoutFolding)[Query]) = 0 and not Text.EndsWith(urlWithoutFolding, "?")
+                    searchQueryWithoutPath = Text.TrimEnd(Text.AfterDelimiter(searchQuery,"?"), "&"),
+                    constantQuery = "_count=100",
+                    queryParameterList = {searchQueryWithoutPath, foldedQuery, constantQuery},
+                    queryParameterText = Text.Combine(List.Select(queryParameterList, each _ <> ""), "&")
                 in
-                    if foldedQueryWithConstantTerms = "" then urlWithoutFolding else
-                    urlWithoutFolding & (if shouldAppendQuestionMark then "?" else "") & foldedQueryWithConstantTerms,
+                    Text.TrimEnd(baseUrl, "/") & "/" & resourceTypeName & "?" & queryParameterText,
 
             // Reshapes and applies the schema to the a list of resources as records
             ReshapeRows = (rows as list) as list =>

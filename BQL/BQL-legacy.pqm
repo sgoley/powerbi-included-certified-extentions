@@ -1,0 +1,162 @@
+
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    // Load common library functions
+    Utils = Extension.LoadFunction("BQL-utils.pqm"),
+    Value.WaitFor = Utils[WaitFor],
+    CheckGraphQLErrors = Utils[CheckGraphQLErrors],
+    Table.ToNavigationTable = Utils[ToNavigationTable],
+    Diagnostics.LogTrace= Utils[LogTrace],
+    Diagnostics.LogValue= Utils[LogValue],
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.PollDelay = Configuration[PollDelay],
+    Configuration.PollRetryAttempts = Configuration[PollRetryAttempts],
+
+
+    LoadLegacyData = (query as text, initialResult as record, sendPostRequestFn as function) =>
+        let
+            result =
+                    if
+                        Record.HasFields(initialResult[data][bqlPaginated][legacyResponse], "ticket")
+                    then
+                        Value.WaitFor(
+                            (i) => TryRequestWithTicket(
+                                i,
+                                initialResult[data][bqlPaginated][legacyResponse][ticket],
+                                sendPostRequestFn
+                            ),
+                            (i) => #duration(0, 0, 0, Configuration.PollDelay),
+                            Configuration.PollRetryAttempts
+                        )
+                    else
+                        initialResult[data][bqlPaginated][legacyResponse],
+            table = ExtractData(result, query)
+        in
+            table,
+
+    TryRequestWithTicket = (i as number, ticket as text, sendPostRequestFn as function) =>
+        let
+            attempt = Number.ToText(i + 1),
+            body = "{""query"":""query {"
+                & "bqlDirectCheckAsync(request: { ticket: \""" & ticket & "\"" })"
+                & "  { results { id data { tableVal { headers "
+                & "  columns {"
+                & "  ... on BqlNumColumn { numColumn }"
+                & "  ... on BqlStringColumn { strColumn }"
+                & "  ... on BqlDateColumn { dateColumn }"
+                & "  ... on BqlNumColumnRange { numVal length }"
+                & "  ... on BqlDateColumnRange { dateVal length }"
+                & "  ... on BqlStringColumnRange { strVal length }"
+                & "  } } } }"
+                & "} }"",""variables"":{}}",
+            body1 = Diagnostics.LogValue("Ticket polling attempt: " & attempt, body),
+            rawResult = sendPostRequestFn(body1, i + 1),
+            rawResultText =  Text.FromBinary(rawResult),
+            trunctedRawResultText = Text.Start(rawResultText, 1000),
+            rawResultText1 = Diagnostics.LogTrace(
+                TraceLevel.Information,
+                Text.Combine({"Raw response from ticket polling attempt: " & attempt & " (truncated): ", trunctedRawResultText}),
+                rawResultText
+            ),
+            parsedResult = try Json.Document(rawResultText1)
+                otherwise error Error.Record(
+                    "Invalid Response",
+                    "Unable to read data due to invalid response format.",
+                    rawResultText1
+                ),
+            withGraphlErrorCheck = CheckGraphQLErrors(parsedResult),
+            withAttributeCheck = if Record.HasFields(parsedResult, "data")
+                    and Record.HasFields(parsedResult[data], "bqlDirectCheckAsync")
+                then withGraphlErrorCheck
+                else error Error.Record("Invalid Response", "Response lacks expected attributes.")
+        in
+            withAttributeCheck[data][bqlDirectCheckAsync],
+
+    ExtractData = (parsedResult as record, bqlQuery as text) =>
+        let
+            resultList = try parsedResult[results]
+                otherwise error Error.Record("Invalid Response", "Unable to get results from response", parsedResult),
+            table = GetTableValue(resultList, bqlQuery)
+        in
+            table,
+
+    GetTableValue = (resultList as list, bqlQuery as text) =>
+        let
+            tables = List.Transform(resultList, MapResults),
+
+            objects = #table(
+                {"Name",  "Key",   "Data", "ItemKind", "ItemName", "IsLeaf"},
+                List.Transform(tables, (t) => {t[id], t[id], t[table],  "Table",    "Table",    true})
+            ),
+            table = if List.Count(tables) = 1
+                    then tables{0}[table]
+                    else Table.ToNavigationTable(objects, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+        in
+            table,
+
+    MapResults = (json as any) =>
+        let
+            inputTable = json[data][tableVal],
+            indexes = List.Generate(() => 0, each _ < List.Count(inputTable[headers]), each _ + 1),
+            headers = List.Transform(indexes, (i) => inputTable[headers]{i}),
+            columns = List.Transform(indexes, (i) => GetColumn(inputTable[columns]{i})),
+
+            table = Table.FromColumns(columns, headers),
+            tableTypes = List.Accumulate(
+                indexes,
+                {},
+                (state, i) => List.Combine({state, {{inputTable[headers]{i}, GetColumnType(inputTable[columns]{i})}}})
+            ),
+            typedTable = Table.TransformColumnTypes(table, tableTypes),
+            tableEntry = [id = json[id], table = typedTable]
+        in
+            tableEntry,
+
+    GetColumnType = (column as any) =>
+        let
+            typeName = if Record.HasFields(column, "strColumn") or Record.HasFields(column, "strVal") then type text
+                    else if Record.HasFields(column, "numColumn") or Record.HasFields(column, "numVal") then type number
+                    else if Record.HasFields(column, "dateColumn") or Record.HasFields(column, "dateVal") then type date
+                    else error Error.Record("Get column type error", "Unknown input data type.")
+        in
+            typeName,
+
+    ParseDate = (isoDateTime) =>
+        let
+            parsed = if isoDateTime <> null then Date.FromText(Text.Range(isoDateTime, 0, Text.Length(isoDateTime) - 10))
+                    else null
+        in
+            parsed,
+
+    GetColumn = (columnJson as any) =>
+        let
+            column = if Record.HasFields(columnJson, "strColumn") then columnJson[strColumn]
+                    else if Record.HasFields(columnJson, "strVal")
+                        then List.Generate(() => 0, each _ < columnJson[length], each _ + 1, (i) => columnJson[strVal])
+                    else if Record.HasFields(columnJson, "numColumn")
+                        then columnJson[numColumn]
+                    else if Record.HasFields(columnJson, "numVal")
+                        then List.Generate(() => 0, each _ < columnJson[length], each _ + 1, (i) => columnJson[numVal])
+                    else if Record.HasFields(columnJson, "dateColumn")
+                        then List.Transform(columnJson[dateColumn], (isoDateTime) => ParseDate(isoDateTime))
+                    else if Record.HasFields(columnJson, "dateVal")
+                        then List.Generate(
+                            () => 0,
+                            each _ < columnJson[length], each _ + 1,
+                            (i) => ParseDate(columnJson[dateVal])
+                        )
+                    else error Error.Record("Get column error", "Unknown input data type.")
+        in
+            column
+in
+    [
+        LoadLegacyData = LoadLegacyData
+    ]

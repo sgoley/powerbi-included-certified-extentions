@@ -1,27 +1,14 @@
-﻿[Version = "1.0.0"] section Kognitwin;
+﻿[Version = "2.4.0"] section Kognitwin;
 
 redirect_uri = "https://oauth.powerbi.com/views/oauthredirect.html";
 
-authPath = "/api/configuration/auth-settings";
-
-assetsPath = "/api/assets";
-
-projectPath = "/api/projects/powerBIConnector";
-
-port = "";
-
-/* // Autpath, assetsPath, projectPath and port for testing with localhost
-authPath = "configuration/auth-settings";
-
+authPath = "/configuration/auth-settings?client=powerbi";
 assetsPath = "/assets";
-
 projectPath = "/projects/powerBIConnector";
-
-port = "8080"; */
 defaultLimit = 1000;
 
 CreateNavTable =
-    (url as text, config as list) as table =>
+    (baseUrl as text, config as list) as table =>
         let
             addedNavTableRecords =
                 List.Transform(
@@ -31,7 +18,7 @@ CreateNavTable =
                             [
                                 id = [id],
                                 Name = [name],
-                                Data = CreateNavTable(url, [children]),
+                                Data = CreateNavTable(baseUrl, [children]),
                                 ItemKind = "Folder",
                                 ItemName = "Folder",
                                 IsLeaf = false
@@ -40,7 +27,25 @@ CreateNavTable =
                             [
                                 id = [id],
                                 Name = [name],
-                                Data = CreateTypesNavTable(url, [id]),
+                                Data = CreateTypesNavTable(baseUrl, [id]),
+                                ItemKind = "Folder",
+                                ItemName = "Folder",
+                                IsLeaf = false
+                            ]
+                        else if [kind] = "getQuery" then
+                            [
+                                id = [id],
+                                Name = [name],
+                                Data = CreateQueryNavTable(baseUrl, [name], [query]),
+                                ItemKind = "Folder",
+                                ItemName = "Folder",
+                                IsLeaf = false
+                            ]
+                        else if [kind] = "getRealTimeSensorData" then
+                            [
+                                id = [id],
+                                Name = [name],
+                                Data = CreateRealTimeNavTable(baseUrl, [id]),
                                 ItemKind = "Folder",
                                 ItemName = "Folder",
                                 IsLeaf = false
@@ -95,6 +100,7 @@ Kognitwin = [
             Refresh = Refresh,
             Logout = Logout
         ]
+        // Implicit = []
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
@@ -215,17 +221,7 @@ TokenMethod =
 GetAuthParams =
     (url) =>
         let
-            authParams =
-                if Uri.Parts(url)[Host] = "localhost" then
-                    GetData(
-                        Uri.Parts(url)[Host]
-                        & ":"
-                        & port
-                        & "/"
-                        & authPath
-                    )
-                else
-                    GetData(url & authPath)
+            authParams = GetData(url & "/api" & authPath)
         in
             authParams;
 
@@ -256,13 +252,12 @@ Kognitwin.Icons = [
 
 // Prompts the user for api-url to connect to
 GetApiUrl =
-    (url as text) =>
+    (baseUrl as text) =>
         let
-            config = GetDataWithIdp(url & projectPath),
-            navTable = try CreateNavTable(url, config[navigator]) otherwise error "Could not create navigator."
+            config = GetDataMiddleware(baseUrl, projectPath),
+            navTable = try CreateNavTable(baseUrl, config[navigator]) otherwise error "Could not create navigator."
         in
             navTable;
-
 GetApiUrlType =
     type function (url as
         (
@@ -270,7 +265,7 @@ GetApiUrlType =
             meta
             [
                 Documentation.FieldCaption = "Kognitwin URL",
-                Documentation.FieldDescription = "Enter Kognitwin URL",
+                Documentation.FieldDescription = "Enter Kognitwin URL Environment",
                 Documentation.SampleValues = {
                     "https://example.kognitwin.com"
                 }
@@ -278,22 +273,14 @@ GetApiUrlType =
         )) as table
     meta
     [
-        Documentation.Name = "Kognitwin"
+        Documentation.Name = "Kognitwin v1.1"
     ];
 
 GetLimit =
     (baseUrl as text) as any =>
         let
-            config =
-                if Uri.Parts(baseUrl)[Host] = "localhost" then
-                    GetDataWithIdp(
-                        Uri.Parts(baseUrl)[Host]
-                        & ":"
-                        & port
-                        & projectPath
-                    )
-                else
-                    GetDataWithIdp(baseUrl & projectPath),
+            config = GetDataMiddleware(baseUrl, projectPath),
+
             limit =
                 if config[limit] <> null then
                     config[limit]
@@ -302,14 +289,147 @@ GetLimit =
         in
             limit;
 
-// Creates a navigation table for selecting asset type
+SensorDataForm = (baseUrl as text, assetId as text) => 
+    let
+        SensorForm = type function (
+            sensorId as ( type text meta [
+                Documentation.FieldCaption = "Select sensor ID",
+                Documentation.FieldDescription = "Sensor id for real time data"
+                ]
+            ),
+            
+            timeInterval as ( type text meta [
+                Documentation.FieldCaption = "Select Timeinterval",
+                Documentation.FieldDescription = "Select interval",
+                Documentation.AllowedValues = {"Last 24 hours","Last 7 days", "Last 30 days", "Last 100 days"},
+                Documentation.SampleValues = {"Last 24 hours"}
+                ]
+            ),
+            
+            aggregationType as ( type text meta [
+                Documentation.FieldCaption = "Select aggregation type",
+                Documentation.FieldDescription = "Select how the timeseries data will ",
+                Documentation.AllowedValues = {"No Aggregation", "min", "max", "mean"}
+                ]
+            ),
+            aggregationInterval as ( type text meta [
+                Documentation.FieldCaption = "Select aggregation interval",
+                Documentation.FieldDescription = "",
+                Documentation.AllowedValues = {"No Aggregation","1h","2h","10h","12h","1d","2d"}
+                ]
+            ),
+
+            datapointslimit as ( type text meta [
+                Documentation.FieldCaption = "Select Datapoints Limit",
+                Documentation.FieldDescription = "Etc 1000",
+                Documentation.AllowedValues = {"100","1000","3000","10000","100000"}
+                ]
+            )
+        ) as table,
+
+        SensorDataPagination = (sensorId as text, timeInterval as text, aggregationType as text, aggregationInterval as text, datapointslimit as text) =>
+            let 
+                dateToTextFormat = "yyyy-MM-ddTHH:mm:ss.fffZ",
+
+                daysBack = if timeInterval = "Last 24 hours" then
+                  1
+                  else if timeInterval = "Last 7 days" then
+                    7
+                  else if timeInterval = "Last 30 days" then
+                    30
+                  else if timeInterval = "Last 100 days" then
+                    100
+                  else
+                    7,
+
+                startDate = Date.AddDays(Date.From(DateTime.LocalNow()),-daysBack),
+                dateEndText =  DateTime.ToText(DateTime.LocalNow(), dateToTextFormat),
+                dateStartText = Date.ToText(startDate, dateToTextFormat),
+                // dateEndText = Date.ToText(endDate, dateToTextFormat),
+
+                aggregationTypeUrl = 
+                  if aggregationType = "No Aggregation" then
+                      ""
+                  else
+                      "&aggregate="& aggregationType,
+
+                aggregationIntervalUrl =
+                  if aggregationType = "No Aggregation" then
+                      ""
+                  else
+                      "&interval="& aggregationInterval,
+
+                orderByUrl =
+                  if aggregationType = "No Aggregation" then
+                        ""
+                  else
+                      "&orderBy=time asc&fill=none",
+
+                urlPath = "/timeseries?id="& sensorId & "&source=" & assetId & "&from=" & dateStartText & "&to=" & dateEndText & aggregationTypeUrl & aggregationIntervalUrl & orderByUrl & "&limit="&datapointslimit,
+                dataList = GetDataMiddleware(baseUrl, urlPath),
+                datapoints = Table.FromRecords(dataList)
+            in
+                datapoints
+    in
+        Value.ReplaceType(SensorDataPagination, SensorForm);
+
+SensorIDForm = (baseUrl as text, assetId as text) => 
+    let
+      //Get sensor types
+      urlPath = assetsPath & "?source=" & assetId & "&distinct=type",
+      dataList = GetDataMiddleware(baseUrl, urlPath),
+
+        SensorForm = type function (
+            sensorType as ( type text meta [
+                Documentation.FieldCaption = "Select Sensor Category",
+                Documentation.FieldDescription = "Sensor id for real time data",
+                Documentation.AllowedValues = dataList
+                ]
+              )
+        ) as table,
+
+        SensorPagination = (sensorType as text) =>
+            let
+              urlPathSensors = assetsPath & "?source=" & assetId & "&type=" & sensorType,
+              
+              dataTable = PagedTable(baseUrl,urlPathSensors,defaultLimit),
+              
+              transformed = Table.TransformRows(
+                    dataTable,
+                    each [
+                        Id = Record.FieldOrDefault([Column1], "id", null),
+                        Source = Record.FieldOrDefault([Column1], "source", null),
+                        Asset = [Column1]
+                    ]
+                ),
+                tableTransformed = Table.FromRecords(transformed)
+            in
+              tableTransformed
+    in
+        Value.ReplaceType(SensorPagination, SensorForm);
+
+    
+CreateRealTimeNavTable = (baseUrl as text, assetId as text) => 
+    let
+        objects = #table(
+                {"Name","Key","Data","ItemKind","ItemName","IsLeaf"},
+                {
+                    {"Sensor Data", "RealTimeData", SensorDataForm(baseUrl, assetId), "Function", "Function", true},
+                    {"Available Sensors", "SensorList", SensorIDForm(baseUrl, assetId), "Function", "Function", true}
+                }
+            ),
+	    NavTable = Table.ForceToNavigationTable(objects, {"Key"},"Name","Data","ItemKind","ItemName","IsLeaf")
+    in
+	    NavTable;
+
+// Creates a navigation table for assets: locked to source
 CreateTypesNavTable =
     (baseUrl as text, sourceId as text) =>
         let
             typesTable =
                 GetDataTable(
-                    baseUrl
-                    & assetsPath
+                    baseUrl,
+                    assetsPath
                     & "?source="
                     & sourceId
                     & "&distinct=type"
@@ -327,38 +447,35 @@ CreateTypesNavTable =
                                         limit = GetLimit(baseUrl),
                                         dataTable =
                                             PagedTable(
-                                                baseUrl
-                                                & assetsPath
+                                                baseUrl,
+                                                assetsPath
                                                 & "?source="
                                                 & sourceId
                                                 & "&type="
-                                                & [Column1]
-                                                & "&limit="
-                                                & Number.ToText(limit),
+                                                & [Column1]  
+                                                & "&externalData=1",
                                                 limit
                                             ),
-                                        expandedCols = expandRecordColumn(dataTable, "Column1"),
-                                        expandedDerived =
-                                            if
-                                                List.Contains(
-                                                    Table.ColumnNames(expandedCols),
-                                                    "derived"
-                                                )
-                                            then
-                                                expandRecordColumn(
-                                                    expandedCols,
-                                                    "derived",
-                                                    "derived."
-                                                )
-                                            else
-                                                expandedCols
+
+                                        transformed = Table.TransformRows(
+                                            dataTable,
+                                            each [
+                                               Id = Record.FieldOrDefault([Column1], "id", null),
+                                               Source = Record.FieldOrDefault([Column1], "source", null),
+                                               Type = Record.FieldOrDefault([Column1], "type", null),
+                                               Name = Record.FieldOrDefault([Column1], "name", null),
+                                               Asset = [Column1]
+                                            ]
+                                        ),
+                                        tableTransformed = Table.FromRecords(transformed)
                                     in
-                                        expandedDerived,
+                                        tableTransformed,
                                 ItemKind = "Function",
                                 ItemName = "Function",
                                 IsLeaf = true
                             ]
                     ),
+
             createdTableFromRecords =
                 if addedNavTableRecords[HasError] then
                     error "No data found."
@@ -377,44 +494,119 @@ CreateTypesNavTable =
         in
             NavTable;
 
-PagedTable =
-    (url as text, limit as number) =>
-        Table.GenerateByPage(
-            (previous) =>
-                let
-                    next =
-                        if (previous <> null) then
-                            Value.Metadata(previous)[Next]
-                        else
-                            0,
-                    urlToUse =
-                        if (next <> 0) then
-                            url & "&offset=" & Number.ToText(next)
-                        else
-                            url,
-                    current =
-                        if (previous <> null and next = null) then
-                            null
-                        else
-                            GetDataTable(urlToUse),
-                    link =
-                        if (current <> null) then
-                            next + limit
-                        else
-                            null
-                in
-                    current
-                    meta
-                    [
-                        Next = link
-                    ]
-        );
+
+ConvertRecordToQueryParams = (params as record) => 
+    let
+        recordTable = Record.ToTable(params),
+
+        // list of records
+        transformed =  Table.TransformRows(
+                recordTable,
+                each [
+                    param = [Name] & "=" & [Value]
+                ]
+        ),
+
+        queryString = List.Accumulate(transformed, "", (state, current) => state & List.First(Record.FieldValues(current)) & "&"),
+
+        trimmed = Text.TrimEnd(queryString, "&")
+    in
+        trimmed;
+
+CreateQueryNavTable = 
+    (baseUrl as text, name as text, query as record) =>
+        let
+            params = Record.Field(query, "urlParams"),
+            urlParamsCount = Record.FieldCount(params),
+
+            useDistinctParam = Record.HasFields(params, "distinct"),
+            distinctColumn = Record.Field(params, "distinct"),
+            
+            apiPath = Record.Field(query, "apiPath"),            
+            paramsString = ConvertRecordToQueryParams(params),
+
+            paramsWithoutDistinct = if useDistinctParam then
+                    Record.RemoveFields(params, "distinct")
+                else 
+                    params,
+            
+            paramsStringWithoutDistinct = ConvertRecordToQueryParams(paramsWithoutDistinct),
+
+            // if distinct: create leafnodes for each distinct variable. If not: have 1 leafnode equal to column name
+            leafTable = if useDistinctParam then
+                    GetDataTable(baseUrl, assetsPath & "?" & paramsString)
+                  else
+                      Table.FromRecords({[Column1 = name]}),
+
+            addedNavTableRecords =
+                try
+                    Table.TransformRows(
+                        leafTable,
+                        each
+                            [
+                                Type = [Column1],
+                                Name = [Column1],
+                                Data =
+                                    let
+                                        limit = GetLimit(baseUrl),
+
+                                        queryString = if useDistinctParam then
+                                                paramsStringWithoutDistinct & "&" & distinctColumn & "=" & [Column1]
+                                            else
+                                                paramsStringWithoutDistinct,
+                                        separator = if urlParamsCount = 0 then "" else "&",
+                                        combinedQueryString = apiPath & "?" & queryString & separator & "externalData=1",
+                                        
+                                        dataTable =
+                                            PagedTable(
+                                                baseUrl,
+                                                combinedQueryString,
+                                                limit
+                                            ),
+
+                                        transformed = Table.TransformRows(
+                                            dataTable,
+                                            each [
+                                               Id = Record.FieldOrDefault([Column1], "id", null),
+                                               Source = Record.FieldOrDefault([Column1], "source", null),
+                                               Type = Record.FieldOrDefault([Column1], "type", null),
+                                               Name = Record.FieldOrDefault([Column1], "name", null),
+                                               Asset = [Column1]
+                                            ]
+                                        ),
+                                        tableTransformed = Table.FromRecords(transformed)
+                                    in
+                                        tableTransformed,
+                                ItemKind = "Function",
+                                ItemName = "Function",
+                                IsLeaf = true
+                            ]
+                    ),
+
+            createdTableFromRecords =
+                if addedNavTableRecords[HasError] then
+                    error "No data found."
+                else
+                    Table.FromRecords(addedNavTableRecords[Value]),
+            NavTable =
+                Table.ToNavigationTable(
+                    createdTableFromRecords,
+                    {"Type"},
+                    "Name",
+                    "Data",
+                    "ItemKind",
+                    "ItemName",
+                    "IsLeaf"
+                )
+            
+        in 
+            NavTable;
 
 // Sends a GET request to the specified URL and returns a table with the response
 GetDataTable =
-    (url as text) =>
+    (baseUrl as text, urlPath as text) =>
         let
-            dataList = GetDataWithIdp(url),
+            dataList = GetDataMiddleware(baseUrl, urlPath),
             dataTable =
                 if (List.Count(dataList) = 0) then
                     null
@@ -428,6 +620,13 @@ GetDataTable =
                     )
         in
             dataTable;
+
+// Decide wheter GetData or GetDataWithIdp is used to fetch data
+GetDataMiddleware = (baseurl as text, urlPath as text) => 
+    let
+        data = GetDataWithIdp(baseurl & "/api" & urlPath)
+    in
+        data;
 
 // Sends a GET request to the specified URL and returns a list with the response
 GetData =
@@ -526,38 +725,83 @@ Table.ToNavigationTable =
             navigationTable = Value.ReplaceType(table, newTableType)
         in
             navigationTable;
+Table.ForceToNavigationTable = (
+    table as table,
+    keyColumns as list,
+    nameColumn as text,
+    dataColumn as text,
+    itemKindColumn as text,
+    itemNameColumn as text,
+    isLeafColumn as text
+) as table =>
+    let
+        tableType = Value.Type(table),
+        newTableType = Type.AddTableKey(tableType, keyColumns, true) meta 
+        [
+            NavigationTable.NameColumn = nameColumn, 
+            NavigationTable.DataColumn = dataColumn,
+            NavigationTable.ItemKindColumn = itemKindColumn, 
+            NavigationTable.IsLeafColumn = isLeafColumn
+        ],
+        navigationTable = Value.ReplaceType(table, newTableType)
+    in
+        navigationTable;
+
+    PagedTable = (baseUrl as text, urlPath as text, limit as number) =>
+        Table.GenerateByPage(
+        (previous) =>
+            let
+                next =
+                    if (previous <> null) then
+                        Value.Metadata(previous)[Next]
+                    else
+                        0,
+
+                urlPathDone =
+                    if (next <> 0) then
+                        urlPath & "&offset=" & Number.ToText(next) & "&limit="& Number.ToText(limit)
+                    else
+                        urlPath & "&limit="& Number.ToText(limit),
+                current =
+                    if (previous <> null and next = null) then
+                        null
+                    else
+                        GetDataTable(baseUrl, urlPathDone),
+                link =
+                    if  (current <> null) then
+                        next + limit
+                    else
+                        null
+            in
+                current
+                meta
+                [
+                    Next = link
+                ]
+    );
+
+
 // The getNextPage function takes a single argument and is expected to return a nullable table
-Table.GenerateByPage =
-    (getNextPage as function) as table =>
-        let
-            listOfPages =
-                List.Generate(
-                    () => getNextPage(null),
-                    // get the first page of data
-                    (lastPage) => lastPage <> null,
-                    // stop when the function returns null
-                    (lastPage) => getNextPage(lastPage)
-                // pass the previous page to the next function call
-                ),
-            // concatenate the pages together
-            tableOfPages =
-                Table.FromList(
-                    listOfPages,
-                    Splitter.SplitByNothing(),
-                    {"Column1"}
-                ),
-            firstRow = tableOfPages{0}?
-        in
-            // if we didn't get back any pages of data, return an empty table
-            // otherwise set the table type based on the columns of the first page
-            if (firstRow = null) then
-                Table.FromRows({})
-            else
-                Value.ReplaceType(
-                    Table.ExpandTableColumn(
-                        tableOfPages,
-                        "Column1",
-                        Table.ColumnNames(firstRow[Column1])
-                    ),
-                    Value.Type(firstRow[Column1])
-                );
+
+Table.GenerateByPage = (getNextPage as function) as table =>
+    let        
+        listOfPages = List.Generate(
+            () => getNextPage(null),            // get the first page of data
+            (lastPage) => lastPage <> null,     // stop when the function returns null
+            (lastPage) => getNextPage(lastPage) // pass the previous page to the next function call
+        ),
+        // concatenate the pages together
+        tableOfPages = Table.FromList(listOfPages, Splitter.SplitByNothing(), {"Column1"}),
+        firstRow = tableOfPages{0}?
+    in
+        // if we didn't get back any pages of data, return an empty table
+        // otherwise set the table type based on the columns of the first page
+        if (firstRow = null) then
+            Table.FromRows({})
+        else        
+            Value.ReplaceType(
+                Table.ExpandTableColumn(tableOfPages, "Column1", Table.ColumnNames(firstRow[Column1])),
+                Value.Type(firstRow[Column1])
+            );
+
+

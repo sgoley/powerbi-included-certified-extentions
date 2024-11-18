@@ -4,7 +4,7 @@
    You may not photograph, copy, reproduce, duplicate, or in any fashion distribute any part of this information
    for any purpose whatsoever without the express written permission of EarthSoft, Inc. */
 
-[Version = "7.21.10084"]
+[Version = "7.23.10067"]
 section EQuIS;
 
 /***************************/
@@ -15,7 +15,7 @@ shared EQuIS.Contents = Value.ReplaceType(Navigator.GetMain, NavigatorInfo);
 
 // "Publish" information for the connector
 EQuIS.Publish = [
-  Beta = true,
+  Beta = false,
   Category = "Other",
   ButtonText = { "EQuIS", Extension.LoadString("ConnectorTooltip") },
   LearnMoreUrl = "https://help.earthsoft.com/index.htm?power-bi.htm",
@@ -148,7 +148,7 @@ Navigator.GetFacilityGroups = (  // Get a folder (navigation table) of report ta
 ) as table =>
   let
     // get all groups with their facilityId parameter set to a negative euid
-    allFacilities = Json.Document(Binary.Buffer(Web.Contents(api[baseUri] & "/api/groups?q.returnTopLevelOnly=false" & Text.Combine({"&", api[userAgent]}), api[options]))),
+    allFacilities = Json.Document(Binary.Buffer(Web.Contents(api[baseUri] & "/api/groups?q.returnTopLevelOnly=false&q.groupType=*|facility_id" & Text.Combine({"&", api[userAgent]}), api[options]))),
 
     facilityGroups = List.Accumulate(List.Select(allFacilities, (item) => item[facilityId] < -1), {}, (list, item) => List.Combine({list, {{ item[name], item[id], Navigator.GetFacilityGroup(api, item), "CubeViewFolder", "CubeViewFolder", false }}})),
     // convert to table
@@ -194,22 +194,17 @@ Navigator.GetGroupMembers = (   // Get a folder (navigation table) that for a sp
     reportsTable = Navigator.GetReports(api, facId, prefix),
     locationsTable = Locations.GetTable(api, facId),
 
-    // only add the Reports folder and the Locations table if they return 1 or more rows
-    nodes = if Table.RowCount(reportsTable) > 0 and Table.RowCount(locationsTable) > 0 then 
-              {
-                { Extension.LoadString("Reports"), Text.From(facId) & "_Reports", reportsTable, "Folder", "Folder", false },
-                { prefix & Extension.LoadString("Locations"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true }
-              }
-            else if Table.RowCount(reportsTable) = 0 and Table.RowCount(locationsTable) > 0 then 
-              {
-                { prefix & Extension.LoadString("Locations"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true }
-              }
-            else if Table.RowCount(reportsTable) > 0 and Table.RowCount(locationsTable) = 0 then 
-              {
-                { Extension.LoadString("Reports"), Text.From(facId) & "_Reports", reportsTable, "Folder", "Folder", false }
-              }
-            else
-              error Extension.LoadString("NoReportsOrLocations.Error"),
+      reports = try if Table.RowCount(reportsTable) > 0 then
+                      { Extension.LoadString("Reports"), Text.From(facId) & "_Reports", reportsTable, "Folder", "Folder", false }
+                    else null
+                otherwise {Extension.LoadString("NoReports.Error"), Text.From(facId) & "_Reports", reportsTable, "Table", "Table", true },
+
+      locations = try if Table.RowCount(locationsTable) > 0 then 
+                        { prefix & Extension.LoadString("Locations"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true } 
+                      else null
+                  otherwise {Extension.LoadString("NoLocations.Error"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true },
+
+      nodes = List.RemoveNulls({reports, locations}),
             
     tbl = #table(
       {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"}, nodes),
@@ -268,23 +263,19 @@ Navigator.GetFacility = (   // Get a folder (navigation table) that for a specif
     reportsTable = Navigator.GetReports(api, facId, prefix),
     locationsTable = Locations.GetTable(api, facId),
 
-    // only add the Reports folder and the Locations table if they return 1 or more rows
-    nodes = if Table.RowCount(reportsTable) > 0 and Table.RowCount(locationsTable) > 0 then 
-              {
-                { Extension.LoadString("Reports"), Text.From(facId) & "_Reports", reportsTable, "Folder", "Folder", false },
-                { prefix & Extension.LoadString("Locations"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true }
-              }
-            else if Table.RowCount(reportsTable) = 0 and Table.RowCount(locationsTable) > 0 then 
-              {
-                { prefix & Extension.LoadString("Locations"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true }
-              }
-            else if Table.RowCount(reportsTable) > 0 and Table.RowCount(locationsTable) = 0 then 
-              {
-                { Extension.LoadString("Reports"), Text.From(facId) & "_Reports", reportsTable, "Folder", "Folder", false }
-              }
-            else
-              error Extension.LoadString("NoReportsOrLocations.Error"),
-            
+    //9486 - if not wrapped in "try otherwise" an error from either reportsTable or locationsTable will make them both return in error when combined into one list
+      reports = try if Table.RowCount(reportsTable) > 0 then
+                      { Extension.LoadString("Reports"), Text.From(facId) & "_Reports", reportsTable, "Folder", "Folder", false }
+                    else null
+                otherwise {Extension.LoadString("NoReports.Error"), Text.From(facId) & "_Reports", reportsTable, "Table", "Table", true },
+
+      locations = try if Table.RowCount(locationsTable) > 0 then 
+                        { prefix & Extension.LoadString("Locations"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true } 
+                      else null
+                  otherwise {Extension.LoadString("NoLocations.Error"), Text.From(facId) & "_Locations", locationsTable, "Table", "Table", true },
+
+      nodes = List.RemoveNulls({reports, locations}),
+           
     tbl = #table(
       {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"}, nodes),
 
@@ -402,11 +393,10 @@ Report.GetTable = (       // Gets the dataset/table for the given report from th
     // should we include the facilityId parameter?
     fac = if facilityId = -1 then "" else "&facilityId=" & Text.From(facilityId),
 
-    // download the report output as *.xlsx
-    xlsx = Excel.Workbook(Binary.Buffer(Web.Contents(api[baseUri] & "/api/reports/" & Text.From(reportId) & "/data?oType=xlsx" & fac & Text.Combine({"&", api[userAgent]}), apiOptions)), true),
+    // download the report output as *.csv
+    csv = Csv.Document(Web.Contents(api[baseUri] & "/api/reports/" & Text.From(reportId) & "/data?oType=csv" & fac & Text.Combine({"&", api[userAgent]}), apiOptions)),
 
-    // this gets the first (zero-indexed) worksheet in the workbook
-    a = xlsx{0}[Data],
+    a = Table.PromoteHeaders(csv),
 
     b = Table.MakeColumnsCamelCase(a)
   in
@@ -419,11 +409,10 @@ EIA.GetTable = (       // Gets the dataset/table for the given report from the g
 ) as table =>
   let
 
-    // download the report output as *.xlsx
-    xlsx = Excel.Workbook(Binary.Buffer(Web.Contents(api[baseUri] & "/api/reports/" & Text.From(reportId) & "/events/" & Text.From(reportEventId) & "/data?oType=xlsx" & Text.Combine({"&", api[userAgent]}), api[options])), true),
-
-    // this gets the first (zero-indexed) worksheet in the workbook
-    a = xlsx{0}[Data],
+    // download the report output as *.csv
+    csv = Csv.Document(Web.Contents(api[baseUri] & "/api/reports/" & Text.From(reportId) & "/events/" & Text.From(reportEventId) & "/data?oType=csv" & Text.Combine({"&", api[userAgent]}), api[options])),
+    
+    a = Table.PromoteHeaders(csv),
 
     b = Table.MakeColumnsCamelCase(a)
   in

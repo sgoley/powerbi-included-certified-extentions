@@ -39,7 +39,7 @@
         {"ItemRelation", Any.Type},
         {"Location", Any.Type},
         {"ItemSelect", Text.Type},
-        {"ItemMultiSelect", type {Text.Type}},
+        {"ItemMultiSelect", type {Record.Type}},
         {"ToggleButton", Text.Type},
         {"DataGrid", Any.Type},
         {"ActionButtonScript", Any.Type},

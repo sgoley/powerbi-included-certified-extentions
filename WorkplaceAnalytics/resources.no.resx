@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Avanserte alternativer</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Aggregerte data</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Datatetthet</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Velg data på radnivå for å laste inn rå spørringsresultater eller aggregerte data for å sende spørringer til databasen og få aggregerte resultater. Du oppnår best resultat ved å velge data på radnivå bare hvis du velger Importer datatilkoblingsmodus.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Data på radnivå</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Organisasjonskonto</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Koble til Workplace Analytics-data</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Koble til Viva Insights Data</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Onlinetjenester</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Tabellnavn</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Koble til Workplace Analytics-data</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Hvis spørringen for avansert innsikt gir ut mer enn én tabell, angir du hvilken tabell du vil koble til.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Koble til Viva Insights Data</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Aggregert detaljnivå for data støttes for øyeblikket ikke ved tilkobling til spørringsresultater ved å angi et spørringsnavn eller en identifikator. Velg Kornethet på radnivå for å koble til spørringsresultater.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Kornethet på radnivå støttes for øyeblikket bare ved tilkobling til spørringsresultater. Velg Aggregert datatetthet for å koble til et generelt sett personberegninger eller angi et spørringsnavn eller en identifikator.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Uventet format eller verdi for WWW-Authenticate-topptekst under godkjenning.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Uventet svar fra server under godkjenning.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Kornethet på radnivå støttes ikke for denne datakilden. Velg aggregert datadetaljnivå i stedet.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Returnerer en tabell med synlige attributter og ukentlige måledata for hver ansatt som er målt, i partisjonen.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identifikator for spørring</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Spørringsidentifikatorer</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Finn dette i Workplace Analytics ved å åpne Resultater for spørring, kopiere den ønskede spørringskoblingen og trekke ut den siste 32-sifrede ID-en (GUID) som vises i URL-adressen.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>I appen for avansert innsikt går du til Analyse &gt; Spørringsresultater, finner spørringen og velger Kobling for å hente spørringsidentifikator.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Navn på spørring</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Skriv inn navnet på spørringen nøyaktig slik det står i kategorien Workplace Analytics Query Results</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Skriv inn spørringsnavnet slik det står på Analyse &gt; Side med spørringsresultater i appen for avansert innsikter.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Importer ukentlige måledata og attributtverdier fra Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contosos personmålinger</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>surveyData</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Skjematype</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Velg pivotert for å laste inn organisasjonsattributter som individuelle kolonner, eller ikke-pivotert for å laste inn organisasjonsattributter som nøkkelverdipar, som attributtnavn = organisasjon, attributtverdi = økonomi.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Pivotert</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Opphevet pivotering</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Partisjonsidentifikator</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Finn dette i Workplace Analytics ved å åpne brukerprofilen og velge Min informasjon</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>I appen for avansert innsikt går du til Analyse &gt; Spørringsresultater, finner spørringen og velger Kobling for å hente partisjonsidentifikator.</value>
   </data>
 </root>

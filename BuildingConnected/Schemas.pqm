@@ -1,0 +1,769 @@
+let
+    CoordsType = type [
+        lat = nullable number,
+        lng = nullable number
+    ],
+
+    LocationType = type [
+        country = nullable text,
+        state = nullable text,
+        streetName = nullable text,
+        streetNumber = nullable text,
+        suite = nullable text,
+        city = nullable text,
+        zip = nullable text,
+        complete = nullable text,
+        coords = nullable CoordsType
+    ],
+
+    agencyType = type [
+        id = text,
+        name = text,
+        website = text
+    ],
+
+    certificateType = type [
+        id = text,
+        name = text
+    ],
+
+    relevantCertificatesType = type [
+        agency = agencyType,
+        certificateType = certificateType
+    ],
+
+    Schema.BidLineItemType = type table [
+        id = text,
+        #"type" = text,
+        description = text,
+        #"section" = text,
+        isRequired = logical,
+        isCustom = logical,
+        unit = text,
+        code = text,
+        quantity = number,
+        isQuantityFixed = logical,
+        unitCost = number,
+        value = text
+    ],
+
+    Schema.BidPlugType = type table [
+        id = text,
+        quantity = number,
+        unitCost = number,
+        value = text,
+        createdBy = text,
+        updatedBy = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        lineItemFingerprint = [
+            #"type" = text,
+            description = text,
+            #"section" = text,
+            unit = text,
+            code = text
+        ]        
+    ],
+    
+    Schema.ProjectType = type table [
+        id = text,
+        name = text,
+        #"number" = text,
+        client = text,
+        description = text,
+        notes = text,
+        value = number,
+        projectSize = number,
+        projectSizeUnits = text,
+        awarded = text,
+        isBiddingSealed = logical,
+        state = text,
+        isNdaRequired = logical,
+        isPublic = logical,
+        createdAt = datetime,
+        updatedAt = datetime,
+        publishedAt = datetime,
+        bidsDueAt = datetime,
+        endsAt = datetime,
+        rfisDueAt = datetime,
+        startsAt = datetime,
+        jobWalkAt = datetime,
+        dueAt = datetime,
+        location = nullable LocationType,
+        isTemplate = logical,
+        accountManager = text,
+        feePercentage = number,
+        marketSector = text,
+        createdBy = text,
+        defaultCurrency = text,
+        owningOfficeId = text,
+        architect = text,
+        isForBudgeting = logical,
+        isCompetitive = logical,
+        currentAccLinkedProjectId = text,
+        currentAccLinkedHubId = text,
+        originalProjectId = text,
+        currentAccDocsFolderId = text,
+        accProjectLinkedAt = datetime,
+        relevantCertificates = {nullable relevantCertificatesType}
+    ],
+
+    Schema.BidPackageType = type table [
+        id = text,
+        projectId = text,
+        name = text,
+        #"number" = text,
+        keywords = {text},
+        estimatedCost = number,
+        state = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        publishedAt = datetime,
+        bidsDueAt = datetime,
+        endsAt = datetime,
+        rfisDueAt = datetime,
+        startsAt = datetime,
+        jobWalkAt = datetime,
+        currentAccDocsFolderId = text,
+        bidAdminUnsealed = logical,
+        bidAdminUnsealedAt = datetime
+    ],
+
+    Schema.InviteType = type table [
+        id = text,
+        projectId = text,
+        bidPackageId = text,
+        bidderOfficeId = text,
+        bidderCompany = nullable [
+            id = text,
+            name = text,
+            businessType = {text},
+            website = text,
+            laborType = {text},
+            enterpriseType = {text},
+            companyTags = {text},
+            certificates = {
+                [
+                    id = text,
+                    type = [id = text, name = text],
+                    agency = agencyType,
+                    #"number" = text,
+                    expiresAt = text,
+                    fileName = text
+                ]
+            }
+        ],
+        state = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        invitedAt = datetime,
+        invitees = {
+            [
+                id = text,
+                userId = text,
+                firstName = text,
+                lastName = text,
+                companyId = text,
+                phoneNumber = text,
+                title = text,
+                email = text,
+                inviterType = text,
+                state = text
+            ]
+        }
+    ],
+
+    Schema.BidType = type table [
+        id = text,
+        projectId = text,
+        bidPackageId = text,
+        inviteId = text,
+        bidderCompanyId = text,
+        creatorType = text,
+        notes = text,
+        total = number,
+        leveledTotal = number,
+        createdAt = datetime,
+        updatedAt = datetime,
+        submittedAt = datetime,
+        attachments = {text},
+        revision = number,
+        createdBy = text,
+        submittedBy = text,
+        lineItems = nullable [
+            pagination = [
+                limit = number,
+                cursorState = nullable number,
+                nextUrl = nullable text
+            ],
+            results = Schema.BidLineItemType
+        ],
+        plugs = nullable [
+            pagination = [
+                limit = number,
+                cursorState = nullable number,
+                nextUrl = nullable text
+            ],
+            results = Schema.BidPlugType
+        ]
+    ],
+
+    Schema.ProjectBidFormType = type table [
+        id = text,
+        projectId = text,
+        createdBy = text,
+        updatedBy = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        isTemplate = logical,
+        lineItems = nullable [
+            pagination = [
+                limit = number,
+                cursorState = nullable number,
+                nextUrl = nullable text
+            ],
+            results = Schema.BidLineItemType
+        ]
+    ],
+
+    Schema.ScopeSpecificBidFormType = type table [
+        id = text,
+        projectId = text,
+        bidPackageId = text,
+        createdBy = text,
+        updatedBy = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        isTemplate = logical,
+        lineItems = nullable [
+            pagination = [
+                limit = number,
+                cursorState = nullable number,
+                nextUrl = nullable text
+            ],
+            results = Schema.BidLineItemType
+        ]
+    ],
+
+    Schema.OpportunityType = type table [
+        id = text,
+        name = text,
+        #"number" = text,
+        client = nullable [
+            company = [id = text, name = text],
+            lead = [id = text, email = text, firstName = text, lastName = text, phoneNumber = text],
+            office = [
+                id = text,
+                location = nullable LocationType,
+                name = text
+            ]
+        ],
+        competitors = nullable {[bidAmount = number, companyId = text, isWinner = logical, name = text]},
+        customTags = nullable {text},
+        createdAt = datetime,
+        updatedAt = datetime,
+        defaultCurrency = text,
+        source = text,
+        isNdaRequired = logical,
+        projectIsPublic = logical,
+        outcome = [state = text, updatedAt = datetime, updatedBy = text],
+        requestType = text,
+        submissionState = text,
+        workflowBucket = text,
+        isParent = logical,
+        parentId = text,
+        groupChildren = nullable {text},
+        bid = nullable [id = text, submittedAt = datetime, total = number, revision = number, #"type" = text],
+        members = {[viewedAt = datetime, userId = text, #"type" = text]},
+        dueAt = datetime,
+        jobWalkAt = datetime,
+        rfisDueAt = datetime,
+        expectedStartAt = datetime,
+        expectedFinishAt = datetime,
+        invitedAt = datetime,
+        tradeName = text,
+        projectSize = number,
+        projectInformation = text,
+        location = nullable LocationType,
+        tradeSpecificInstructions = text,
+        architect = text,
+        engineer = text,
+        propertyOwner = text,
+        propertyTenant = text,
+        declineReasons = {text},
+        additionalInfo = text,
+        priority = text,
+        marketSector = text,
+        rom = number,
+        winProbability = number,
+        followUpAt = datetime,
+        contractStartAt = datetime,
+        contractDuration = number,
+        averageCrewSize = number,
+        estimatingHours = number,
+        feePercentage = number,
+        profitMargin = number,
+        finalValue = number,
+        isArchived = logical,
+        owningOfficeId = text
+    ],
+
+    Schema.ContactType = type table [
+        id = text,
+        isRemoved = logical,
+        officeId = text,
+        officeName = text,
+        officePhone = text,
+        location = nullable LocationType,
+        averageRating = number,
+        qualification = [
+            qualificationStatus = text,
+            expiresAt = datetime,
+            updatedAt = datetime,
+            pqRelationshipId = text,
+            gcCurrency = text,
+            projectLimit = number,
+            summary = text,
+            totalLimit = number,
+            submissionStatus = text
+        ],
+        stats = [
+            awardedCount = number,
+            submittedCount = number,
+            biddingCount = number,
+            declinedCount = number,
+            invitedCount = number,
+            viewedCount = number
+        ],
+        company = [
+            id = text,
+            name = text,
+            businessType = {text},
+            website = text,
+            laborType = {text},
+            enterpriseType = {text},
+            companyTags = {text},
+            certificates = {
+                [
+                    id = text,
+                    #"type" = [id = text, name = text],
+                    agency = agencyType,
+                    #"number" = text,
+                    expiresAt = datetime,
+                    fileName = text
+                ]
+            }
+        ],
+        updatedAt = datetime
+    ],
+    
+    Schema.UserType = type table [
+        id = text,
+        autodeskId = text,
+        emailVerified = logical,
+        employmentVerified = logical,
+        createdAt = datetime,
+        firstName = text,
+        lastName = text,
+        email = text,
+        jobTitle = text,
+        phoneNumber = text,
+        companyId = text,
+        bidBoardPermissions = [
+            viewAll = logical,
+            reports = logical,
+            leaderboard = logical,
+            modifyPermissions = logical
+        ],
+        offices = {[
+            id = text,
+            isPrimary = logical,
+            hasBbPro = logical,
+            hasBcPro = logical,
+            officeLead = logical,
+            name = text,
+            address = text
+        ]}
+    ],
+
+    Schema.FinancialsType = type table [
+        id = text,
+        uniqueId = text,
+        companyName = text,
+        hasParentCompany = logical,
+        parentCompanyName = text,
+        riskEvaluationScore = number,
+        benchmarks = [
+            debtScore = number,
+            debtYear = number,
+            liquidityScore = number,
+            liquidityYear = number,
+            profitabilityScore = number,
+            profitabilityYear = number,
+            turnoverScore = number,
+            turnoverYear = number,
+            overallBenchmarkingScore = number,
+            overallBenchmarkingYear = number
+        ],
+        keyMetrics = [
+            dartRates = {[score = number, year = number]},
+            experienceModificationRatings = {[score = number, year = number]},
+            recordableIncidentRates = {[score = number, year = number]},
+            aggregateTotalCapacity = number,
+            largestProject = number,
+            largestProjectYear = number,
+            netCashFlow = number,
+            netCashFlowYear = number,
+            singleProjectCapacity = number,
+            workingCapital = number,
+            workingCapitalYear = number
+        ],
+        statements = {[
+            period = number,
+            #"type" = text,
+            #"date" = datetime,
+            rawData = [
+                accountsPayable = number,
+                accountsReceivable = number,
+                amountOfCreditUsed = number,
+                billingInExcessOfCost = number,
+                cashAndCashEquivalents = number,
+                costInExcessOfBillings = number,
+                costsOfGoodsSold = number,
+                currentLiabilities = number,
+                earningsBeforeIncomeTaxes = number,
+                equity = number,
+                interestExpense = number,
+                interestIncome = number,
+                marketableSecurities = number,
+                netCashFromFinancing = number,
+                netCashFromInvestments = number,
+                netCashFromOperations = number,
+                netIncome = number,
+                revenueSales = number,
+                totalAssets = number,
+                currentAssets = number,
+                totalLiabilities = number,
+                totalLineOfCredit = number
+            ],
+            metrics = [
+                accountsReceivableTurnover = number,
+                assetTurnoverRatio = number,
+                cashToOverbillings = number,
+                currentRatio = number,
+                daysOfCashOnHand = number,
+                debtLessCashToEquity = number,
+                debtRatio = number,
+                debtToEquity = number,
+                equityToSales = number,
+                equityToTotalLiabilities = number,
+                grossProfitMargin = number,
+                netProfitMargin = number,
+                quickRatio = number,
+                returnOnAssets = number,
+                underbillingsToCurrentAssets = number,
+                underbillingsToWc = number,
+                workingCapitalCompression = number,
+                workingCapitalToSales = number,
+                workingCapitalTurnover = number,
+                customRatios = {[name = text, value = number]}
+            ]
+        ]}
+    ],
+
+    Schema.QualificationsType = type table [
+        id = text,
+        uniqueId = text,
+        questionnaireVersion = text,
+        qualification = [
+            status = text,
+            internalSingleLimit = number,
+            internalTotalLimit = number,
+            dateExpires = datetime,
+            summary = text,
+            denialReason = text,
+            preExpirationStatus = text
+        ],
+        applicationStatus = text,
+        applicationDetail = text,
+        companyName = text,
+        yearFounded = number,
+        stateFounded = text,
+        taxIdType = text,
+        federalTaxId = text,
+        submissionCurrency = text,
+        numberOfHomeOfficeEmployees = number,
+        numberOfFieldSupervisoryEmployees = number,
+        hasProfessionalLicenses = logical,
+        hasUnionAffiliations = logical,
+        hasParentCompany = logical,
+        parentCompanyName = text,
+        currentEstimatedBacklog = number,
+        insuranceBrokerCompanyName = text,
+        insuranceBrokerContactName = text,
+        insuranceBrokerContactPhone = text,
+        insuranceBrokerContactEmail = text,
+        suretyBrokerCompanyName = text,
+        suretyBrokerContactName = text,
+        suretyBrokerContactPhone = text,
+        suretyCompanyName = text,
+        suretySingleProjectBondingCapacity = number,
+        suretyAggregateBondingCapacity = number,
+        bankName = text,
+        bankLineOfCreditTotal = number,
+        bankLineOfCreditOutstanding = number,
+        bankContactName = text,
+        bankContactPhone = text,
+        bankContactEmail = text,
+        submittedAt = datetime,
+        updatedAt = datetime,
+        csiCodesForWorkPerformed =  {[
+            primaryCode = text,
+            secondaryCode = text,
+            tertiaryCode = text,
+            codeDescription = text
+        ]},
+        regionsServed = {nullable [
+            regionServed = text
+        ]},
+        marketsServed = {nullable [
+            marketServed = text
+        ]},
+        completedReferences = {[
+            projectName = text,
+            location = text,
+            yearCompleted = number,
+            value = number,
+            scope = text,
+            referenceContactCompany = text,
+            referenceContactName = text,
+            referenceContactPhone = text,
+            referenceContactEmail = text,
+            isLargestProject = logical
+        ]},
+        companyContacts = {[
+            positionTitle = text,
+            contactName = text,
+            contactPhone = text,
+            contactEmail = text,
+            contactFax = text,
+            contactType = text
+        ]},
+        insuranceCoverages = {[
+            insuranceType = text,
+            carrier = text,
+            perOccurrenceLimit = number,
+            aggregateLimit = number,
+            policyExpirationDate = datetime,
+            isNotApplicable = logical
+        ]},
+        experienceModificationRatings = {[
+            year = number,
+            experienceModificationRating = number
+        ]},
+        osha300Results = {[
+            year = number,
+            totalNumberDeathsBoxG = number,
+            totalNumberCasesDaysAwayBoxH = number,
+            totalNumberCasesRestrictionTransferBoxI = number,
+            otherRecordableCasesBoxJ = number,
+            totalHoursWorked = number
+        ]},
+        certificates = {[
+            id = text,
+            #"type" = [
+                id = text,
+                name = text
+            ],
+            agency = [
+                id = text,
+                name = text,
+                website = text
+            ],
+            #"number" = text,
+            expiresAt = datetime,
+            fileName = text
+        ]},
+        unions = {[
+            unionName = text,
+            unionNumber = text
+        ]},
+        annualVolumeRevenues = {[
+            year = number,
+            estimatedVolumeRevenue = number
+        ]},
+        professionalLicenses = {[
+            #"type" = text,
+            #"number" = text,
+            issuingState = text,
+            issuingAgency = text,
+            additionalDescription = text
+        ]},
+        companyOfficeAddresses = [
+            pagination = [
+                limit = number,
+                cursorState = text,
+                nextUrl = text,
+                previousUrl = text
+            ],
+            results = {[
+                    isMainOffice = logical,
+                    address1 = text,
+                    address2 = text,
+                    city = text,
+                    state = text,
+                    zipCode = text
+            ]}
+        ],
+        customQuestions = [
+            pagination = [
+                limit = number,
+                cursorState = text,
+                nextUrl = text,
+                previousUrl = text
+            ],
+            results = {[
+                question = text,
+                #"section" = text,
+                textResponse = text,
+                numberResponse = number,
+                booleanResponse = logical
+            ]}
+        ]
+    ],
+
+    Schema.ProjectBidFormLineItemType = type table [
+        id = text,
+        #"type" = text,
+        description = text,
+        #"section" = text,
+        isRequired = logical,
+        unit = text
+    ],
+
+    Schema.ScopeSpecificBidFormLineItemType = type table [
+        id = text,
+        #"type" = text,
+        description = text,
+        #"section" = text,
+        isRequired = logical,
+        unit = text,
+        code = text,
+        quantity = number,
+        isQuantityFixed = logical
+    ],
+
+    Schema.ProjectTeamMembersType = type table [
+        id = text,
+        user = [
+            id = text,
+            autodeskId = text,
+            emailVerified = logical,
+            employmentVerified = logical,
+            createdAt = datetime,
+            firstName = text,
+            lastName = text,
+            email = text,
+            jobTitle = text,
+            phoneNumber = text,
+            companyId = text,
+            isAccountClaimed = logical,
+            bidBoardPermissions = [
+                viewAll = logical,
+                reports = logical,
+                leaderboard = logical,
+                modifyPermissions = logical
+            ],
+            offices = {[
+                id = text,
+                isPrimary = logical,
+                hasBbPro = logical,
+                hasBcPro = logical,
+                officeLead = logical,
+                name = text,
+                address = text
+            ]}
+        ],
+        projectId = text,
+        createdBy = text,
+        isProjectLead = logical,
+        privileges = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        firstViewedAt = text,
+        isProjectActive = logical,
+        ndaSignedAt = text,
+        ndaSignedIpAddress = text,
+        notificationPreferences = text,
+        subscribedBidPackages = {nullable text}
+    ],
+
+    Schema.OfficeType = type table [
+        id = text,
+        hasBbPro = logical,
+        hasBcPro = logical,
+        name = text,
+        location = nullable LocationType,
+        companyId = text,
+        createdBy = text,
+        createdAt = datetime,
+        fax = text,
+        phone = text,
+        workPerformed = {text},
+        timezone = text,
+        allowPublishedProjects = logical,
+        isLocked = logical,
+        updatedAt = datetime
+    ],
+
+    Schema.OpportunityProjectPairsType = type table [
+        id = text,
+        createdBy = text,
+        createdAt = datetime,
+        updatedAt = datetime,
+        opportunityId = text,
+        projectId = text,
+        fileSyncError = text,
+        deleteBy = text,
+        shouldRelinkGroup = logical,
+        fileStatus = text
+    ],
+
+    Schema.CertificateType = type table [
+        id = text,
+        name = text,
+        updatedAt = datetime,
+        isDeleted = logical
+    ],
+
+    Schema.CertificateAgenciesType = type table [
+        id = text,
+        name = text,
+        website = text,
+        updatedAt = datetime,
+        isDeleted = logical
+    ]
+
+in
+    [
+        ProjectType = Schema.ProjectType,
+        BidPackageType = Schema.BidPackageType,
+        InviteType = Schema.InviteType,
+        BidType = Schema.BidType,
+        ProjectBidFormType = Schema.ProjectBidFormType,
+        ScopeSpecificBidFormType = Schema.ScopeSpecificBidFormType,
+        OpportunityType = Schema.OpportunityType,
+        ContactType = Schema.ContactType,
+        UserType = Schema.UserType,
+        BidLineItemType = Schema.BidLineItemType,
+        BidPlugType = Schema.BidPlugType,
+        ProjectBidFormLineItemType = Schema.ProjectBidFormLineItemType,
+        ScopeSpecificBidFormLineItemType = Schema.ScopeSpecificBidFormLineItemType,
+        ProjectTeamMembersType = Schema.ProjectTeamMembersType,
+        OfficeType = Schema.OfficeType,
+        OpportunityProjectPairsType = Schema.OpportunityProjectPairsType,
+        CertificateType = Schema.CertificateType,
+        CertificateAgenciesType = Schema.CertificateAgenciesType,
+        FinancialsType = Schema.FinancialsType,
+        QualificationsType = Schema.QualificationsType
+    ]

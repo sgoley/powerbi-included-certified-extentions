@@ -1,0 +1,164 @@
+let
+    BaseUrl = "https://powerbi-service.funnel.io/v1/",
+    EUBaseUrl = "https://powerbi-service.data-pull.eu.funnel.io/v1/",
+
+    GetServiceUrl = (instanceId) => if instanceId = "EU" then EUBaseUrl else BaseUrl,
+
+    DefaultNumberOfMonths = 12,
+    StatusCodesManualHandling = {400, 404, 500, 502},
+
+    ValidateUrlScheme = (url as text) as text => if (Uri.Parts(url)[Scheme] <> "https") then error Extension.LoadString("UrlSchemeError") else url,
+
+    GetHeaders = (optional accountId as text) =>
+        let 
+            traceId = if accountId = null then "-" else accountId,
+            headers = [
+                        #"X-Trace-Id" = "PBI" & traceId,
+                        #"X-Connector-Version-Id" = "5.0.1",
+                        #"X-Auth-Token" = Extension.CurrentCredential()[access_token]
+                    ]
+        in
+            headers,
+
+    GetAccounts = (instanceId as text)  => 
+        let
+            headers = GetHeaders(),
+            url_ = ValidateUrlScheme(GetServiceUrl(instanceId) & "accounts"),
+            response = Web.Contents(url_,[Headers = headers, ManualStatusHandling = {400, 401, 404, 500, 502}]),
+            jsonData = Json.Document(response),
+            status = Value.Metadata(response)[Response.Status],
+            jsonDataAfterErrorCheck = if List.Contains({400, 401, 404, 500, 502}, status) then error GetErrorMessage(jsonData) else jsonData,
+            responseHeaders = Value.Metadata(response)[Headers]
+        in
+            jsonDataAfterErrorCheck meta [Headers = responseHeaders],
+
+    LoadData = (instanceId as text, accountId as text, viewId as text, optional numberOfMonths as number) =>
+        let
+            newNumberOfMonths = if numberOfMonths = null 
+                then DefaultNumberOfMonths
+                else numberOfMonths,
+            to = Date.From(DateTime.LocalNow()),
+            from = Date.AddMonths(Date.StartOfMonth(to), -1*(newNumberOfMonths - 1)),
+
+            //function to convert funnel data types to power query
+            FunnelToPowerQueryDataTypes = (id, datatype) =>
+                let
+                    returntype = if (datatype = "date") then {id, Date.Type}
+                    else if (datatype = "int") then {id, Int64.Type}
+                    else if (datatype = "dec") then {id, Number.Type}
+                    else {id, Text.Type}
+                in
+                    returntype,
+
+            headers = GetHeaders(accountId),
+
+            jsonSchema = GetValidatedContent(GetServiceUrl(instanceId) & accountId & "/" & viewId & "/schema", headers),
+
+            // make table of fields to use later ons
+            fields = jsonSchema[fields],
+            fieldIds = Table.ToList(Table.FromRecords(fields, {"name"})),
+
+            // list to collect the data types of each column
+            datatypesTable = Table.FromRecords(fields, {"name", "type"}),
+            datatypesTableAddedCol = Table.AddColumn(datatypesTable, "DataTypeToApply", each FunnelToPowerQueryDataTypes([name],[type])),
+            datatypesList = Table.SelectColumns(datatypesTableAddedCol, {"DataTypeToApply"})[DataTypeToApply],
+            
+
+            // Get data from service
+            dataUrl = GetServiceUrl(instanceId) & accountId & "/" & viewId & "/data?start=" & Date.ToText(from,"yyyy-MM-dd") & "&end=" & Date.ToText(to,"yyyy-MM-dd"), // & "&fakeError=KABOOM",
+            table = GetData(dataUrl, headers),
+
+            // For each row convert the row contents from list to record, using fieldIds as keys
+            withRecords = Table.AddColumn(table, "Custom", each Record.FromList([Column1], fieldIds)),
+
+            // Expand the record into new columns with fieldIds as keys
+            expanded = Table.ExpandRecordColumn(withRecords, "Custom", fieldIds),
+
+            // Remove the record column as it has served it's purpose
+            withFirstColumnRemoved = Table.RemoveColumns(expanded, {"Column1"}),
+
+            // Convert data types to ones specified in the schema
+            withTypes = Table.TransformColumnTypes(withFirstColumnRemoved, datatypesList)
+
+        in
+            withTypes,
+
+
+    // Internal function 
+    // Read all pages of data.
+    // After every page, we check the "NextLink" record on the metadata of the previous request.
+    // Table.GenerateByPage will keep asking for more pages until we return null.
+    GetData = (url as text, headers as any) as table =>
+        GenerateByPage((previous) => 
+            let
+                // if previous is null, then this is our first page of data
+                nextUrl = if (previous = null) then url else Value.Metadata(previous)[NextUrl]?,
+                // if NextLink was set to null by the previous call, we know we have no more data
+                page = if nextUrl = null then null else GetPage(nextUrl, headers)
+            in
+                page
+        ),
+
+        // The getNextPage function takes a single argument and is expected to return a nullable table
+    GenerateByPage = (getNextPage as function) as table =>
+        let        
+            listOfPages = List.Generate(
+                () => getNextPage(null),            // get the first page of data
+                (lastPage) => lastPage <> null,     // stop when the function returns null
+                (lastPage) => getNextPage(lastPage) // pass the previous page to the next function call
+            ),
+            listOfNoneEmptyTables = List.Select(listOfPages, (row) => not Table.IsEmpty(row)),
+            // concatenate the pages together
+            tableOfPages = Table.FromList(listOfNoneEmptyTables, Splitter.SplitByNothing(), {"Column1"})
+        in
+            if tableOfPages{0}? = null then 
+               Table.FromRows({}, {"Column1"})
+            else
+            // if we didn't get back any pages of data, return an empty table
+            // otherwise set the table type based on the columns of the first page
+            Value.ReplaceType(
+                Table.ExpandTableColumn(tableOfPages, "Column1", Table.ColumnNames(tableOfPages{0}[Column1])),
+                Value.Type(tableOfPages{0}[Column1])),
+
+
+    GetPage = (url as text, headers as any) as table =>
+        let
+            data = GetValidatedContent(url, headers),
+            responseHeaders = Value.Metadata(data)[Headers],
+            nextUrl = Record.FieldOrDefault(responseHeaders, "X-Paging-Next-Url", null),
+
+            // Convert JSON array-of-arrays to table. Each row contains a list.
+            dataTable = Table.FromList(data, Splitter.SplitByNothing(), {"Column1"})
+        in
+            dataTable meta [NextUrl = nextUrl],
+
+    GetValidatedContent = (url as text, headers as any) => 
+        let
+            url_ = ValidateUrlScheme(url),
+            response = Web.Contents(url_,[Headers = headers, ManualStatusHandling = StatusCodesManualHandling]),
+            jsonData = Json.Document(response),
+            status = Value.Metadata(response)[Response.Status],
+            jsonDataAfterErrorCheck = if List.Contains(StatusCodesManualHandling, status) then error GetErrorMessage(jsonData) else jsonData,
+            responseHeaders = Value.Metadata(response)[Headers]
+        in
+            jsonDataAfterErrorCheck meta [Headers = responseHeaders],
+
+
+    GetErrorMessage = ( data as any) as text => 
+        let
+            errorBody = data[error],
+            message = errorBody[message],
+            // TODO: Convert to Text
+            code = Text.From(errorBody[code]),
+
+            errorRecord = error Error.Record(code, message, Extension.LoadString("RemoteErrorDetail"))
+        in
+            errorRecord
+
+in
+    [
+        LoadData = LoadData,
+        GetAccounts = GetAccounts,
+        ValidateUrlScheme = ValidateUrlScheme,
+        DefaultNumberOfMonths = DefaultNumberOfMonths
+    ]

@@ -1,0 +1,90 @@
+let
+    // OAuth Settings
+    client_id = "jUam6UKpQ8xk8H2RoqVn8Ik2Yk4BH7NK",
+    redirect_uri = "https://oauth.powerbi.com/views/oauthredirect.html",
+    auth_url = "https://cloud-login.cdata.com/authorize",
+    token_url = "https://cloud-login.cdata.com/oauth/token",
+    audience = "https://cloud.cdata.com/api",
+    windowWidth = 480,
+    windowHeight = 690,
+    // Utility function
+    Base64UrlEncodeWithoutPadding = (hash as binary) as text =>
+        let
+            base64Encoded = Binary.ToText(hash, BinaryEncoding.Base64),
+            base64UrlEncoded = Text.Replace(Text.Replace(base64Encoded, "+", "-"), "/", "_"),
+            withoutPadding = Text.TrimEnd(base64UrlEncoded, "=")
+        in
+            withoutPadding,
+    // OAuth impl
+    OAuth.StartLogin = (resourceUrl, state, display) =>
+        let
+            codeVerifier = Text.NewGuid() & Text.NewGuid(),
+            codeChallenge = Base64UrlEncodeWithoutPadding(
+                Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary(codeVerifier, TextEncoding.Ascii))
+            ),
+            AuthorizeUrl = auth_url
+                & "?"
+                & Uri.BuildQueryString(
+                    [
+                        client_id = client_id,
+                        scope = "offline_access",
+                        audience = audience,
+                        state = state,
+                        redirect_uri = redirect_uri,
+                        response_type = "code",
+                        prompt = "login",
+                        code_challenge_method = "S256",
+                        code_challenge = codeChallenge
+                    ]
+                )
+        in
+            [
+                LoginUri = AuthorizeUrl,
+                CallbackUri = redirect_uri,
+                WindowHeight = windowHeight,
+                WindowWidth = windowWidth,
+                Context = codeVerifier
+            ],
+    OAuth.FinishLogin = (context, callbackUri, state) =>
+        let
+            Parts = Uri.Parts(callbackUri)[Query]
+        in
+            TokenMethod("authorization_code", "code", Parts[code], context),
+    OAuth.Refresh = (resourceUrl, refresh_token) => TokenMethod("refresh_token", "refresh_token", refresh_token),
+    TokenMethod = (grantType, tokenField, code, optional verifier) =>
+        let
+            codeVerifier = if (verifier <> null) then [
+                code_verifier = verifier
+            ] else [],
+            Response = Web.Contents(
+                token_url,
+                [
+                    Content = Text.ToBinary(
+                        Uri.BuildQueryString(
+                            codeVerifier
+                                & Record.AddField(
+                                    [
+                                        grant_type = grantType,
+                                        client_id = client_id,
+                                        redirect_uri = redirect_uri
+                                    ],
+                                    tokenField,
+                                    code
+                                )
+                        )
+                    ),
+                    Headers = [
+                        #"Content-type" = "application/x-www-form-urlencoded",
+                        #"Accept" = "application/json"
+                    ]
+                ]
+            ),
+            Parts = Json.Document(Response)
+        in
+            Parts
+in
+    [
+        StartLogin = OAuth.StartLogin,
+        FinishLogin = OAuth.FinishLogin,
+        Refresh = OAuth.Refresh
+    ]

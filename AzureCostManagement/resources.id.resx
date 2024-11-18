@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,154 +118,197 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Sambungkan ke Azure Cost Management</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Azure Cost Management</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>Azure Cost Management</value>
   </data>
-  <data name="Parameter_billingProfile_FieldCaption" xml:space="preserve">
+  <data name="Parameter_billingProfile_FieldCaption" errorCode="004" xml:space="preserve">
     <value>ID profil penagihan</value>
   </data>
-  <data name="Parameter_billingProfile_SampleValues" xml:space="preserve">
+  <data name="Parameter_billingProfile_SampleValues" errorCode="005" xml:space="preserve">
     <value>e1b90562-f94b-452a-9a4d-5c27ca74a8f2</value>
   </data>
-  <data name="Parameter_Parameter_FieldCaption" xml:space="preserve">
+  <data name="Parameter_Parameter_FieldCaption" errorCode="006" xml:space="preserve">
     <value>Parameter kueri tingkat lanjut.</value>
   </data>
-  <data name="Parameter_Parameter_FieldDescription" xml:space="preserve">
+  <data name="Parameter_Parameter_FieldDescription" errorCode="007" xml:space="preserve">
     <value>Opsi yang didukung adalah: dataType, numberOfMonth, startBillingDataWindow, endBillingDataWindow. Lihat contoh kode untuk detailnya.</value>
   </data>
-  <data name="Parameter_Parameter_SampleValues" xml:space="preserve">
+  <data name="Parameter_Parameter_SampleValues" errorCode="008" xml:space="preserve">
     <value>[ dataType = "DetailCharges", numberOfMonth = 1 ]</value>
   </data>
-  <data name="UnknownAPIType" xml:space="preserve">
+  <data name="UnknownAPIType" errorCode="009" xml:space="preserve">
     <value>Bukan Tipe API yang valid</value>
   </data>
-  <data name="UnknownErrorHandlingLevel" xml:space="preserve">
+  <data name="UnknownErrorHandlingLevel" errorCode="010" xml:space="preserve">
     <value>ErrorHandlingLevel tidak diketahui:</value>
   </data>
-  <data name="CodeSample_1_Code" xml:space="preserve">
-    <value>biarkan    
+  <data name="CodeSample_1_Code" errorCode="011" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ numberOfMonth = 1 ],
-          hasil = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      di     
-          hasil</value>
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
+          result</value>
   </data>
-  <data name="CodeSample_1_Description" xml:space="preserve">
+  <data name="CodeSample_1_Description" errorCode="012" xml:space="preserve">
     <value>Asumsikan hari ini adalah 15-6-2017, dapatkan data ringkasan dari 1-5-2017 hingga 15-6-2017</value>
   </data>
-  <data name="CodeSample_1_Result" xml:space="preserve">
+  <data name="CodeSample_1_Result" errorCode="013" xml:space="preserve">
     <value>Fungsi akan mengembalikan data ringkasan dari 1-5-2017 hingga 15-6-2017</value>
   </data>
-  <data name="CodeSample_2_Code" xml:space="preserve">
-    <value>biarkan    
+  <data name="CodeSample_2_Code" errorCode="014" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ startBillingDataWindow = "-2", endBillingDataWindow = "-1" ],
-          hasil = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      di     
-          hasil</value>
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
+          result</value>
   </data>
-  <data name="CodeSample_2_Description" xml:space="preserve">
+  <data name="CodeSample_2_Description" errorCode="015" xml:space="preserve">
     <value>Asumsikan hari ini adalah 15-6-2017, dapatkan data ringkasan untuk April 2017.</value>
   </data>
-  <data name="CodeSample_2_Result" xml:space="preserve">
+  <data name="CodeSample_2_Result" errorCode="016" xml:space="preserve">
     <value>Fungsi akan mengembalikan data dari 1-4-2017 hingga 30-4-2017</value>
   </data>
-  <data name="CodeSample_3_Code" xml:space="preserve">
-    <value>biarkan    
+  <data name="CodeSample_3_Code" errorCode="017" xml:space="preserve">
+    <value>let
           enrollmentNumber = "100",
           optionalParameters = [ startBillingDataWindow = "-2", endBillingDataWindow = "0", dataType = "Summaries" ],
-          hasil = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)   
-      di     
-          hasil</value>
+          result = AzureCostManagement.Contents(enrollmentNumber, optionalParameters)
+      in
+          result</value>
   </data>
-  <data name="CodeSample_3_Description" xml:space="preserve">
+  <data name="CodeSample_3_Description" errorCode="018" xml:space="preserve">
     <value>Asumsikan hari ini adalah 15-6-2017, dapatkan data ringkasan dari April 2017 sampai sekarang.</value>
   </data>
-  <data name="CodeSample_3_Result" xml:space="preserve">
+  <data name="CodeSample_3_Result" errorCode="019" xml:space="preserve">
     <value>Fungsi akan mengembalikan data dari 1-4-2017 hingga 15-6-2017</value>
   </data>
-  <data name="ReportGenerationFailed" xml:space="preserve">
+  <data name="ReportGenerationFailed" errorCode="020" xml:space="preserve">
     <value>Terdapat kegagalan dalam pembuatan laporan </value>
   </data>
-  <data name="PriceSheetFailed" xml:space="preserve">
+  <data name="PriceSheetFailed" errorCode="021" xml:space="preserve">
     <value>Lembar harga gagal. URL:</value>
   </data>
-  <data name="UsageDetailsFailed" xml:space="preserve">
+  <data name="UsageDetailsFailed" errorCode="022" xml:space="preserve">
     <value>Detail Penggunaan gagal. URL:</value>
   </data>
-  <data name="Parameter_apiVersion_FieldCaption" xml:space="preserve">
+  <data name="Parameter_apiVersion_FieldCaption" errorCode="023" xml:space="preserve">
     <value>Versi API</value>
   </data>
-  <data name="Parameter_apiVersion_SampleValues" xml:space="preserve">
+  <data name="Parameter_apiVersion_SampleValues" errorCode="024" xml:space="preserve">
     <value>2018-11-01-pratinjau</value>
   </data>
-  <data name="InvalidBillingAccountId" xml:space="preserve">
+  <data name="InvalidBillingAccountId" errorCode="025" xml:space="preserve">
     <value>Tidak ada 'Id Akun Penagihan' yang valid yang terkait dengan 'Profil Penagihan:'</value>
   </data>
-  <data name="APIVersionRequired" xml:space="preserve">
+  <data name="APIVersionRequired" errorCode="026" xml:space="preserve">
     <value>'Versi API' adalah bidang yang harus diisi.</value>
   </data>
-  <data name="BillingProfileIdRequired" xml:space="preserve">
+  <data name="BillingProfileIdRequired" errorCode="027" xml:space="preserve">
     <value>'Id Profil Penagihan' adalah bidang yang harus diisi.</value>
   </data>
-  <data name="AzureCostManagement" xml:space="preserve">
+  <data name="AzureCostManagement" errorCode="028" xml:space="preserve">
     <value>Azure Cost Management</value>
   </data>
-  <data name="Parameter_billingAccount_FieldCaption" xml:space="preserve">
+  <data name="Parameter_billingAccount_FieldCaption" errorCode="029" xml:space="preserve">
     <value>ID akun penagihan</value>
   </data>
-  <data name="Parameter_billingAccount_SampleValues" xml:space="preserve">
+  <data name="Parameter_billingAccount_SampleValues" errorCode="030" xml:space="preserve">
     <value>b1b8fc19-e597-53a4-fb6d-cbcd97ffb091</value>
   </data>
-  <data name="GeneralFailure" xml:space="preserve">
+  <data name="GeneralFailure" errorCode="031" xml:space="preserve">
     <value>Kesalahan: Terdapat kegagalan dalam pembuatan data untuk API: #[Name]. Coba lagi setelah beberapa saat.</value>
   </data>
-  <data name="TenantDiscoveryFailure" xml:space="preserve">
+  <data name="TenantDiscoveryFailure" errorCode="032" xml:space="preserve">
     <value>Gagal menemukan Akun Penagihan untuk Profil Penagihan :</value>
   </data>
-  <data name="EnrollmentNumberRequired" xml:space="preserve">
+  <data name="EnrollmentNumberRequired" errorCode="033" xml:space="preserve">
     <value>Bidang 'Nomor Pendaftaran' harus diisi.</value>
   </data>
-  <data name="lbl_BillingProfile_EnrollmentNumber" xml:space="preserve">
-    <value>For Billing Profile Id/Enrollment Number</value>
-  </data>
-  <data name="lbl_Choose_Scope" xml:space="preserve">
-    <value>Choose Scope</value>
-  </data>
-  <data name="lbl_NumberOfMonths" xml:space="preserve">
-    <value>Number of months</value>
-  </data>
-  <data name="Parameter_Choose_Scope" xml:space="preserve">
-    <value>Choose Scope</value>
-  </data>
-  <data name="Parameter_Months" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="Parameter_Scope_Value" xml:space="preserve">
-    <value>e1b90562-f94b-452a-9a4d-5c27ca74a8f2 / 8608480</value>
-  </data>
-  <data name="lbl_BillingProfile_EnrollmentNumber" xml:space="preserve">
+  <data name="lbl_BillingProfile_EnrollmentNumber" errorCode="034" xml:space="preserve">
     <value>Untuk Id Profil Penagihan/Nomor Pendaftaran</value>
   </data>
-  <data name="lbl_Choose_Scope" xml:space="preserve">
+  <data name="lbl_Choose_Scope" errorCode="035" xml:space="preserve">
     <value>Pilih Cakupan</value>
   </data>
-  <data name="lbl_NumberOfMonths" xml:space="preserve">
+  <data name="lbl_NumberOfMonths" errorCode="036" xml:space="preserve">
     <value>Jumlah bulan</value>
   </data>
-  <data name="Parameter_Choose_Scope" xml:space="preserve">
+  <data name="Parameter_Choose_Scope" errorCode="037" xml:space="preserve">
     <value>Pilih Cakupan</value>
   </data>
-  <data name="Parameter_Months" xml:space="preserve">
+  <data name="Parameter_Months" errorCode="038" xml:space="preserve">
     <value>Masukkan jumlah bulan untuk disertakan.</value>
   </data>
-  <data name="Parameter_Scope_Value" xml:space="preserve">
+  <data name="Parameter_Scope_Value" errorCode="039" xml:space="preserve">
     <value>Masukkan ID Profil Tagihan atau Nomor Pendaftaran Anda</value>
+  </data>
+  <data name="Parameter_azureCloud_FieldCaption" errorCode="040" xml:space="preserve">
+    <value>Azure Cloud</value>
+  </data>
+  <data name="Parameter_azureCloud_FieldDescription" errorCode="041" xml:space="preserve">
+    <value>Cloud yang digunakan oleh langganan </value>
+  </data>
+  <data name="Parameter_azureCloud_SampleValues" errorCode="042" xml:space="preserve">
+    <value>'global', 'pemerintah AS'</value>
+  </data>
+  <data name="Parameter_CustomScope" errorCode="043" xml:space="preserve">
+    <value>Pengidentifikasi Lingkup</value>
+  </data>
+  <data name="Parameter_CustomScope_Description" errorCode="044" xml:space="preserve">
+    <value>'/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}'</value>
+  </data>
+  <data name="Parameter_EndDate" errorCode="045" xml:space="preserve">
+    <value>Masukkan tanggal selesai.</value>
+  </data>
+  <data name="Parameter_StartDate" errorCode="046" xml:space="preserve">
+    <value>Masukkan tanggal mulai.</value>
+  </data>
+  <data name="lbl_End_Date" errorCode="047" xml:space="preserve">
+    <value>Tanggal Selesai</value>
+  </data>
+  <data name="lbl_Start_Date" errorCode="048" xml:space="preserve">
+    <value>Tanggal Mulai</value>
+  </data>
+  <data name="lblChooseScopeHelp" errorCode="049" xml:space="preserve">
+    <value>Pilih nama cakupan untuk mengambil rekaman.</value>
+  </data>
+  <data name="lblEndDateHelp" errorCode="050" xml:space="preserve">
+    <value>Tentukan tanggal selesai untuk menganalisis rentang tanggal rekaman tertentu.</value>
+  </data>
+  <data name="lblNumberOfMonthsHelp" errorCode="051" xml:space="preserve">
+    <value>Tentukan jumlah bulan data yang ingin Anda laporkan. Jika Anda ingin menganalisis rentang tanggal tertentu, masukkan angka 0 pada jumlah bulan dan tentukan tanggal di 'Opsi Lanjutan'</value>
+  </data>
+  <data name="lblStartDateHelp" errorCode="052" xml:space="preserve">
+    <value>Tentukan tanggal mulai untuk menganalisis rentang tanggal rekaman tertentu.</value>
+  </data>
+  <data name="ParameterCustomScopeHelp" errorCode="053" xml:space="preserve">
+    <value>Masukkan nilai untuk "Pengidentifikasi Cakupan", hanya jika "Cakupan" yang dipilih adalah "Masukkan Cakupan Secara Manual"</value>
+    <comment>"Scope", "Scope Identifier", and "Manually Input Scope" are parameter names and should not be localized.</comment>
+  </data>
+  <data name="DateRangeMoreThan31Days" errorCode="054" xml:space="preserve">
+    <value>Rentang tanggal tidak boleh lebih dari 31 hari.</value>
+  </data>
+  <data name="InvalidDateFormat" errorCode="055" xml:space="preserve">
+    <value>Format Tanggal tidak valid. Masukkan tanggal dalam format mm-dd-yyyy.</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" errorCode="056" xml:space="preserve">
+    <value>Tanggal mulai tidak boleh melebihi tanggal selesai.</value>
+  </data>
+  <data name="EmptyDateParametrs" errorCode="057" xml:space="preserve">
+    <value>Parameter rentang tanggal tidak boleh kosong jika jumlah bulan adalah nol.</value>
+  </data>
+  <data name="InvalidDateAndMonthParametrs" errorCode="058" xml:space="preserve">
+    <value>Tanggal mulai dan selesai harus kosong karena jumlah bulan lebih besar dari 0. Untuk mengkueri menurut rentang tanggal, jumlah bulan harus 0.</value>
+  </data>
+  <data name="AdvancedOptionsLabel" errorCode="059" xml:space="preserve">
+    <value>Opsi Lanjutan</value>
   </data>
 </root>

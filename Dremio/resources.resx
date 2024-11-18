@@ -123,29 +123,133 @@
   <data name="ButtonHelp" xml:space="preserve">
     <value>Import data from Dremio.</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Dremio</value>
+  <data name="DremioButtonTitle" xml:space="preserve">
+    <value>Dremio Software</value>
     <comment>This is the name of the connector as it shows up in Power BI's Get Data dialog.</comment>
   </data>
-  <data name="DremioDatabase_Description" xml:space="preserve">
-    <value>The Self-Service Data Platform</value>
+  <data name="DremioCloudButtonTitle" xml:space="preserve">
+    <value>Dremio Cloud</value>
+    <comment>This is the name of the connector as it shows up in Power BI's Get Data dialog.</comment>
   </data>
   <data name="DremioDatabase_LongDescription" xml:space="preserve">
-    <value>DremioDatabase_LongDescription</value>
+    <value>Returns a table listing the datasets on Dremio Server. This will be the same list as shown in Power BI Navigator. See https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource</value>
   </data>
   <data name="ExampleDremioDescription" xml:space="preserve">
-    <value>ExampleDremioDescription</value>
+    <value>How to return the list of datasets on localhost. This uses the default encrypted connection.</value>
   </data>
-  <data name="FormulaTitle" xml:space="preserve">
-    <value>FormulaTitle</value>
+  <data name="ExampleDremioDescriptionV300" xml:space="preserve">
+    <value>How to return the list of datasets on localhost with an encrypted connection.</value>
+  </data>
+  <data name="ExampleDremioResult" xml:space="preserve">
+    <value>A table listing the datasets on localhost.</value>
+  </data>
+  <data name="DremioCloudDatabase_LongDescription" xml:space="preserve">
+    <value>Returns a table listing the datasets in the specified project on Dremio Cloud. This will be the same list as shown in Power BI Navigator. See https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource. This function is maintained for backward compatibility with previous connector versions of Dremio Cloud.</value>
+  </data>
+  <data name="ExampleDremioCloudDescription" xml:space="preserve">
+    <value>How to return the list of datasets in project, xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx, on Dremio Cloud.</value>
+  </data>
+  <data name="ExampleDremioCloudResult" xml:space="preserve">
+    <value>A table listing the datasets in project, xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.</value>
+  </data>
+  <data name="DremioCloudDatabaseByServer_LongDescription" xml:space="preserve">
+    <value>Returns a table listing the datasets on the specified server on Dremio Cloud. This will be the same list as shown in Power BI Navigator. See https://docs.microsoft.com/en-us/powerquery-m/odbc-datasource</value>
+  </data>
+  <data name="ExampleDremioCloudByServerDescription" xml:space="preserve">
+    <value>How to return the list of datasets on a server on Dremio Cloud.</value>
+  </data>
+  <data name="ExampleDremioCloudByServerResult" xml:space="preserve">
+    <value>A table listing the datasets on a server.</value>
   </data>
   <data name="InvalidServerNameError" xml:space="preserve">
-    <value>DremioInvalidServerNameError</value>
+    <value>Invalid server name specified.</value>
+  </data>
+  <data name="DriverNotInstalledError" xml:space="preserve">
+    <value>The Dremio ODBC driver is not installed. Please install the appropriate driver from https://www.dremio.com/drivers/.</value>
   </data>
   <data name="Label" xml:space="preserve">
     <value>Dremio</value>
   </data>
-  <data name="ServerParameterCaption" xml:space="preserve">
-    <value>Dremio Cluster Node</value>
+  <data name="SoftwareServerParameterCaption" xml:space="preserve">
+    <value>Dremio Server</value>
+  </data>
+  <data name="CloudServerParameterCaption" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="SoftwareServerParameterSampleValues" xml:space="preserve">
+    <value>servername:31010</value>
+  </data>
+  <data name="CloudServerParameterDescription" xml:space="preserve">
+    <value>Server is sql.dremio.cloud for Dremio Cloud US, sql.eu.dremio.cloud for Dremio Cloud Europe or &lt;coordinator&gt;:31010 for Dremio Software</value>
+  </data>
+  <data name="CloudServerParameterSampleValues" xml:space="preserve">
+    <value>sql.dremio.cloud</value>
+  </data>
+  <data name="EngineParameterCaption" xml:space="preserve">
+    <value>Engine</value>
+  </data>
+  <data name="EngineParameterSampleValues" xml:space="preserve">
+    <value>engine</value>
+  </data>
+  <data name="EngineParameterSoftwareDescription" xml:space="preserve">
+    <value>The name of engine on which to run the query. If you do not specify an engine, Dremio will auto-select an engine based on the project’s Engine Routing rules.</value>
+  </data>
+  <data name="EngineParameterCloudDescription" xml:space="preserve">
+    <value>The name of engine on which to run the query. If you do not specify an engine, Dremio will auto-select an engine based on the project’s Engine Routing rules.</value>
+  </data>
+  <data name="ProjectIdParameterCaption" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="ProjectIdParameterSampleValues" xml:space="preserve">
+    <value>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</value>
+  </data>
+  <data name="ProjectIdParameterDescription" xml:space="preserve">
+    <value>The UUID of the project. You can find this on the Project Settings &gt; General Information page. (Dremio Cloud only)</value>
+  </data>
+  <data name="RoutingQueueParameterCaption" xml:space="preserve">
+    <value>Queue</value>
+  </data>
+  <data name="RoutingQueueParameterSampleValues" xml:space="preserve">
+    <value>queue</value>
+  </data>
+  <data name="RoutingQueueParameterDescription" xml:space="preserve">
+    <value>Used for workload management</value>
+  </data>
+  <data name="RoutingQueueParameterCloudDescription" xml:space="preserve">
+    <value>The name of the queue to which this query should be assigned. If you do not specify a queue, Dremio will auto-select a queue based on the Queue Routing rules. (Dremio Software only)</value>
+  </data>
+  <data name="RoutingTagParameterCaption" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="RoutingTagParameterSampleValues" xml:space="preserve">
+    <value>tag</value>
+  </data>
+  <data name="RoutingTagParameterDescription" xml:space="preserve">
+    <value>Used for workload management</value>
+  </data>
+  <data name="RoutingTagParameterCloudDescription" xml:space="preserve">
+    <value>An arbitrary tag that you can refer to in Queue Routing rules. (Dremio Software only)</value>
+  </data>
+  <data name="NoopSkipTakeError" xml:space="preserve">
+    <value>no-op skip take.</value>
+  </data>
+  <data name="PATLabel" xml:space="preserve">
+    <value>Personal Access Token</value>
+  </data>
+  <data name="PATKeyLabel" xml:space="preserve">
+    <value>Access Token</value>
+  </data>
+  <data name="SSLCaption" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="SSLParameterDescription" xml:space="preserve">
+    <value>Encryption must be enabled if connecting direct from PBI Service</value>
+  </data>
+  <data name="CloudSSLCaption" xml:space="preserve">
+    <value>Trusted certificates location</value>
+  </data>
+  <data name="CloudSSLParameterDescription" xml:space="preserve">
+    <value>Alternative location of trusted certificates if not using the default system trust store</value>
   </data>
 </root>
+

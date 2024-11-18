@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>इसके SQL समाप्ति बिंदु के माध्यम से Dataverse से कनेक्ट करें</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>परिवेश डोमेन</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>परिवेश डोमेन</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>कनेक्ट करने के लिए कोई Dataverse परिवेश निर्दिष्ट करें. यह फ़ील्ड वैकल्पिक है और निर्दिष्ट न किए जाने पर, लॉग इन किए हुए उपयोगकर्ता के लिए उपलब्ध सभी Dataverse परिवेशों को, "डेटा चुनें" स्क्रीन में प्रदर्शित किया जाएगा</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>अपने Dataverse इंस्टैंस (Dynamics 365 और PowerApps) से कनेक्ट करें.</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>'#{0}' के लिए डोमेन Dataverse कनेक्टर द्वारा समर्थित नहीं है.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>परिवेश की अप्रत्यक्ष तालिका से डेटा लोड करना समर्थित नहीं है.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>'#{0}' मान्य विकल्प नहीं है. मान्य विकल्प हैं: '#{1}'</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>यह फ़ंक्शन मान वाले '#{1}' '#{0}' विकल्प का समर्थन नहीं करता है.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>सर्वर नाम फॉर्मैट '#{0}' मान्य नहीं है. कृपया सर्वर नाम से "https://" जैसी योजना निकालें.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>संबंध स्तंभों को शामिल करें</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>विकल्प</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>अपनी Dataverse आवृत्ति से कनेक्ट करने के लिए विकल्प चुनें</value>
   </data>
 </root>

@@ -1,0 +1,22 @@
+query SqlMetadata($sql: String!, $foldingTransforms: [FoldingTransform!]) {
+  sqlMetadata(sql: $sql, foldingTransforms: $foldingTransforms) {
+    ... on QueryStartResponse {
+      requestId
+      status
+    }
+    ... on SqlMetadataDataResponse {
+        metadata {
+            columns {
+                name
+                type
+            }
+            tableId
+        }
+        status
+    }
+    ... on Error {
+      errorCategory
+      errorMessage
+    }
+  }
+}

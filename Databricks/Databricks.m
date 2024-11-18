@@ -1,26 +1,53 @@
-[Version="1.1.1"]
+[Version="1.1.18"]
 section Databricks;
 
 TrustedAadDomains = {".azuredatabricks.net", ".databricks.azure.cn", ".databricks.azure.us"};
+TrustedAWSDomains = {".databricks.com", ".databricks.us"};
+TrustedOAuthDomains = {".databricks.com", ".databricks.us", ".azuredatabricks.net", ".databricks.azure.cn", ".databricks.azure.us"};
+TrustedAadIssuerDomains = {"login.microsoftonline.com", "sts.windows.net", "login.chinacloudapi.cn", "sts.chinacloudapi.cn", "login.microsoftonline.us", "login.microsoftonline.de"};
 
 //Indicates the level of SQL-92 supported by the driver.
 Config_SqlConformance = 8;
 
+DriverName = if Logical.From(Environment.FeatureSwitch("MashupFlight_UseNewSparkDriver", false)) then 
+                "Simba Spark ODBC Driver New" 
+             else 
+                "Simba Spark ODBC Driver";
+
 [DataSource.Kind="Databricks", Publish="Databricks.Publish"]
-shared Databricks.Catalogs = Value.ReplaceType(DatabricksCatalogsImpl, DatabricksType);
+shared Databricks.Catalogs = Value.ReplaceType(DatabricksCatalogsImpl, AzureDatabricksType);
 
 [DataSource.Kind="Databricks"]
-shared Databricks.Contents = Value.ReplaceType(DatabricksLegacyImpl, DatabricksType);
+shared Databricks.Contents = Value.ReplaceType(DatabricksLegacyImpl, AzureDatabricksType);
+
+[DataSource.Kind="Databricks"]
+shared Databricks.Query = Value.ReplaceType(DatabricksQueryImpl, DatabricksQueryType);
+
+// DatabricksMultiCloud
+[DataSource.Kind="DatabricksMultiCloud", Publish="DatabricksMultiCloud.Publish"]
+shared DatabricksMultiCloud.Catalogs = Value.ReplaceType(DatabricksCatalogsImpl, DatabricksMultiCloudType);
+
+[DataSource.Kind="DatabricksMultiCloud"]
+shared DatabricksMultiCloud.Query = Value.ReplaceType(DatabricksQueryImpl, DatabricksQueryType);
+
+AzureDatabricksType = DatabricksType(false);
+
+DatabricksMultiCloudType = DatabricksType(true);
+
+// This assumes for label `MyLabel` there is a `MultiCloudMyLabel` in the resources.resx
+// loads either `MyLabel` or `MultiCloudMyLabel` from resources.resx based on i
+loadString = (stringName as text, isMultiCloud as logical) => if isMultiCloud then Extension.LoadString("MultiCloud" & stringName) else Extension.LoadString(stringName);
 
 // Wrapper function to provide additional UI customization.
-DatabricksType = let
-        ExperimentalFlags.Disabled = "disabled" meta [
-            Documentation.Name = "ExperimentalFlags.Disabled",
-            Documentation.Caption = Extension.LoadString("ExperimentalFlagsDisabledLabel")
+DatabricksType = (isMultiCloud as logical) =>
+    let
+        AutomaticProxyDiscoveryFlag.Disabled = "disabled" meta [
+            Documentation.Name = "AutomaticProxyDiscoveryFlag.Disabled",
+            Documentation.Caption = Extension.LoadString("AutomaticProxyDiscoveryFlagDisabledLabel")
         ],
-        ExperimentalFlags.Enabled = null meta [
-            Documentation.Name = "ExperimentalFlags.Enabled",
-            Documentation.Caption = Extension.LoadString("ExperimentalFlagsEnabledLabel")
+        AutomaticProxyDiscoveryFlag.Enabled = "enabled" meta [
+            Documentation.Name = "AutomaticProxyDiscoveryFlag.Enabled",
+            Documentation.Caption = Extension.LoadString("AutomaticProxyDiscoveryFlagEnabledLabel")
         ]
     in
         type function (
@@ -35,21 +62,59 @@ DatabricksType = let
                 Documentation.SampleValues = { "sql/protocolv1/o/1814582234607533/7508-187377-agent704" }
             ]),
             optional options as (type nullable [
+                optional Catalog = (type text meta [
+                    Documentation.FieldCaption = Extension.LoadString("CatalogLabel"),
+                    Documentation.FieldDescription = Extension.LoadString("CatalogHelp")
+                ]),
                 optional Database = (type text meta [
                     Documentation.FieldCaption = Extension.LoadString("DatabaseLabel"),
                     Documentation.FieldDescription = Extension.LoadString("DatabaseHelp")
+
                 ]),
-                optional EnableExperimentalFlagsV1_1_0 = (type text meta [
-                    Documentation.FieldCaption = Extension.LoadString("EnableExperimentalFlagsLabel"),
-                    Documentation.FieldDescription = Extension.LoadString("EnableExperimentalFlagsHelp"),
-                    Documentation.AllowedValues = { ExperimentalFlags.Enabled, ExperimentalFlags.Disabled }
+                optional EnableAutomaticProxyDiscovery = (type text meta [
+                    Documentation.FieldCaption = Extension.LoadString("EnableAutomaticProxyDiscoveryFlagsLabel"),
+                    Documentation.FieldDescription = Extension.LoadString("EnableAutomaticProxyDiscoveryFlagsHelp"),
+                    Documentation.AllowedValues = { AutomaticProxyDiscoveryFlag.Enabled, AutomaticProxyDiscoveryFlag.Disabled }
                 ])
             ] meta [
                 Documentation.FieldCaption = Extension.LoadString("AdvancedOptionsLabel")
             ])
         ) as table meta [
-            Documentation.Name = Extension.LoadString("DataSourceName")
+            Documentation.Name = loadString("DataSourceName", isMultiCloud)
         ];
+        
+DatabricksQueryType = 
+    type function (
+        host as (type text meta [
+            Documentation.FieldCaption = Extension.LoadString("ServerHostNameLabel"),
+            Documentation.FieldDescription = Extension.LoadString("ServerHostNameHelp"),
+            Documentation.SampleValues = { "example.azuredatabricks.net" }
+        ]),
+        httpPath as (type text meta [
+            Documentation.FieldCaption = Extension.LoadString("HttpPathLabel"),
+            Documentation.FieldDescription = Extension.LoadString("HttpPathHelp"),
+            Documentation.SampleValues = { "sql/protocolv1/o/1814582234607533/7508-187377-agent704" }
+        ]),
+        optional options as (type nullable record meta [
+            Documentation.FieldCaption = Extension.LoadString("AdvancedOptionsLabel")
+        ])
+    ) as DatabricksQueryInstanceType meta [
+        Documentation.Name = Extension.LoadString("QueryDataSourceName"),
+        Documentation.LongDescription = Extension.LoadString("QueryDataSourceDescription")
+    ];
+
+DatabricksQueryInstanceType = type function (
+        sqlQuery as (type text meta [
+            Documentation.FieldCaption = Extension.LoadString("SqlQueryLabel"),
+            Documentation.FieldDescription = Extension.LoadString("SqlQueryHelp"),
+            Documentation.SampleValues = { "SELECT ... FROM ... " },
+            Formatting.IsMultiLine = true,
+            Formatting.IsCode = true
+        ])
+    ) as table meta [
+        Documentation.Name = Extension.LoadString("QueryDataSourceInstanceName"),
+        Documentation.LongDescription = Extension.LoadString("QueryDataSourceInstanceDescription")
+    ];
 
 DatabricksCatalogsImpl = (host as text, httpPath as text, optional options as record) as table =>
     let
@@ -67,21 +132,39 @@ DatabricksLegacyImpl = (host as text, httpPath as text, optional options as reco
     let
         optionsRecord = if options = null then [] else options,
         defaultOptions = [
-            EnableMultipleCatalogsSupport = "0"
+            EnableMultipleCatalogsSupport = "0",
+            EnablePKFK = 0
         ]
     in
         DatabricksDataSource(host, httpPath, defaultOptions & optionsRecord);
 
-DatabricksDataSource = (host as text, httpPath as text, options as record) as table =>
+DatabricksQueryImpl = (host as text, httpPath as text, optional options as record) as function =>
+    let
+        optionsRecord = if options = null then [] else options,
+        defaultOptions = [
+            UseNativeQuery = "1",
+            EnableMultipleCatalogsSupport = "1"
+        ],
+
+
+        queryFn = (sqlQuery as text) => let
+            nonEmptyQuery = 
+                if sqlQuery = null or sqlQuery = "" then 
+                    error Error.Record("DataSource.Error", Extension.LoadString("ErrorExpectedSqlString"))
+                else
+                    sqlQuery
+            in
+                DatabricksDataSource(host, httpPath, defaultOptions & optionsRecord, sqlQuery),
+
+        typedQueryFn = Value.ReplaceType(queryFn, DatabricksQueryInstanceType)
+    in 
+        typedQueryFn;
+
+DatabricksDataSource = (host as text, httpPath as text, options as record, optional sqlQuery as text) as table =>
     let
         Credential = Extension.CurrentCredential(),
         AuthenticationMode = Credential[AuthenticationKind],
-
-        ValidatedHost = if AuthenticationMode = "OAuth" then
-            ValidateTrustedAadHost(host)
-        else
-            // Allow other domains for non-AAD auth
-            ValidateAnyHost(host),
+        ValidatedHost = ValidateAnyHost(host),
 
         AuthConnectionString =
             if AuthenticationMode = "UsernamePassword" then
@@ -116,10 +199,18 @@ DatabricksDataSource = (host as text, httpPath as text, options as record) as ta
 
         HasSchema = ValidatedOptions[Database]? <> null,
 
+        ShowSystemSchemas = if ValidatedOptions[ShowSystemSchemas]? = true then 1 else 0,
+
+        // Trace Databricks endpoint type
+        EndpointType = 
+            if Text.Contains(httpPath, "sql/1.0/warehouses") or Text.Contains(httpPath, "sql/1.0/endpoints") then "DatabricksSQL"
+            else if Text.Contains(httpPath, "sql/protocolv1") then "DatabricksCluster"
+            else "Other",
+
         ConnectionString = [
-            Driver = "Simba Spark ODBC Driver",
+            Driver = DriverName,
             Host = ValidatedHost,
-            HTTPPath = httpPath,
+            HTTPPath = Diagnostics.Trace(TraceLevel.Information, [Name="ConnectionString", Data = [], SafeData = [EndpointType=EndpointType]], httpPath),
             Port = 443,
             ThriftTransport = 2,
             SparkServerType = 3,
@@ -133,22 +224,39 @@ DatabricksDataSource = (host as text, httpPath as text, options as record) as ta
             DefaultStringColumnLength=65535,
             DecimalColumnScale = 10,
             UseUnicodeSqlCharacterTypes = 1,
-            SSP_spark.sql.thriftserver.metadata.table.singleschema = Logical.ToText(HasSchema)
+            SSP_spark.sql.thriftserver.metadata.table.singleschema = Logical.ToText(HasSchema),
+            ShowLocalTempSchemasInSQLTablesSchemasOnly = ShowSystemSchemas,
+            ShowGlobalTempSchemasInSQLTablesSchemasOnly = ShowSystemSchemas,
+            // many proxies/vpns ssl certificate do not have CRL distribution points
+            AllowMissingCRLDistributionPoints = 1,
+            TokenRenewLimit = 10
         ] & OptionOdbcFields,
 
         DefaultConfig = BuildOdbcConfig(),
 
-        SqlCapabilities = DefaultConfig[SqlCapabilities] & [
+        SqlCapabilitiesNativeQuery = DefaultConfig[SqlCapabilities] & [
             LimitClauseKind = LimitClauseKind.Limit,
             FractionalSecondsScale = 3,
             SupportsNumericLiterals = true,
             SupportsStringLiterals = true,
             SupportsOdbcDateLiterals = true,
             SupportsOdbcTimeLiterals = true,
-            SupportsOdbcTimestampLiterals = true
+            SupportsOdbcTimestampLiterals = true,
+            Sql92Translation = "PassThrough",
+            // Allows Limit0 as schema inference query of native query
+            SupportsLimitZero = true
         ],
 
-        SqlApiBindCol_Default = false,
+        SqlCapabilities = if sqlQuery = null then
+            SqlCapabilitiesNativeQuery & [
+            StringLiteralEscapeCharacters = { { "\", "\\" }, { "'", "\'"} }
+            ]
+        else
+            SqlCapabilitiesNativeQuery,
+
+        // Enable SqlBindColumn by default. Based on the test it has about 
+        // 2 to 3x imporovemnt on import mode for large tables.
+        SqlApiBindCol_Default = true,
 
         SQLGetFunctions = [
             // Disable using parameters in the queries that get generated.
@@ -222,7 +330,11 @@ DatabricksDataSource = (host as text, httpPath as text, options as record) as ta
             SQL_SQL92_PREDICATES = ODBC[SQL_SP][All],
             SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All],
             SQL_NUMERIC_FUNCTIONS = SQLNumericFunctions,
-            SQL_STRING_FUNCTIONS = SQLStringFunctions
+            SQL_STRING_FUNCTIONS = SQLStringFunctions,
+
+            // Needed for SQL_SVE_COALESCE, SQL_SVE_CASE or SQL_SVE_NULLIF
+            // Improves the DAX DATE query push down to utilized COALESCE function
+            SQL_SQL92_VALUE_EXPRESSIONS = 6
         ],
 
         // Fix for data type mismatch.
@@ -245,9 +357,15 @@ DatabricksDataSource = (host as text, httpPath as text, options as record) as ta
             in
                 Transform,
 
+        SupportsIncrementalNavigation = Record.FieldOrDefault(ValidatedOptions, "SupportsIncrementalNavigation", true),
+        EnableAutomaticProxyDiscovery = Record.FieldOrDefault(ValidatedOptions, "EnableAutomaticProxyDiscovery", false),
+        CancelQueryExplicitly = Record.FieldOrDefault(ValidatedOptions, "CancelQueryExplicitly", true),
+
         Options = [
             // View the tables grouped by their schema names.
             HierarchicalNavigation = not HasSchema,
+
+            SupportsIncrementalNavigation = SupportsIncrementalNavigation,
 
             // Controls whether your connector allows native SQL statements.
             HideNativeQuery = true,
@@ -261,11 +379,12 @@ DatabricksDataSource = (host as text, httpPath as text, options as record) as ta
             // Enables client-side connection pooling for the ODBC driver.
             ClientConnectionPooling = true,
 
-            // The Databricks driver is shipped with Power BI
-            UseEmbeddedDriver = true,
-
             // Tells Power BI that it can't quietly drop the connection
-            CancelQueryExplicitly = true,
+            CancelQueryExplicitly = CancelQueryExplicitly,
+
+            // Improves DAX DAY, MONTH, YEAR filter push down
+            TryRecoverDateDiff = true,
+            TryRecoverCoalesce = true,
 
             // Handlers for ODBC driver capabilities.
             SqlCapabilities = SqlCapabilities,
@@ -277,22 +396,100 @@ DatabricksDataSource = (host as text, httpPath as text, options as record) as ta
 
         // Connection string properties used for encrypted connections.
         CommonOptions = [
+            // The Databricks driver is shipped with Power BI
+            UseEmbeddedDriver = true,
             CredentialConnectionString = AuthConnectionString
         ],
 
-        Databases = Odbc.DataSource(ConnectionString, Options & CommonOptions),
+        ProxyOptions = if EnableAutomaticProxyDiscovery then
+            let
+            ProxyUriRecord = Web.DefaultProxy(host),
+            ops = if Record.FieldCount(ProxyUriRecord) > 0 then
+                let
+                    UriRecord = Uri.Parts(ProxyUriRecord[ProxyUri]),
+                    proxyOptions = [
+                        UseProxy = 1,
+                        ProxyHost = UriRecord[Host],
+                        ProxyPort = UriRecord[Port],
+                        // This option helps in providing better ssl cert related errors.
+                        // 
+                        // simba odbc driver even if cert revocation info is missing in the cert will do cert revocation check.
+                        // this causes cert validation failure.
+                        //
+                        // short term solution: for now end users may need to set `CheckCertRevocation=0` manually in the config file
+                        // C:\Program Files\Microsoft Power BI Desktop\bin\ODBC Drivers\Simba Spark ODBC Driver\microsoft.sparkodbc.ini
+                        // long-term solution: Simba needs to change the internal behaviour of ODBC driver to avoid cert revocation check
+                        // if cert revocation cert info is missing in the cert
+                        AllowDetailedSSLErrorMessages = 1
+                    ]
+                in 
+                    proxyOptions
+                else []
+            in
+               ops 
+        // if automatic proxy discovery is not enabled return nothing.
+        else [],
+
+        GetInvocation = (ast, function, count) =>
+            if ast[Kind] = "Invocation" and ast[Function][Kind] = "Constant" and ast[Function][Value] = function and List.Count(ast[Arguments]) = count
+                then ast[Arguments]
+                else ...,
+        Function = (name) => [Kind = "Function", Name=name],
+        Argument = (expr) => [Expression = expr, Type = null],
+        ApproxDistinctCount = (expr) => [Kind = "Invocation", Function = Function("approx_count_distinct"), Arguments = {Argument(expr)}, Type = Int64.Type],
+        Struct = (exprs) => [Kind = "Invocation", Function = Function("struct"), Arguments = exprs, Type = null],
+        AstOptions = [
+            AstVisitor = [
+                Functions = { Table.ApproximateRowCount },
+                Invocation = (visitor, rowType, groupKeys, invocation) =>
+                    let
+                        tarc = GetInvocation(invocation, Table.ApproximateRowCount, 1),
+                        td = GetInvocation(tarc{0}, Table.Distinct, 1),
+                        sc = GetInvocation(td{0}, Table.SelectColumns, 2)
+                    in
+                        if groupKeys <> null and sc{0} = RowExpression.Row and sc{1}[Value]? is list then
+                            ApproxDistinctCount(Struct(List.Transform(sc{1}[Value], (c) => Argument(visitor(RowExpression.Column(c))))))
+                        else ...
+            ]
+        ],
+        Databases = Odbc.DataSource(ConnectionString & ProxyOptions, Options & CommonOptions & AstOptions),
+
         Metadata = Value.Metadata(Value.Type(Databases)),
 
         WithSchema = if HasSchema then
             Table.SelectRows(Databases, each [Schema] = OptionOdbcFields[Schema])
         else
-            Databases
+            Databases,
+
+        DataSourceOrQuery = if sqlQuery = null then
+            WithSchema
+        else
+            DatabricksQuery(ConnectionString, CommonOptions, sqlQuery)
+
 
         // TODO: Convert complex data types. Our current implementation is broken, and
         // not in a shippable state due to poor deserialization of Hive-flavored json.
         // It would require a change in the Thrift server to unblock this.
 in
-    WithSchema;
+    DataSourceOrQuery;
+
+
+DatabricksQuery = (connectionString as record, options as record, sqlQuery as text) as table =>
+    let
+        wrappedSqlStatement = SafeWrapQuery(sqlQuery)
+    in
+        Odbc.Query(connectionString, wrappedSqlStatement, options);
+        
+
+// Ensures no valid DDL/DML can be executed
+SafeWrapQuery = (query as text, optional limit as number) =>
+    Text.Format(QueryBase, [Query = query]);
+
+QueryBase = 
+"SELECT * 
+FROM (
+#[Query]
+)";
 
 RenameSparkCatalog = (catalogs as table) as table =>
     let
@@ -300,7 +497,7 @@ RenameSparkCatalog = (catalogs as table) as table =>
         // In DBR 9 and later, the name of the Hive Metastore catalog is 'hive_metastore'.
         // To provide forward compatibility, we rename 'SPARK' to 'hive_metastore'.
         defaultHiveMetastoreCatalog = "hive_metastore",
-        isSparkCatalog = Table.RowCount(catalogs) = 1 and catalogs{[Name = "SPARK"]} <> null,
+        isSparkCatalog = Table.RowCount(catalogs) = 1 and catalogs{[Name = "SPARK"]}? <> null,
         renamedSparkCatalog = catalogs{[Name = "SPARK"]} & [Name = defaultHiveMetastoreCatalog],
         renamedSparkTable = Table.FromRecords({ renamedSparkCatalog }),
         navTableType = Value.Type(catalogs),
@@ -353,9 +550,19 @@ AdvancedOptionsValidators = let
                 {"SSP_spark.databricks.sql.initial.catalog.namespace", type text, IdentityFn, RenameField("SSP_spark.databricks.sql.initial.catalog.namespace")},
                 {"SSP_databricks.catalog", type text, IdentityFn, RenameField("SSP_databricks.catalog")},
                 {"SSP_spark.thriftserver.cloudfetch.enabled", type text, IdentityFn, RenameField("SSP_spark.thriftserver.cloudfetch.enabled")},
+                {"EnablePKFK", type number, IdentityFn, RenameField("EnablePKFK")},
+
+                // automatic proxy discovery optional field
+                {"EnableAutomaticProxyDiscovery", type text, (val as text) => val = "enabled", null},
 
                 // non-connectionstring fields
                 {"SQL_API_SQLBINDCOL", type logical, IdentityFn, null},
+                {"SupportsIncrementalNavigation", type logical, IdentityFn, null},
+                // show system schemas, e.g. #temp, global_temp
+                {"ShowSystemSchemas", type logical, IdentityFn, null},
+
+                {"CancelQueryExplicitly", type logical, IdentityFn, null},
+
                 // Versioned for forward compatibility with new experimental features
                 {"EnableExperimentalFlagsV1_1_0", type text, (val as text) => val = "disabled", null}
 
@@ -445,7 +652,10 @@ OnOdbcError = (errorRecord as record) =>
         // ODBC server can not be reached on the given host/port
         IsODBCUnreachable = OdbcErrorCode = 1020,
 
-        TokenExpiredError = IsThriftError and OdbcErrorCode = 10 and Extension.CurrentCredential(true) <> null,
+        // When an access token expires, the connector returns a "SQLState 08006" error.
+        OAuthTokenExpired = IsOdbcError and (OdbcErrorSqlState = "08006"),
+
+        TokenExpiredError = ((IsThriftError and OdbcErrorCode = 10) or OAuthTokenExpired) and Extension.CurrentCredential(true) <> null,
 
         // Workaround, requires fix from Simba's side. Error 14 is a generic Thrift error.
         InvalidTokenError = IsThriftError and OdbcErrorCode = 14 and Text.Contains(OdbcErrorMessage, "Unauthorized/Forbidden"),
@@ -496,12 +706,59 @@ ValidateAnyHost = (host as text) as text =>
 ValidateTrustedAadHost = (host as text) as text =>
     let
         parsedHost = ValidateAnyHost(host),
-        isTrusted = List.MatchesAny(TrustedAadDomains, (domain) => Text.EndsWith(parsedHost, domain))
+        isTrusted = List.MatchesAny(TrustedOAuthDomains, (domain) => Text.EndsWith(parsedHost, domain))
     in
         if isTrusted then
             parsedHost
         else
             error Error.Record("Error", Text.Format(Extension.LoadString("ErrorAadInvalidDomain"), {host}));
+
+ValidateTrustedOAuthHost = (host as text) as text =>
+    let
+        parsedHost = ValidateAnyHost(host),
+        isTrusted = List.MatchesAny(TrustedOAuthDomains, (domain) => Text.EndsWith(parsedHost, domain))
+    in
+        if isTrusted then
+            parsedHost
+        else
+            error Error.Record("Error", Text.Format(Extension.LoadString("ErrorOAuthInvalidDomain"), {host}));
+
+GetAuthorizationUrlFromWellKnown = (url as text) as text =>
+    let
+        // Expecting a 302 redirect to the well-known OAuth URL.
+        responseCodes = {302},
+        endpointResponse = Web.Contents(url, [
+            ManualCredentials = true,
+            ManualStatusHandling = responseCodes
+        ])
+    in
+        if (List.Contains(responseCodes, Value.Metadata(endpointResponse)[Response.Status]?)) then
+            let
+                headers = Record.FieldOrDefault(Value.Metadata(endpointResponse), "Headers", []),
+                wellKnownUrl = Record.FieldOrDefault(headers, "Location", ""),
+                
+                // Check if the host is one of the known AAD domains
+                isAadIssuerDomain = List.Contains(TrustedAadIssuerDomains, Uri.Parts(wellKnownUrl)[Host]),
+
+                // Fetch the JSON content from the well-known URL
+                wellKnownContent = Web.Contents(wellKnownUrl),
+                jsonContent = Json.Document(wellKnownContent),
+                
+                // Extract the authorization endpoint from the JSON content
+                authorizationUri = jsonContent[authorization_endpoint]
+
+            in
+                if (authorizationUri <> null) and Text.EndsWith(authorizationUri, "authorize") and isAadIssuerDomain then
+                    authorizationUri
+                else
+                    error Error.Record("Error", "Invalid authorization endpoint.", [
+                        #"Location" = wellKnownUrl
+                    ])
+        else
+            error Error.Record("Error", "Redirect to well-known URL failed.", [
+                Response.Status = Value.Metadata(endpointResponse)[Response.Status]?
+            ]);
+
 
 GetAuthorizationUrlFromLocation = (url as text) as text =>
     let
@@ -540,6 +797,13 @@ Databricks = [
     Label = Extension.LoadString("DataSourceLabel"),
 
     Authentication = [
+        UsernamePassword = [
+            Label = Extension.LoadString("UsernamePasswordLabel")
+        ],
+        Key = [
+            KeyLabel = Extension.LoadString("PersonalAccessTokenLabel"),
+            Label = Extension.LoadString("PersonalAccessTokenLabel")
+        ],
         Aad = [
             AuthorizationUri = (dataSourcePath as text) =>
                 let
@@ -559,24 +823,34 @@ Databricks = [
                     AssertHostValid = ValidatedHost <> null, // true or error
 
                     ClusterUri =
-                        if AssertHostValid and PathHasOrgId then
+                        if IsAWSEndpoint(ValidatedHost) then
+                           Text.Format("https://#{0}/oidc/custom/.well-known/openid-configuration", {ValidatedHost})
+                        else if AssertHostValid and PathHasOrgId then
                             Text.Format("https://#{0}/aad/auth?o=#{1}", {ValidatedHost, OrgId})
                         else
-                            Text.Format("https://#{0}/aad/auth", {ValidatedHost})
+                            Text.Format("https://#{0}/aad/auth", {ValidatedHost}),
+                    
+                    AuthUriResult = 
+                        if IsAWSEndpoint(ValidatedHost) then
+                            GetAuthorizationUrlFromWellKnown(ClusterUri)
+                        else 
+                             GetAuthorizationUrlFromLocation(ClusterUri)
                 in
-                    GetAuthorizationUrlFromLocation(ClusterUri),
+                    AuthUriResult,
 
             Resource = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d",
             Label = Extension.LoadString("AzureActiveDirectoryLabel")
-        ],
-        UsernamePassword = [
-            Label = Extension.LoadString("UsernamePasswordLabel")
-        ],
-        Key = [
-            KeyLabel = Extension.LoadString("PersonalAccessTokenLabel"),
-            Label = Extension.LoadString("PersonalAccessTokenLabel")
         ]
     ],
+
+        // Needed for use with Power BI Service.
+    TestConnection = (dataSourcePath) =>
+        let
+            json = Json.Document(dataSourcePath),
+            Host = json[host],
+            HTTPPath = json[httpPath]
+        in
+            { "Databricks.Contents", Host, HTTPPath },
 
     DSRHandlers = [
         // {"protocol":"databricks-sql","address":{"host":"hostAddress","path":"sql/path"}}
@@ -588,26 +862,61 @@ Databricks = [
             },
 
             GetFormula = (dsr, optional options) =>
-            if options = null then
-                () => Databricks.Catalogs(dsr[address][host], dsr[address][path])
-            else
-                () => Databricks.Catalogs(dsr[address][host], dsr[address][path], options),
+                if options = null then
+                    () => Databricks.Catalogs(dsr[address][host], dsr[address][path])
+                else
+                    () => Databricks.Catalogs(dsr[address][host], dsr[address][path], options),
 
-            GetFriendlyName = (dsr) => "Databricks"
+            GetFriendlyName = (dsr) => "Azure Databricks"
+        ]
+    ]
+];
+
+DatabricksMultiCloud = [
+    Label = Extension.LoadString("MultiCloudDataSourceLabel"),
+    Authentication = [
+        UsernamePassword = [
+            Label = Extension.LoadString("UsernamePasswordLabel")
+        ],
+        Key = [
+            KeyLabel = Extension.LoadString("PersonalAccessTokenLabel"),
+            Label = Extension.LoadString("PersonalAccessTokenLabel")
+        ],
+        OAuth =  [
+            StartLogin = OidcStartLogin,
+            FinishLogin = OidcFinishLogin,
+            Refresh = OidcRefresh,
+            Label = Extension.LoadString("OIDCLabel")
         ]
     ],
-
-    // Needed for use with Power BI Service.
     TestConnection = (dataSourcePath) =>
         let
             json = Json.Document(dataSourcePath),
             Host = json[host],
             HTTPPath = json[httpPath]
         in
-            { "Databricks.Contents", Host, HTTPPath }
+            { "DatabricksMultiCloud.Catalogs", Host, HTTPPath },
+    DSRHandlers = [
+        // {"protocol":"databricks-multicloud","address":{"host":"hostAddress","path":"sql/path"}}
+        #"databricks-multicloud" = [
+            GetDSR = (host, httpPath, optional options) =>
+            {
+                [protocol = "databricks-multicloud", address = [host = host, path = httpPath ]],
+                if options = null then [] else options
+            },
+
+            GetFormula = (dsr, optional options) =>
+                if options = null then
+                    () => DatabricksMultiCloud.Catalogs(dsr[address][host], dsr[address][path])
+                else
+                    () => DatabricksMultiCloud.Catalogs(dsr[address][host], dsr[address][path], options),
+
+            GetFriendlyName = (dsr) => "Databricks"
+        ]
+    ]
 ];
 
-// Data Source UI publishing description.
+// Azure Data Source UI publishing description.
 Databricks.Publish = [
     Category = "Azure",
     SupportsDirectQuery = true,
@@ -615,13 +924,217 @@ Databricks.Publish = [
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
 
     SourceImage = Databricks.Icons,
-    SourceTypeImage = Databricks.Icons
+    SourceTypeImage = Databricks.Icons,
+    
+    NativeQueryProperties = [
+        navigationSteps = {
+            [
+                indices = {
+                    [
+                        value = "Catalog",
+                        indexName = "Name"
+                    ],
+                    [
+                        displayName = "Database",
+                        indexName = "Kind"
+                    ]
+                },
+                access = "Data"
+            ]
+        },
+        
+        nativeQueryOptions = [
+            EnableFolding = true
+        ]
+    ]
+];
+
+// Multi Cloud Data Source UI publishing description.
+DatabricksMultiCloud.Publish = [
+    Category = "Online Services",
+    SupportsDirectQuery = true,
+
+    ButtonText = { Extension.LoadString("MultiCloudButtonTitle"), Extension.LoadString("MultiCloudButtonHelp") },
+
+    SourceImage = Databricks.Icons,
+    SourceTypeImage = Databricks.Icons,
+    
+    NativeQueryProperties = [
+        navigationSteps = {
+            [
+                indices = {
+                    [
+                        value = "Catalog",
+                        indexName = "Name"
+                    ],
+                    [
+                        displayName = "Database",
+                        indexName = "Kind"
+                    ]
+                },
+                access = "Data"
+            ]
+        },
+        nativeQueryOptions = [
+            EnableFolding = true
+        ]
+    ]
 ];
 
 Databricks.Icons = [
     Icon16 = { Extension.Contents("Databricks16.png"), Extension.Contents("Databricks20.png"), Extension.Contents("Databricks24.png"), Extension.Contents("Databricks32.png") },
     Icon32 = { Extension.Contents("Databricks32.png"), Extension.Contents("Databricks40.png"), Extension.Contents("Databricks48.png"), Extension.Contents("Databricks64.png") }
 ];
+
+OIDCAWSClientId = "power-bi";
+OIDCAWSRedirectUri = "https://oauth.powerbi.com/views/oauthredirect.html";
+OIDCAWSScopesToRequest = "sql offline_access";
+
+IsAzureEndpoint = (host) => 
+    let
+        parsedHost = ValidateAnyHost(host),
+        isTrustedAzureEndpoint = List.MatchesAny(TrustedAadDomains, (domain) => Text.EndsWith(parsedHost, domain))
+    in
+        isTrustedAzureEndpoint;
+        
+IsAWSEndpoint = (host) => 
+    let
+        parsedHost = ValidateAnyHost(host),
+        isTrustedAWSEndpoint = List.MatchesAny(TrustedAWSDomains, (domain) => Text.EndsWith(parsedHost, domain))
+    in
+        isTrustedAWSEndpoint;
+
+GetOIDCAppInfo = (dataSourcePath) => 
+    let
+
+        dataSource = Json.Document(dataSourcePath),
+        host = ValidateTrustedOAuthHost(dataSource[host]),
+
+        clientAppInfo = if IsAWSEndpoint(host) then 
+            [ClientId = OIDCAWSClientId, RedirectUri = OIDCAWSRedirectUri, Scope = OIDCAWSScopesToRequest]
+
+        else if IsAzureEndpoint(host) then
+            error Error.Record("Datasource.Error", Text.Format(Extension.LoadString("ErrorMultiCloudOAuthOnAzureNotSupported"), {host}))
+        else
+            error Error.Record("Datasource.Error", Text.Format(Extension.LoadString("ErrorInvalidHost"), {host}))
+    in
+        clientAppInfo;
+
+OidcGetEndpoint = (dataSourcePath) => 
+    let 
+        dataSource = Json.Document(dataSourcePath),
+        host = ValidateTrustedOAuthHost(dataSource[host]),
+
+        auth_endpoint = if IsAWSEndpoint(host) then 
+                Text.Format("https://#{0}/oidc/v1", {host})
+            else if IsAzureEndpoint(host) then
+                Text.Format("https://#{0}/oidc/oauth2", {host})
+            else 
+                error Error.Record("Error", Text.Format(Extension.LoadString("ErrorInvalidHost"), {host}))
+    in
+        auth_endpoint;
+
+OidcParseRedirect = (callbackResponse) => 
+    let
+        validateParts = each _,
+        parts = Uri.Parts(callbackResponse)[Query],
+        validatedParts = validateParts(parts)
+    in 
+        validatedParts;
+
+OidcTokenRequest = (dataSourcePath, params) => 
+    let
+        tokenUrl = OidcGetEndpoint(dataSourcePath) & "/token",
+
+        response = Web.Contents(
+            tokenUrl, 
+            [
+                Content = tokenQuery,
+                Headers = [
+                    #"Content-type" = "application/x-www-form-urlencoded",
+                    #"Accept" = "application/json"
+                ]
+            ]
+        ),
+
+        tokenQuery = Text.ToBinary(Uri.BuildQueryString(params)),
+
+        token = Json.Document(response)
+    in
+        token;
+
+OidcStartLogin = (clientApplication, dataSourcePath, state, display) => 
+    let
+        authorizeUrl = OidcGetEndpoint(dataSourcePath) & "/authorize?",
+        url = authorizeUrl & oidcQuery,
+        
+        Base64UrlEncode = (binaryData as binary) =>
+            let
+                unescapedStr = Binary.ToText(binaryData, BinaryEncoding.Base64),
+                // https://www.oauth.com/oauth2-servers/pkce/authorization-request/
+                base64EncodedAsTextEscaped = Text.Replace(Text.Replace(Text.Replace(unescapedStr, "+", "-"), "/", "_"), "=", "")
+            in
+                base64EncodedAsTextEscaped,
+
+        // Note: Crypto and CryptoAlgorithm are not publicly documented on Microsoft M language documentation
+        // these APIs can only be used inside Custom Data Connectors (verified with Microsoft)
+        
+        // Authorization PKCE verifier
+        codeVerifier = Text.NewGuid() & Text.NewGuid(),
+        // Authorization PKCE challenge
+        codeChallenge = Base64UrlEncode(Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary(codeVerifier, TextEncoding.Ascii))),
+
+        clientApp = GetOIDCAppInfo(dataSourcePath),
+        
+        redirectUri = clientApp[RedirectUri],
+        clientId = clientApp[ClientId],
+        scope = clientApp[Scope],
+        oidcQuery = Uri.BuildQueryString([
+            client_id = clientId,
+            scope = scope,
+            response_type = "code",
+            state = state,
+            code_challenge = codeChallenge,
+            code_challenge_method = "S256",
+            redirect_uri = redirectUri
+        ])
+    in
+        [
+            LoginUri = url,
+            CallbackUri = redirectUri,
+            WindowHeight = 780,
+            WindowWidth = 980,
+            Context = [CodeVerifier = codeVerifier, ClientApp = clientApp]
+        ];
+
+OidcFinishLogin = (clientApplication, dataSourcePath, context, callbackUri, state) => 
+    let    
+        parts = OidcParseRedirect(callbackUri),
+        codeVerifier = context[CodeVerifier],
+        clientApp = context[ClientApp],
+        clientId = clientApp[ClientId],
+        redirectUri = clientApp[RedirectUri],
+        token = OidcTokenRequest(dataSourcePath, [
+            client_id = clientId,
+            grant_type = "authorization_code",
+            code = parts[code],
+            code_verifier = codeVerifier,
+            redirect_uri = redirectUri
+        ])
+    in
+        token;
+
+OidcRefresh = (clientApplication, dataSourcePath, oldCredentials) =>
+    let
+        refreshToken = oldCredentials[refresh_token],
+        clientApp = GetOIDCAppInfo(dataSourcePath),
+        token = OidcTokenRequest(dataSourcePath, [
+            grant_type = "refresh_token",
+            client_id = clientApp[ClientId],
+            refresh_token = refreshToken
+        ])
+    in
+        token;
 
 BuildOdbcConfig = () as record =>
     let

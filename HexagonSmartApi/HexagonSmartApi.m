@@ -33,9 +33,10 @@
 //  Rename to HexagonSmartApi for connector certification.  Rename DataSourceKind to prevent collision with on-prem version.  Remove old Feed function and rename FeedV2 to Feed.
 //July 17 2020 changes:
 //  Respond to Microsoft certification- Allow disabling of logging. Remove CurrentCredentials() calls.
-//  
+//April 23 2022 changes:
+//  Work around issue in Power BI Desktop when using Okta auth server. Okta logout returns a 400 and causes PBI to throw an exception.
 
-[Version = "1.1.0"]
+[Version = "1.2.0"]
 section HexagonSmartApi;
 
 

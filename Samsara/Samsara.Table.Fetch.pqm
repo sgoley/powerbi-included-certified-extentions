@@ -1,0 +1,152 @@
+(Context as record, TableMetadata as record) as table =>
+    let
+        Samsara.Client.FetchTable = Context[Extension.LoadFunction](Context, "Samsara.Client.FetchTable.pqm"),
+        Samsara.Metrics.ReportError = Context[Extension.LoadFunction](Context, "Samsara.Metrics.ReportError.pqm"),
+        Samsara.Metrics.Timer = Context[Extension.LoadFunction](Context, "Samsara.Metrics.Timer.pqm"),
+
+        TableType.CustomReports = "CustomReports",
+
+        Metrics.TableTag = if TableMetadata[TableType] = TableType.CustomReports
+            then "custom_report"
+            else TableMetadata[TableId],
+        Metrics.Tags = { "table:" & Metrics.TableTag, "component:fetch_data" },
+
+        Table.ColumnTypes = List.Accumulate(
+            Record.FieldNames(TableMetadata[Columns]),
+            [],
+            (Result, ColumnName) => Record.AddField(
+                Result,
+                ColumnName,
+                [ 
+                    Type = Record.Field(TableMetadata[Columns], ColumnName)[Type],
+                    Optional = false
+                ]
+            )
+        ),
+        Table.Type = type table Type.ForRecord(Table.ColumnTypes, false),
+
+        /**
+         * Convert a list of paged API data into a table, casting the values to the
+         * correct type for each column.
+         * 
+         * @param Data The table data records, extracted from the `data` field of the API response.
+         * @returns The tabular representation of the data.
+         */
+        Table.FromJson = (Data as list) as table =>
+            let
+                // In this next section, we're relying on record fields having
+                // an underlying order that Record.FieldNames and Record.FieldValues
+                // maintain across invocations. This is fine in M, which preserves
+                // field order to help programmers. 
+                DataResponse.ColumnNames = if List.Count(Data) > 0
+                    then List.Transform(Data{0}[columns], each [name])
+                    else {},
+                
+                // Create mapping between the columns received from /tables and the
+                // index of the same column in the /data response. This ensures that
+                // the columns received from /tables determine the table's contents
+                // and makes it fast to lookup the column's value in FlattenedRows.
+                TableData.ColumnIndexes = List.Accumulate(
+                    Record.FieldNames(TableMetadata[Columns]),
+                    [],
+                    (Result, TableMetadata.ColumnName) => Record.AddField(
+                        Result,
+                        TableMetadata.ColumnName, 
+                        List.PositionOf(DataResponse.ColumnNames, TableMetadata.ColumnName)
+                    )
+                ),
+
+                // Flatten the rows from each page into an any[][]
+                // TODO Run an experiment with a large org to see if this additional pass
+                //  is a performance bottleneck.
+                FlattenedRows = List.Accumulate(Data, {}, (Flattened, SingleResponse) => Flattened & SingleResponse[rows]),
+
+                // Extract the columns provided by /tables from the raw
+                // list of list of values given by /data. If /tables had
+                // more columns than /data provided, the values is that
+                // col will be null. If /data provided extra columns
+                // not included in /tables, they'll be ignored.
+                Table.TableRows = List.Transform(
+                    FlattenedRows,
+                    (Row) => List.Transform(
+                        Record.FieldNames(TableMetadata[Columns]),  // Use the columns from /tables as the source of truth
+                        (ColumnName) =>
+                            let
+                                Index = Record.Field(TableData.ColumnIndexes, ColumnName),
+                                Value = if Index > -1 then Row{Index} else null,
+                                Column.Metadata = Record.Field(TableMetadata[Columns], ColumnName),
+                                Cast = Column.Metadata[Cast]
+                            in
+                                try
+                                    Cast(Value)
+                                catch (e) =>
+                                    Diagnostics.Trace(
+                                        TraceLevel.Warning,
+                                        Text.Format(
+                                            "Failed to cast value #{0} to type #{1}: #{2}",
+                                            { Value, Column.Metadata[Type], e[Message] }
+                                        ),
+                                        null
+                                    )
+                    )
+                )
+            in
+                Table.FromRows(Table.TableRows, Table.Type),
+
+        /**
+         * Loads an entire table.
+         *
+         * @returns The table described by TableMetadata with all its rows.
+         */
+        GetRows = () as table =>
+            let
+                Api.Response = try Samsara.Metrics.Timer(
+                    Context,
+                    Samsara.Client.FetchTable(Context, TableMetadata),
+                    "data_connector.client.load_time",
+                    Metrics.Tags
+                ) catch (e) => error Samsara.Metrics.ReportError(
+                    Context,
+                    Table.ViewError(e),
+                    Metrics.Tags
+                ) 
+            in
+                Table.FromJson(Api.Response), 
+
+        /**
+         * Invoked when functions like Table.FirstN are invoked on the table view. For us, this
+         * is only used when generating a preview of the table when the customer is choosing what
+         * data to load, so rather than respecting the actual desired count we'll just load a
+         * single page of data to show in the preview. We also skip the API call if the table
+         * is a custom reports table so that previews don't trigger an expensive ETL job in
+         * our backend.
+         * 
+         * @param _Count Ignored.
+         * @return A table containing the first page of API data for an API based table or
+         *         an empty table for a Custom Reports table.
+         */
+        OnTake = (_Count as number) as table =>
+            let
+                MaxPages = 1,
+                Api.Response = try Samsara.Client.FetchTable(
+                    Context,
+                    TableMetadata,
+                    MaxPages
+                ) catch (e) => error Samsara.Metrics.ReportError(
+                    Context,
+                    Table.ViewError(e), 
+                    Metrics.Tags
+                ) 
+            in
+                if TableMetadata[TableType] = TableType.CustomReports
+                    then Table.FromRows({}, Table.Type) // Lazy eval means that the API call isn't invoked if we hit this path.
+                    else Table.FromJson(Api.Response) 
+    in 
+        Table.View(
+            null, // Forces lazy loading of table rows.
+            [
+                GetType = () => Table.Type, 
+                GetRows = GetRows,
+                OnTake = OnTake 
+            ]
+        )

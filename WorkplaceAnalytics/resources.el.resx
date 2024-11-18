@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Επιλογές για προχωρημένους</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Συγκεντρωτικά δεδομένα</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Υποδιαίρεση δεδομένων</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Επιλέξτε Δεδομένα σε επίπεδο γραμμών για να φορτώσετε μη επεξεργασμένα αποτελέσματα ερωτημάτων ή Συγκεντρωτικά δεδομένα για να προωθήσετε τα ερωτήματα στη βάση δεδομένων και να λάβετε συγκεντρωτικά αποτελέσματα. Για καλύτερα αποτελέσματα, επιλέξτε δεδομένα σε επίπεδο γραμμών μόνο εάν επιλέξετε Εισαγωγή λειτουργίας συνδεσιμότητας δεδομένων.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Δεδομένα σε επίπεδο γραμμών</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Λογαριασμός οργανισμού</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Σύνδεση στα δεδομένα του Workplace Analytics</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Σύνδεση στα δεδομένα πληροφοριών Viva</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Πληροφορίες Viva</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Ηλεκτρονικές υπηρεσίες</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Όνομα πίνακα</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Σύνδεση στα δεδομένα του Workplace Analytics</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Εάν το ερώτημα Advanced insights εξάγει περισσότερους από έναν πίνακες, καθορίστε σε ποιον πίνακα θα συνδεθείτε.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Πληροφορίες Viva</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Σύνδεση στα δεδομένα πληροφοριών Viva</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Η υποδιαίρεση συγκεντρωτικών δεδομένων δεν υποστηρίζεται αυτήν τη στιγμή κατά τη σύνδεση στα αποτελέσματα του ερωτήματος, καθορίζοντας ένα όνομα ή αναγνωριστικό ερωτήματος. Επιλέξτε υποδιαίρεση δεδομένων σε επίπεδο γραμμών για να συνδεθείτε στα αποτελέσματα του ερωτήματος.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Η υποδιαίρεση δεδομένων σε επίπεδο γραμμών υποστηρίζεται προς το παρόν μόνο κατά τη σύνδεση στα αποτελέσματα ερωτήματος. Επιλέξτε Υποδιαίρεση συγκεντρωτικών δεδομένων για να συνδεθείτε με ένα γενικό σύνολο μετρικών ατόμου ή να καθορίσετε ένα όνομα ή αναγνωριστικό ερωτήματος.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Μη αναμενόμενη μορφή ή τιμή κεφαλίδας WWW-Authenticate κατά τον έλεγχο ταυτότητας.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Μη αναμενόμενη απόκριση από τον διακομιστή κατά τον έλεγχο ταυτότητας.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Η υποδιαίρεση δεδομένων σε επίπεδο γραμμών δεν υποστηρίζεται για αυτήν την προέλευση δεδομένων. Επιλέξτε αντ 'αυτού την υποδιαίρεση συγκεντρωτικών δεδομένων.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Επιστρέφει έναν πίνακα με ορατά χαρακτηριστικά και εβδομαδιαία μετρικά για κάθε μετρημένο εργαζόμενο στο διαμέρισμα.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Αναγνωριστικό ερωτήματος</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Αναγνωριστικά ερωτήματος</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Βρείτε το στο Workplace Analytics, ανοίγοντας τα "Αποτελέσματα ερωτήματος", αντιγράφοντας την επιθυμητή σύνδεση ερωτήματος και εξάγοντας το τελευταίο αναγνωριστικό 32 ψηφίων (GUID) που εμφανίζεται στη διεύθυνση URL.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>Στην εφαρμογή σύνθετων πληροφοριών, μεταβείτε στην επιλογή Ανάλυση &gt; Αποτελέσματα ερωτήματος, βρείτε το ερώτημά σας και επιλέξτε Σύνδεση για να λάβετε το αναγνωριστικό ερωτήματος.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Όνομα ερωτήματος</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Εισαγάγετε το όνομα του ερωτήματος ακριβώς όπως αναγράφεται στην καρτέλα "Αποτελέσματα ερωτήματος Workplace Analytics"</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Εισαγάγετε το όνομα του ερωτήματος όπως βρίσκεται στη σελίδα Ανάλυση &gt; Αποτελέσματα ερωτήματος στην εφαρμογή σύνθετων πληροφοριών.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Εισαγάγετε εβδομαδιαία μετρικά και δεδομένα χαρακτηριστικών από το Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Μετρικά ατόμων της Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>δεδομένα έρευνας</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Τύπος σχήματος</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Επιλέξτε Συγκεντρωτικά για να φορτώσετε τα χαρακτηριστικά του οργανισμού ως μεμονωμένες στήλες ή Μη συγκεντρωτικά για να φορτώσετε τα χαρακτηριστικά του οργανισμού ως ζεύγη κλειδιών-τιμών, όπως Όνομα χαρακτηριστικού = Οργανισμός, Τιμή χαρακτηριστικού = Οικονομικά.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Συγκεντρωτικά</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Χωρίς συγκέντρωση</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Αναγνωριστικό διαμερίσματος</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Βρείτε το στο Workplace Analytics, ανοίγοντας το προφίλ χρήστη και επιλέγοντας "Οι πληροφορίες μου"</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>Στην εφαρμογή σύνθετων πληροφοριών, μεταβείτε στην επιλογή Ανάλυση &gt; Αποτελέσματα ερωτήματος, βρείτε το ερώτημά σας και επιλέξτε Σύνδεση για να λάβετε το αναγνωριστικό διαμερίσματος.</value>
   </data>
 </root>

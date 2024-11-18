@@ -1,8 +1,8 @@
 {
     "tool_details": {
         "tool_name": "Zoho Creator - PowerBI Connector",
-        "version_name": "Version 1",
-        "version_number": "1.0.0",
+        "version_name": "Version 2",
+        "version_number": "2.0.0",
         "user_agent": "ZohoCreator - PowerBI Connector",
     },
     "api_specification": {
@@ -31,5 +31,9 @@
                 "host": "https://creator.zoho.com.au"
             }
         ]
+    },
+     "client_credentials": {
+        "client_id": "MTAwMC5ENjQzVFI5Tk41TE9QUEJGWVlKNVlDNzRFMTVPM0E=",
+        "client_secret": "MjAwODE5N2YzNGMxNmE5MWRmMWUzNDkxMzllMzQ4NWI5NzliNWVmM2Vh"
     }
 }

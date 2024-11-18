@@ -73,7 +73,18 @@ let
     OAuth.Logout = (clientApplication, resourceUrl, accessToken) =>
         let
             authServerInfo = GetAuthServerInfo(resourceUrl),
-            logoutResponse = authServerInfo[EndSessionEndpoint]
+            esp = authServerInfo[EndSessionEndpoint],
+            //work around PBI issue with okta logout
+            logoutResponse = if (Text.Contains(esp, ".okta.", Comparer.OrdinalIgnoreCase) or 
+                                 Text.Contains(esp, ".oktapreview.", Comparer.OrdinalIgnoreCase) or 
+                                 Text.Contains(esp, ".okta-emea.", Comparer.OrdinalIgnoreCase) or 
+                                 Text.Contains(esp, "auth.intergraphsmartcloud.com", Comparer.OrdinalIgnoreCase) or
+                                 Text.Contains(esp, "sandbox.intergraphsmartcloud.com", Comparer.OrdinalIgnoreCase) or
+                                 Text.Contains(esp, "preprodauth.intergraphsmartcloud.com", Comparer.OrdinalIgnoreCase) or
+                                 Text.Contains(esp, "auth.spclouddave.com", Comparer.OrdinalIgnoreCase)) then
+                                null
+                             else
+                                esp
         in
             logoutResponse,
 

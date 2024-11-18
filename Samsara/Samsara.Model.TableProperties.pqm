@@ -1,0 +1,16 @@
+type [
+    // Backend identifier for this table.
+    TableId = text,
+
+    // Name to show the customer for this table.
+    DisplayName = text,
+
+    // Identifier for the table type
+    TableType = text,
+
+    // Column metadata.
+    // This maps from column name => type for now since
+    // we don't track any other column metadata and it
+    // makes the table transformation simpler.
+    Columns = record
+]

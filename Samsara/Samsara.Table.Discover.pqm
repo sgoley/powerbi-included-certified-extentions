@@ -1,0 +1,40 @@
+(Context as record) =>
+    let
+        Samsara.Client.ListTables = Context[Extension.LoadFunction](Context, "Samsara.Client.ListTables.pqm"),
+        Samsara.Metrics.ReportError = Context[Extension.LoadFunction](Context, "Samsara.Metrics.ReportError.pqm"),
+
+        SupportedTablesTypes = Context[SupportedTablesTypes],
+        Tag.Component = "component:list_tables",
+        Error.NoTables = Error.Record(
+            Extension.LoadString("ErrorNoTablesFound"),
+            Extension.LoadString("ErrorNoTablesFoundMsg"),
+            [ Tag = "no_tables" ]
+        ),
+
+        /**
+         * Wrapper over Samsara.Client.ListTables that metricates errors and returns an
+         * empty list on error, ensuring that a single failing table type won't stop
+         * the whole run.
+         */
+        Samsara.Client.SafeListTables = (Context as record, TableType as text) =>
+            let
+                Metric.Tags = { "table_type:" & TableType, Tag.Component },
+                InvokeAndReport =
+                    try Samsara.Client.ListTables(Context, TableType)
+                    catch (e) => error Samsara.Metrics.ReportError(
+                        Context,
+                        e,
+                        Metric.Tags
+                    )
+            in
+                try InvokeAndReport otherwise {},
+
+        AvailableTables = List.Accumulate(
+            SupportedTablesTypes,
+            {},
+            (AllTables, TableType) => AllTables & Samsara.Client.SafeListTables(Context, TableType)
+        )
+    in
+        if List.Count(AvailableTables) = 0
+            then error Samsara.Metrics.ReportError(Context, Error.NoTables, { Tag.Component } )
+            else AvailableTables

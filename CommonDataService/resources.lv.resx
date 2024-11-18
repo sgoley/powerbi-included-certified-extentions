@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Izveidot savienojumu ar Dataverse, izmantojot tā SQL galapunktu</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Vides domēns</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Vides domēns</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Norādiet Dataverse vidi savienojuma izveidei. Šis lauks nav obligāts un, ja tas tiks atstāts tukšs, pierakstītajam lietotājam “Izvēlēties datus” ekrānā tiks parādītas visas pieejamās Dataverse vides.</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Izveidot savienojumu ar savu Dataverse instanci (Dynamics 365 un PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Dataverse savienotājs neatbalsta “#{0}” domēnu.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Datu ielāde no netiešās vides tabulas netiek atbalstīta.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>“#{0}” nav derīgas opcijas. Derīgas opcijas ir: “#{1}”</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Šī funkcija neatbalsta opciju “#{0}” ar vērtību “#{1}”.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Servera nosaukuma formāts #{0} nav derīgs.  Lūdzu, noņemiet shēmu, piemēram, "https://" no servera nosaukuma.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Iekļaut relāciju kolonnas</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Opcijas</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Norādiet opcijas savienojuma izveidei ar Dataverse instanci</value>
   </data>
 </root>

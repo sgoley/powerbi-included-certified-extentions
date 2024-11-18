@@ -1,16 +1,16 @@
 //Globals
-[version = "1.0.2"]
+[Version = "1.0.4"]
 section BIConnector;
 
 ModuleName = "BI Connector";
 DriverName = "BI Connector Driver";
 ResourcePathSeparator = ";";
 
-EnableTraceOutput = true;
+EnableTraceOutput = false;
 
 [DataSource.Kind = "BIConnector", Publish = "BIConnector.Publish"]
 shared BIConnector.Contents = Value.ReplaceType(BIConnector.ContentsX, BIConnector.ContentsType);
-shared BIConnector.ContentsX = (dsnname as text) as table =>
+BIConnector.ContentsX = (dsnname as text) as table =>
     let
         ConnectionString = [
             DSN = dsnname,
@@ -65,8 +65,8 @@ BIConnector.ContentsType =
 		type_dsnname = type text meta [
 			Documentation.FieldCaption = "Enter the ODBC Data Source Name(DSN)*",
 			Documentation.SampleValues = { "obiee-sales-reports" }
-		],          
-
+		],  
+	
 		CType = type function (dsnname as type_dsnname) as table
 	in
 		CType meta [

@@ -1,30 +1,39 @@
-[Version = "1.0.0"]
-section TibcoTdv;
 
+
+
+
+[Version = "20.0.7805"]
+section TibcoTdv;
 
 [DataSource.Kind="TibcoTdv", Publish="TibcoTdv.Publish"]
 shared TibcoTdv.DataSource = Value.ReplaceType(DatabaseImpl, DatabaseType);
 
+EscapeValue = (val as text) as text =>
+  let
+    nonNullValue = if (val = null or Text.Length(val) = 0) then "" else val,
+    escapedValue = Text.Replace(Text.Trim(nonNullValue), "}", "}}")
+  in
+    escapedValue;
 
+MakeRecordPair = (key as text, value as text) as text =>
+  let
+    pair = if Text.Lower(key) = "dsn" or (value <> null and Text.Length(value) = 0) then
+              key & "=" & value // we do not quote DSN value, as it breaks ODBC
+           else
+              key & "={" & EscapeValue(value) & "}"
+  in
+    pair;
+    
 
-StringToRecord = (optional otherFields as text) as record => 
-  if otherFields <> null and Text.Length(otherFields) > 0 then
-    let
-      // split by ;
-      othersList = Splitter.SplitTextByDelimiter(";")(otherFields),
-      // remove empty values
-      othersNonEmpty = List.Select(othersList, each Text.Length(_) > 0),
-      // split each one into text=text pairs
-      transformer = (value as text) => 
-        let pair = Splitter.SplitTextByDelimiter("=")(value)
-        in List.Transform(pair, each Text.Trim(_)),
-      optionPairs = List.Transform(othersNonEmpty, each transformer(_)),
-      optionNames = List.Transform(optionPairs, each _{0}),
-      optionValues = List.Transform(optionPairs, each _{1})
-    in
-      Record.FromList(optionValues, optionNames)
-  else
-    [];
+RecordToString = (rec as record) as text => 
+  let 
+    keys = Record.FieldNames(rec),
+    transformer = (k as text) => MakeRecordPair(k, Record.Field(rec, k)),        
+    parts = List.Transform(keys, transformer),
+    // rebuild query string
+    cs = Combiner.CombineTextByDelimiter(";", QuoteStyle.None)(parts)
+  in
+    cs;
 
 SupportsMultipleCatalogs = (connectionString as any) =>
   let
@@ -40,38 +49,6 @@ HasQuery = (options as record) =>
     hasQuery = if query <> null and Text.Length(query) > 0 then true else false
   in
     hasQuery;
-    
-GetOtherProperties = (optional properties as text) as text => 
-  if properties <> null and Text.Length(properties) > 0 then
-    let 
-      withOutOthers = Text.AfterDelimiter(Text.Lower(properties), "other="),
-      firstQuotoIndex = Text.PositionOf(withOutOthers, "'", Occurrence.First),
-      startIndex = if firstQuotoIndex < 0 then 0 else (firstQuotoIndex + 1),
-      lastQuotoIndex = Text.PositionOf(withOutOthers, "'", Occurrence.Last),
-      firstSemicolonsIndex = Text.PositionOf(withOutOthers, ";", Occurrence.First),
-      endOtherPropertiesIndex = if lastQuotoIndex < 0 then firstSemicolonsIndex else (lastQuotoIndex - 1),
-      otherPropertiesLength = if endOtherPropertiesIndex < 0 then Text.Length(withOutOthers) else (endOtherPropertiesIndex),      
-      otherProperties = Text.Middle(withOutOthers, startIndex, otherPropertiesLength)
-    in
-      otherProperties
-  else
-    "";
-    
-TrimOtherProperties = (optional properties as text) as text => 
-  if properties <> null and Text.Length(properties) > 0 then
-    let
-      startIndex = Text.PositionOf(Text.Lower(properties), "other="),
-      withOutOthers = Text.AfterDelimiter(Text.Lower(properties), "other="),
-      lastQuotoIndex = Text.PositionOf(withOutOthers, "'", Occurrence.Last), 
-      firstSemicolonsIndex = Text.PositionOf(withOutOthers, ";", Occurrence.First),
-      endOtherPropertiesIndex = if lastQuotoIndex < 0 then firstSemicolonsIndex else (lastQuotoIndex + 1),
-      otherPropertiesLength = if endOtherPropertiesIndex < 0 then Text.Length(withOutOthers) else (endOtherPropertiesIndex),  
-      
-      withOutOtherProperties = if startIndex < 0 then properties else Text.RemoveRange(properties, startIndex, otherPropertiesLength + Text.Length("other="))   
-    in      
-      withOutOtherProperties
-  else 
-    "";
     
 DatabaseImpl = (
   // Required Properties
@@ -92,24 +69,19 @@ DatabaseImpl = (
                   UID = Credential[Username],
                   PWD = Credential[Password]
                 ]
+            else if (Credential[AuthenticationKind]?) = "Windows" then
+              [
+              ]
             else
                 [],
 
       InputOptions = if options <> null then options else [], 
 
-      // concatenate the DSN with the options values and AdvancedOptions converted to a record
-      advOptions = StringToRecord(TrimOtherProperties(advancedOptions)),    
-      
       ConnectionStringPartial = [
         DSN = dsn
-      ] & CredentialConnectionString & advOptions & [EnablePowerBICriteriaModifier="True", MAP TO WVARCHAR="false", MAP TO LONG VARCHAR="2000"],
+      ] & CredentialConnectionString & [EnablePowerBICriteriaModifier="True", MAP TO WVARCHAR="false", MAP TO LONG VARCHAR="2000", QueryPassthrough="False"],
       
-      otherProperties = GetOtherProperties(advancedOptions),
-      ConnectionString = 
-        if Text.Length(otherProperties) > 0 then
-          Record.AddField(ConnectionStringPartial, "Other", Text.Combine({"'", otherProperties, "'"}))
-        else
-          ConnectionStringPartial,
+      ConnectionString = RecordToString(ConnectionStringPartial) & ";" & (if advancedOptions <> null then advancedOptions else "" ),
 
                 
       Options = [
@@ -135,47 +107,7 @@ DatabaseImpl = (
         
         SQLGetInfo = [
           SQL_ORDER_BY_COLUMNS_IN_SELECT = "N",
-          SQL_CONVERT_FUNCTIONS = 2,
-
-          // The bits in these values come from the SQL_CVT_* constants, see sqlext.h
-          // All types
-          SQL_CONVERT_CHAR = 33554431,
-          SQL_CONVERT_VARCHAR = 33554431,
-          SQL_CONVERT_LONGVARCHAR = 33554431,
-          SQL_CONVERT_WCHAR = 33554431,
-          SQL_CONVERT_WVARCHAR = 33554431,
-          SQL_CONVERT_WLONGVARCHAR = 33554431,
-
-          // All the integral types and chars
-          SQL_CONVERT_BIT =  14709529,
-
-          // All the numeric types and chars
-          SQL_CONVERT_NUMERIC = 14705663,
-          SQL_CONVERT_DECIMAL = 14705663,
-          SQL_CONVERT_FLOAT = 14705663,          
-          SQL_CONVERT_REAL = 14705663,          
-          SQL_CONVERT_DOUBLE = 14705663,          
-          SQL_CONVERT_SMALLINT = 14705663,
-          SQL_CONVERT_TINYINT = 14705663,
-          SQL_CONVERT_INTEGER = 14705663,
-          SQL_CONVERT_BIGINT = 14705663,
-
-          // All the binary types and chars
-          SQL_CONVERT_BINARY = 14946049,
-          SQL_CONVERT_VARBINARY = 14946049,
-          SQL_CONVERT_LONGVARBINARY = 14946049,
-
-          // All the char types as well as date and timestamp
-          SQL_CONVERT_DATE = 14844673, 
-
-          // All the char types as well as time and timestamp
-          SQL_CONVERT_TIME = 14877441,
-
-          // All the char types as well as timestamp
-          SQL_CONVERT_TIMESTAMP = 14811905,
-
-          // All the char types as well as GUID
-          SQL_CONVERT_GUID = 31458049
+          SQL_CONVERT_FUNCTIONS = 2          
         ]
       ],
 
@@ -238,6 +170,7 @@ TibcoTdv = [
       UsernamePassword = [
 
       ],
+      Windows = [ SupportsAlternateCredentials = true ],
       // Provider supports specifying authentication options in the ODBC DSN
       Implicit = []
     ]
@@ -252,13 +185,14 @@ TibcoTdv = [
 
 // Data Source UI publishing description
 TibcoTdv.Publish = [
-    Beta = true,
+    Beta = false,
     Category = Extension.LoadString("Category"),
     
     ButtonText = {Extension.LoadString("FormulaTitleOEM"), Extension.LoadString("FormulaHelpOEM")},
+
     SourceImage = TibcoTdv.Icons,
     SourceTypeImage = TibcoTdv.Icons,
-
+    
     LearnMoreUrl = Extension.LoadString("LearnMoreURL"),
     SupportsDirectQuery = true
 ];

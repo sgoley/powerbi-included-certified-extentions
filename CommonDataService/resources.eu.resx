@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,25 +118,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Konektatu Dataverse-ra SQL amaiera-puntuaren bidez</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>Dataverse</value>
   </data>
-  <data name="ServerCaption" xml:space="preserve">
+  <data name="ServerCaption" errorCode="003" xml:space="preserve">
     <value>Ingurunearen domeinua</value>
   </data>
-  <data name="ServerDescription" xml:space="preserve">
-    <value>Ingurunearen domeinua</value>
+  <data name="ServerDescription" errorCode="004" xml:space="preserve">
+    <value>Zehaztu Dataverse ingurune bat konektatzeko. Eremu hau aukerakoa da eta, zehazten ez denean, "Aukeratu datuak" pantailan bistaratuko dira saioa hasita duen erabiltzaileak erabilgarri dituen Dataverse ingurune guztiak.</value>
   </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="005" xml:space="preserve">
     <value>Konektatu Dataverse instantziara (Dynamics 365 eta PowerApps).</value>
   </data>
-  <data name="ErrorInvalidHost" xml:space="preserve">
+  <data name="ErrorInvalidHost" errorCode="006" xml:space="preserve">
     <value>Dataverse konektoreak ez du onartzen "#{0}" domeinua.</value>
   </data>
-  <data name="LoadDataError" xml:space="preserve">
+  <data name="LoadDataError" errorCode="007" xml:space="preserve">
     <value>Ezin da zeharkako taulatik datuak kargatu.</value>
+  </data>
+  <data name="InvalidOptionsKey" errorCode="008" xml:space="preserve">
+    <value>‘#{0}’ ez dira baliozko aukerak. Hauek dira baliozkoak: ‘#{1}’</value>
+  </data>
+  <data name="InvalidOptionsValue" errorCode="009" xml:space="preserve">
+    <value>Funtzio honek ez du onartzen ‘#{0}’ aukera ‘#{1}’ balioarekin.</value>
+  </data>
+  <data name="ServerFormatError" errorCode="010" xml:space="preserve">
+    <value>Zerbitzari-izenaren \"#{0}\" formatuak ez du balio. Kendu "https://" antzeko balioak zerbitzari-izenetik.</value>
+  </data>
+  <data name="CreateNavigationPropertiesCaption" errorCode="011" xml:space="preserve">
+    <value>Sartu erlazio-zutabeak</value>
+  </data>
+  <data name="OptionsParameterCaption" errorCode="012" xml:space="preserve">
+    <value>Aukerak</value>
+  </data>
+  <data name="OptionsParameterDescription" errorCode="013" xml:space="preserve">
+    <value>Zehaztu zure Dataverse instantziarekin konektatzeko aukerak</value>
   </data>
 </root>

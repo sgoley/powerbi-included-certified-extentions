@@ -1,0 +1,279 @@
+let
+    Extension.LoadFunction = (name as text) =>
+        let
+            binary = Extension.Contents(name),
+            asText = Text.FromBinary(binary)
+        in
+            Expression.Evaluate(asText, #shared),
+
+    Diagnostics = Extension.LoadFunction("Diagnostics.pqm"),
+    Diagnostics.LogValue = Diagnostics[LogValue],
+    Diagnostics.LogTrace = Diagnostics[LogTrace],
+
+    //Loading utils
+    Utils = Extension.LoadFunction("Utils.pqm"),
+    LoadGqlQuery = Utils[LoadGqlQuery],
+    CheckGraphQLErrors = Utils[CheckGraphQLErrors],
+    CheckForErrorResponse = Utils[CheckForErrorResponse],
+    CreateTypedTable = Utils[CreateTypedTable],
+
+    // Data Handler
+    DataHandler = Extension.LoadFunction("Data-Handler.pqm"),
+    DataHandler.GetSqlMetadata  = DataHandler[GetSqlMetadata],
+    DataHandler.GetSqlData  = DataHandler[GetSqlData],
+
+    // Configuration module
+    Configuration = Extension.LoadFunction("Configuration.pqm"),
+    Configuration.PollDelay = Configuration[PollDelay],
+
+    CallWithFolding = (
+        getDataFn as function,
+        initialState as record
+    ) =>
+        let
+            View = (state as record) =>
+                let
+                    viewResult = Table.View(null, [
+
+                        GetType = () => GetTypeFromMetadata(state),
+
+                        GetSchema = () => let
+                            state_ = Diagnostics.LogValue("GetSchema state", state),
+                            res = getDataFn(state_, initialState[traceParentId]),
+                            tableType = Table.Schema(res),
+                            schemaResult_ = Diagnostics.LogValue("Type", tableType)
+                        in
+                            schemaResult_,
+
+                        GetRows = () => let
+                            state_ = Diagnostics.LogValue("GetRows state", state),
+                            res = getDataFn(state_)
+                          in
+                            res,
+
+                        GetRowCount = () =>
+                            let
+                                newState = AppendTransform(state, [
+                                    rowCount  = true
+                                ]),
+                                newState_ = Diagnostics.LogValue("GetRowCount state", newState),
+                                tableRowsCount = getDataFn(newState_),
+                                rowsCount = Table.FirstValue(tableRowsCount)
+                            in
+                                rowsCount,
+
+                        OnTake = (count as number) =>
+                            let
+                                newState = AppendTransform(state, [ take = [ count = count ]]),
+                                newState_ = Diagnostics.LogValue("OnTake state", newState)
+                            in
+                                @View(newState_),
+
+                        OnSkip = (count as number) =>
+                            let
+                                newState = AppendTransform(state, [ skip = [ count = count ]]),
+                                newState_ = Diagnostics.LogValue("OnSkip state", newState)
+                            in
+                                @View(newState_),
+
+                        OnGroup = (key, aggregatedColumns)=>
+                            let
+                                newState = AppendTransform(state, [
+                                    group = [
+                                        keys = key,
+                                        aggregatedColumns = List.Transform(aggregatedColumns,(agg) => [
+                                            name = agg[Name],
+                                            aggregateJson = ConvertFunction(agg[Function])
+                                        ])
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnGroup state", newState)
+                            in
+                                @View(newState_),
+
+                        OnSort = (order as list) =>
+                            let
+                                newState = AppendTransform(state, [
+                                    sort = [
+                                        comparisonCriteria = List.Transform(order, each [
+                                            name=_[Name],order= if _[Order] = 0 then "ASCENDING" else "DESCENDING"
+                                        ])
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnSort state", newState)
+                            in
+                                @View(newState_),
+
+                        OnSelectRows = (selector) =>
+                            let
+                                newState = AppendTransform(state, [
+                                    selectRows  = [
+                                        selectorJson = ConvertFunction(selector)
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnSelectRows state", newState)
+                            in
+                                @View(newState_),
+
+                        OnSelectColumns  = (columns) =>
+                            let
+                                newState = AppendTransform(state, [
+                                    selectColumns =  [
+                                        columns = columns
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnSelectColumns state", newState)
+                            in
+                                @View(newState_),
+
+                        OnRenameColumns = (renames) =>
+                            let
+                                newState = AppendTransform(state, [
+                                    renameColumns  = [
+                                        renames = List.Transform(
+                                            renames,
+                                            (rename) => [
+                                                from= rename[OldName], to = rename[NewName]
+                                            ]
+                                        )
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnRenameColumns state", newState)
+                            in
+                                @View(newState_),
+
+                        OnAddColumns = (constructors) =>
+                            let
+                                newState = AppendTransform(state, [
+                                    addColumns  = [
+                                        columns = List.Transform(
+                                            constructors,
+                                            (constructor) => [
+                                                name=constructor[Name],
+                                                columnGeneratorJson=ConvertFunction(constructor[Function])
+                                            ]
+                                        )
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnAddColumns state", newState)
+                            in
+                                @View(newState_),
+
+                        OnDistinct = (columns) =>
+                            let
+                                newState = AppendTransform(state, [
+                                    distinct  = [
+                                        columns = columns
+                                    ]
+                                ]),
+                                newState_ = Diagnostics.LogValue("OnDistinct state", newState)
+                            in
+                                @View(newState_)
+                    ])
+                in
+                    viewResult
+        in
+            View(initialState),
+
+    AppendTransform = (state as record, transform as record) as record =>
+        let
+            newList = if Record.HasFields(state, {"foldingTransforms"})
+                then List.Combine({state[foldingTransforms], {transform}})
+                else {transform},
+            newState = state & [foldingTransforms=newList]
+        in
+            newState,
+
+    GetDataWithFolding = (initialState as record) =>
+        CallWithFolding(
+            DataHandler.GetSqlData,
+            initialState
+        ),
+
+    GetTypeFromMetadata = (
+        state as record
+    ) =>
+        let
+            metadata = DataHandler.GetSqlMetadata(state),
+            tableType = ExtractTypeFromMetadata(metadata)
+        in
+            tableType,
+
+    ExtractTypeFromMetadata = (metadata as record) =>
+        let
+            typedTable = CreateTypedTable(metadata[columns], {}),
+            tableType = Value.Type(typedTable),
+            tableType_ = Diagnostics.LogValue("Type extracted from metadata", tableType)
+        in
+            tableType,
+
+    ConvertFunction = (fn as function) =>
+        let
+            TransformNode = (x) => Record.FromList(List.Transform(Record.FieldValues(x), TransformValue), Record.FieldNames(x)),
+            TransformValue = (x) => if x is record then TransformRecord(x) else if x is list then TransformList(x) else x,
+            TransformList = (x) => List.Transform(x, TransformValue),
+            TransformRecord = (x) =>
+                if x = RowExpression.Row then [Kind="Row"]
+                else if x[Kind] = "Constant" then TransformConstant(x)
+                else TransformNode(x),
+
+            TransformConstant = (x) => if x[Value] is function and TryFunctionName(x[Value]) <> null then [Kind="Identifier", Name=TryFunctionName(x[Value])]
+                else if x[Value] is function then [Kind="Constant", Value="<function>", Type=TextType(Value.Type(x[Value]))]
+                else x & [Type=TextType(Value.Type(x[Value]))],
+
+            TryFunctionName =
+                let
+                    section_ = Record.ToTable(#sections),
+                    Shared = if List.Count(section_[Value]) >0
+                        then Table.TransformColumns(section_, {{"Value", Record.FieldNames}})[Value]{0}
+                        else {},
+                    Shared2 = List.RemoveItems(Record.FieldNames(#shared), Shared),
+                    Library = Record.SelectFields(#shared, Shared2),
+                    Functions = Table.Buffer(Table.SelectRows(Record.ToTable(Library), each try ([Value] is function) otherwise false))
+                in
+                    (fn) => Table.First(Table.SelectRows(Functions, each [Value] = fn))[Name]?,
+            TextType = (t as type) as text =>
+                let
+                    nonNullableType = Type.NonNullable(t),
+                    TypeDescription = if Type.Is(nonNullableType, type binary) then "binary"
+                    else if Type.Is(nonNullableType, type date) then "date"
+                    else if Type.Is(nonNullableType, type datetime) then "datetime"
+                    else if Type.Is(nonNullableType, type datetimezone) then "datetimezone"
+                    else if Type.Is(nonNullableType, type duration) then "duration"
+                    else if Type.Is(nonNullableType, type function) then "function"
+                    else if Type.Is(nonNullableType, type list) then "list"
+                    else if Type.Is(nonNullableType, type logical) then "logical"
+                    else if Type.Is(nonNullableType, type none) then "none"
+                    else if Type.Is(nonNullableType, type null) then "null"
+                    else if Type.Is(nonNullableType, type number) then "number"
+                    else if Type.Is(nonNullableType, type record) then "record"
+                    else if Type.Is(nonNullableType, type table) then "table"
+                    else if Type.Is(nonNullableType, type text) then "text"
+                    else if Type.Is(nonNullableType, type time) then "time"
+                    else if Type.Is(nonNullableType, type type) then "type"
+                    else if Type.Is(nonNullableType, type action) then "action"
+                    else if Type.Is(type anynonnull, nonNullableType) then "any"
+                    else error "Unknown type",
+                    TypeString = if TypeDescription = "any" then
+                                    if Type.IsNullable(t) then
+                                        "any" else "anynonnull"
+                                    else if Type.IsNullable(t) then
+                                        "nullable " & TypeDescription
+                                    else TypeDescription
+                in
+                    TypeString,
+
+            MakeAst = (fn) =>
+                let
+                    rowExpression = RowExpression.From(fn),
+                    transformedRecord = TransformRecord(rowExpression),
+                    jsonObject = Json.FromValue(transformedRecord),
+                    textObject = Text.FromBinary(jsonObject)
+                in
+                    textObject
+        in
+            MakeAst(fn)
+in
+  [
+    GetDataWithFolding = GetDataWithFolding
+  ]

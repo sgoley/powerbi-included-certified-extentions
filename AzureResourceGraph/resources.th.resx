@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
+    <value>เชื่อมต่อกับ Azure Resource Graph</value>
+  </data>
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
+    <value>Azure Resource Graph</value>
+  </data>
+  <data name="QueryFieldCaption" errorCode="003" xml:space="preserve">
+    <value>คิวรี</value>
+  </data>
+  <data name="ScopeFieldCaption" errorCode="004" xml:space="preserve">
+    <value>ขอบเขต</value>
+  </data>
+  <data name="SubscriptionFieldCaption" errorCode="005" xml:space="preserve">
+    <value>ID การสมัครใช้งาน</value>
+  </data>
+  <data name="ManagementGroupFieldCaption" errorCode="006" xml:space="preserve">
+    <value>ID กลุ่มการจัดการ</value>
+  </data>
+  <data name="resultTruncatedFieldCaption" errorCode="007" xml:space="preserve">
+    <value>$resultTruncated</value>
+  </data>
+  <data name="SubscriptionDescription" errorCode="008" xml:space="preserve">
+    <value>ถ้าคุณเลือกขอบเขตการสมัครใช้งาน ให้ใส่การสมัครใช้งาน Azure เพื่อดําเนินการคิวรี</value>
+  </data>
+  <data name="ManagementGroupsDescription" errorCode="009" xml:space="preserve">
+    <value>ถ้าคุณเลือกขอบเขตกลุ่มการจัดการ ให้ป้อนกลุ่มการจัดการ Azure เพื่อดําเนินการคิวรี</value>
+  </data>
+  <data name="QueryDescription" errorCode="010" xml:space="preserve">
+    <value>คิวรีทรัพยากร ดูคิวรีตัวอย่าง: https://learn.microsoft.com/azure/governance/resource-graph/samples/starter?tabs=azure-cli</value>
+  </data>
+  <data name="ScopeDescription" errorCode="011" xml:space="preserve">
+    <value>เลือกขอบเขตคิวรี หากไม่ได้เลือกกลุ่มการจัดการหรือการสมัครใช้งาน ขอบเขตคิวรีจะเป็นทรัพยากรทั้งหมด</value>
+  </data>
+  <data name="SampleQuery" errorCode="012" xml:space="preserve">
+    <value>ทรัพยากร 
+    | ชื่อโครงการ ชนิด
+    | จำกัด 5
+    | เรียงลำดับตามชื่อจากน้อยไปมาก</value>
+  </data>
+  <data name="SubscriptionInputSample" errorCode="013" xml:space="preserve">
+    <value>การสมัครใช้งาน 1, การสมัครใช้งาน 2</value>
+  </data>
+  <data name="ManagementGroupInputSample" errorCode="014" xml:space="preserve">
+    <value>กลุ่มการจัดการ 1, กลุ่มการจัดการ 2</value>
+  </data>
+  <data name="AdvancedOptionsLabel" errorCode="015" xml:space="preserve">
+    <value>ตัวเลือกขั้นสูง</value>
+  </data>
+  <data name="SkipDescription" errorCode="016" xml:space="preserve">
+    <value>จำนวนแถวที่จะข้ามจากจุดเริ่มต้นของผลลัพธ์ แทนที่ออฟเซตของหน้าถัดไปเมื่อมีคุณสมบัติ $skipToken</value>
+  </data>
+  <data name="TopDescription" errorCode="017" xml:space="preserve">
+    <value>จำนวนแถวสูงสุดที่คิวรีควรส่งกลับ แทนที่ขนาดหน้ากระดาษเมื่อมีคุณสมบัติ $skipToken</value>
+  </data>
+  <data name="allowPartialScopes" errorCode="018" xml:space="preserve">
+    <value>ใช้ได้กับคิวรีระดับกลุ่มผู้เช่าและการจัดการเท่านั้นเพื่อตัดสินใจว่าจะอนุญาตขอบเขตบางส่วนสำหรับผลลัพธ์ในกรณีที่จำนวนการสมัครใช้งานเกินขีดจำกัดที่อนุญาตหรือไม่</value>
+  </data>
+  <data name="resultTruncated" errorCode="019" xml:space="preserve">
+    <value>หากคุณไม่ต้องการตัดผลลัพธ์คิวรีให้สั้นลง ให้ตั้งค่านี้เป็นเท็จ ตามค่าเริ่มต้น การตั้งค่านี้จะเป็นจริงและส่งกลับระเบียนสูงสุด 1,000 รายการ</value>
+  </data>
+  <data name="docExampleDescription" errorCode="020" xml:space="preserve">
+    <value>ส่งกลับตารางที่มีผลลัพธ์คิวรีของคิวรีผู้ใช้ “ทรัพยากร”</value>
+  </data>
+  <data name="docExampleProcessedResult" errorCode="021" xml:space="preserve">
+    <value>#table({""Column1""}, {{""result""}})</value>
+  </data>
+  <data name="scopeCheckErrorMessage" errorCode="022" xml:space="preserve">
+    <value>เมื่อสอบถามกับผู้เช่า คุณต้องไม่ระบุการสมัครใช้งานหรือกลุ่มการจัดการ</value>
+  </data>
+  <data name="expectedScopeParameters" errorCode="023" xml:space="preserve">
+    <value>โปรดระบุค่าขอบเขตที่เลือกสำหรับคิวรี</value>
+  </data>
+  <data name="LongerDescription" errorCode="024" xml:space="preserve">
+    <value>ดู https://learn.microsoft.com/azure/governance/resource-graph/samples/starter?tabs=azure-cli สำหรับตัวอย่างคิวรีเริ่มต้น</value>
+  </data>
+  <data name="ScopeSubscriptionMismatch" errorCode="025" xml:space="preserve">
+    <value>เลือกขอบเขตการสมัครใช้งานแล้ว แต่มีการส่งผ่านกลุ่มการจัดการ ใส่เฉพาะการสมัครใช้งาน</value>
+  </data>
+  <data name="ScopeManagementGroupMismatch" errorCode="026" xml:space="preserve">
+    <value>เลือกขอบเขตกลุ่มการจัดการแล้ว แต่มีการส่งผ่านการสมัครใช้งาน ใส่เฉพาะกลุ่มการจัดการ</value>
+  </data>
+</root>

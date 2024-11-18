@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ApiHost" xml:space="preserve">
+    <value>https://api.factset.com/</value>
+  </data>
+  <data name="APIKeyAuthenticationLabel" xml:space="preserve">
+    <value>Using API key</value>
+  </data>
   <data name="ButtonHelp" xml:space="preserve">
     <value>Connect to FactSet Analytics Power BI Connector</value>
   </data>
@@ -125,5 +131,23 @@
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
     <value>FactSet Analytics</value>
+  </data>
+  <data name="OAuthAuthenticationLabel" xml:space="preserve">
+    <value>Using FactSet Login</value>
+  </data>
+  <data name="OAuthClientId" xml:space="preserve">
+    <value>power-bi-pkce</value>
+  </data>
+  <data name="OAuthConfigurationUrl" xml:space="preserve">
+    <value>https://auth.factset.com/.well-known/openid-configuration</value>
+  </data>
+  <data name="OAuthRedirectUri" xml:space="preserve">
+    <value>https://oauth.powerbi.com/views/oauthredirect.html</value>
+  </data>
+  <data name="OAuthScopes" xml:space="preserve">
+    <value>https://api.factset.com/analytics/lookups.readonly https://api.factset.com/analytics/engines.fullcontrol</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>1.3.0</value>
   </data>
 </root>

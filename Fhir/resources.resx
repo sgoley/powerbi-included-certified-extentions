@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,31 +118,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonHelp" xml:space="preserve">
+  <data name="ButtonHelp" errorCode="001" xml:space="preserve">
     <value>Connect to FHIR server</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
+  <data name="ButtonTitle" errorCode="002" xml:space="preserve">
     <value>FHIR</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
+  <data name="DataSourceLabel" errorCode="003" xml:space="preserve">
     <value>FHIR</value>
   </data>
-  <data name="SearchQueryFieldCaption" xml:space="preserve">
+  <data name="SearchQueryFieldCaption" errorCode="004" xml:space="preserve">
     <value>Query</value>
   </data>
-  <data name="SearchQueryFieldDescription" xml:space="preserve">
+  <data name="SearchQueryFieldDescription" errorCode="005" xml:space="preserve">
     <value>Specific FHIR query</value>
   </data>
-  <data name="UnknownFhirVersionError" xml:space="preserve">
+  <data name="UnknownFhirVersionError" errorCode="006" xml:space="preserve">
     <value>Unknown FHIR version #{0}</value>
   </data>
-  <data name="UnknownResourceTypeNameError" xml:space="preserve">
+  <data name="UnknownResourceTypeNameError" errorCode="007" xml:space="preserve">
     <value>Couldn't find resource type with name '#{0}'</value>
   </data>
-  <data name="UrlFieldCaption" xml:space="preserve">
+  <data name="UrlFieldCaption" errorCode="008" xml:space="preserve">
     <value>URL</value>
   </data>
-  <data name="UrlFieldDescription" xml:space="preserve">
+  <data name="UrlFieldDescription" errorCode="009" xml:space="preserve">
     <value>FHIR Server URL</value>
   </data>
 </root>

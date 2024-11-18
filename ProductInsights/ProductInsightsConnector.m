@@ -1,4 +1,4 @@
-﻿[Version = "1.0.0"]
+﻿[Version = "1.0.1"]
 section ProductInsights;
 
 client_id = Text.FromBinary(Extension.Contents("client_id"));

@@ -1,0 +1,71 @@
+/**
+ * Validate the customer's input and clamp their chosen dates to a valid time range.
+ *
+ * @param Context Global parameters and constants.
+ * @param RangeStart The first day in the time range.
+ * @param RangeEnd Optional parameter for the last date in the time range.
+ *                 Defaults to the older of (today, RangeStart + Context.MaxTimeRange).
+ * @returns A record with a sanitized start and end DateTime.
+ * @raises When RangeStart or RangeEnd can't be parsed as a date.
+ */
+(Context as record, RangeStart as text, optional RangeEnd as text) =>
+    let
+        CurDate = DateTime.Date(DateTime.LocalNow()),
+        EndOfDayOffset = #duration(0, 23, 59, 59),
+        DateInputFormat = "M/d/yyyy",
+        ValidateStartDate = (StartDateRaw as text) as datetimezone => 
+            let 
+                StartDateParsed = Date.FromText(StartDateRaw, [Format = DateInputFormat]),
+                StartDate = if CurDate < StartDateParsed // Start date in the future
+                    then CurDate
+                    else StartDateParsed
+            in
+                try
+                    DateTimeZone.From(StartDate)
+                otherwise
+                    error [
+                        Message.Format = Extension.LoadString("ErrorStartDateValidation"),
+                        Message.Parameters = { StartDateRaw, DateInputFormat }
+                    ],
+        ValidateEndDate = (StartDate as datetimezone, optional EndDateRaw as text) as datetimezone => 
+            let
+                // Strip out the timezone so that daylight savings gets recalculated correctly for
+                // StartDate + MaxTimeRange. Otherwise it keeps the same daylight savings time state
+                // from StartDate.
+                StartDate.WithoutZone = DateTimeZone.RemoveZone(StartDate),
+                MaximumRangeEnd = DateTimeZone.From(Date.AddMonths(StartDate.WithoutZone, Context[MaxTimeRangeMonths])) + EndOfDayOffset,
+                // The latest end is the earlier of LatestEndTime from the server or (start + max time range).
+                LatestEndTime = if MaximumRangeEnd < Context[LatestEndTime] 
+                    then MaximumRangeEnd 
+                    else Context[LatestEndTime],
+                EndDateTime.Unclamped = if EndDateRaw = null or EndDateRaw = "" 
+                    then LatestEndTime
+                    else DateTimeZone.FromText(EndDateRaw, [Format = DateInputFormat]) + EndOfDayOffset,
+                // If the end timestamp was before the start timestamp, clamp EndDateTime to StartDate.
+                EndDateTime.StartTimeClamped = if EndDateTime.Unclamped < StartDate
+                    then StartDate + EndOfDayOffset
+                    else EndDateTime.Unclamped
+            in
+                try 
+                    // If the date range is later than LatestEndTime, clamp it to the
+                    // latest allowed end time.
+                    if LatestEndTime < EndDateTime.StartTimeClamped 
+                        then LatestEndTime
+                        else EndDateTime.StartTimeClamped
+                otherwise 
+                    error [
+                        Message.Format = Extension.LoadString("ErrorEndDateValidation"),
+                        Message.Parameters = { EndDateRaw, DateInputFormat }
+                    ],
+
+        StartDateValidated = try ValidateStartDate(RangeStart),
+        EndDateValidated = if StartDateValidated[HasError]
+            then StartDateValidated // Propagate the error 
+            else try ValidateEndDate(StartDateValidated[Value], RangeEnd)
+    in
+        if EndDateValidated[HasError]
+            then error EndDateValidated[Error] // Extract + propagate the error 
+            else [
+                Start = StartDateValidated[Value],
+                End   = EndDateValidated[Value]
+            ] 

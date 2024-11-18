@@ -121,7 +121,7 @@
     <value>URL MicroStrategy REST API</value>
   </data>
   <data name="ApiUrlDesc" xml:space="preserve">
-    <value>Uw MicroStrategy REST API URL (bijv. https://mycompany.microstrategy.com/MicroStrategyLibrary/)</value>
+    <value>Voer een geldige omgevings-URL in (standaard wordt de library-authenticatie gebruikt): https://.../MicroStrategyLibrary. Vooe OIDC-authenticatie voegt u de #OIDCMode-parameter toe achter uw geldige omgevings-URL: https://.../MicroStrategyLibrary/#OIDCMode.</value>
   </data>
   <data name="AuthMode" xml:space="preserve">
     <value>Verificatiemodus</value>
@@ -141,9 +141,6 @@
   <data name="ErrorContents" xml:space="preserve">
     <value>Kan geen inhoud krijgen van</value>
   </data>
-  <data name="ErrorPrompted" xml:space="preserve">
-    <value>Gevraagde rapporten worden niet ondersteund.</value>
-  </data>
   <data name="Locale" xml:space="preserve">
     <value>nl</value>
   </data>
@@ -151,10 +148,10 @@
     <value>LDAP</value>
   </data>
   <data name="LimitDesc" xml:space="preserve">
-    <value>Maximum aantal items per pagina</value>
+    <value>Rijen data opgehaald per verzoek</value>
   </data>
   <data name="LimitDescLong" xml:space="preserve">
-    <value>Maximum aantal items voor één verzoek om paginering te beheren.</value>
+    <value>Maximaal aantal rijen opgehaald in één verzoek. Gebruikt om paginering te beheren.</value>
   </data>
   <data name="PersonalObjects" xml:space="preserve">
     <value>Mijn persoonlijke objecten</value>
@@ -171,7 +168,34 @@
   <data name="TimeoutDescLong" xml:space="preserve">
     <value>De time-outinstellingen voor HTTP-verzoek naar de REST API-server.</value>
   </data>
+  <data name="DefaultIs" xml:space="preserve">
+    <value>Standaard is</value>
+  </data>
   <data name="AdvancedOptions" xml:space="preserve">
     <value>Geavanceerde opties</value>
+  </data>
+  <data name="ErrorPrivilege" xml:space="preserve">
+    <value>U beschikt niet over de UsePowerBI-machtiging voor dit project.</value>
+  </data>
+  <data name="PromptsCloseAll" xml:space="preserve">
+    <value>Alle prompts sluiten</value>
+  </data>
+  <data name="ErrorPromptedOldEnv" xml:space="preserve">
+    <value>Gevraagde rapporten worden alleen ondersteund in MicroStrategy 11.1.3 of hoger.</value>
+  </data>
+  <data name="AuthBasicName" xml:space="preserve">
+    <value>Standaard/LDAP</value>
+  </data>
+  <data name="ErrorWrongTimeoutInput" xml:space="preserve">
+    <value>Time-out kan niet langer zijn dan 0</value>
+  </data>
+  <data name="ErrorPrompted" xml:space="preserve">
+    <value>Gevraagde rapporten worden niet ondersteund.</value>
+  </data>
+  <data name="AuthOAuthName" xml:space="preserve">
+    <value>Library/OIDC</value>
+  </data>
+  <data name="ApiUrlSample" xml:space="preserve">
+    <value>https://mycompany.microstrategy.com/MicroStrategyLibrary/</value>
   </data>
 </root>

@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Tùy chọn nâng cao</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Dữ liệu tổng hợp</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Độ chi tiết dữ liệu</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Chọn Dữ liệu cấp hàng để tải kết quả truy vấn thô hoặc Dữ liệu tổng hợp để đẩy truy vấn vào cơ sở dữ liệu và nhận kết quả tổng hợp. Để có kết quả tốt nhất, hãy chọn Dữ liệu mức hàng chỉ khi bạn chọn chế độ Nhập Kết nối Dữ liệu.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Dữ liệu mức hàng</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Tài khoản tổ chức</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Kết nối với dữ liệu Workplace Analytics</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Kết nối với dữ liệu Viva Insights</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Dịch vụ Trực tuyến</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Tên bảng</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Kết nối với dữ liệu Workplace Analytics</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Nếu truy vấn Thông tin chuyên sâu nâng cao xuất nhiều bảng, hãy chỉ định bảng cần kết nối.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva Insights</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Kết nối với dữ liệu Viva Insights</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Khả năng có thể phân chia dữ liệu tổng hợp hiện không được hỗ trợ khi kết nối với kết quả truy vấn bằng cách chỉ định tên truy vấn hoặc mã định danh. Chọn khả năng có thể phân chia dữ liệu cấp hàng để kết nối với kết quả truy vấn.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Khả năng có thể phân chia dữ liệu cấp hàng hiện chỉ được hỗ trợ khi kết nối với kết quả truy vấn. Chọn Độ chi tiết dữ liệu tổng hợp để kết nối với tập hợp số liệu Người chung hoặc chỉ định tên truy vấn hoặc mã định danh.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Định dạng đầu trang hoặc giá trị không mong muốn ở chế độ xác thực WWW.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Phản hồi không mong muốn từ máy chủ trong khi xác thực.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Khả năng có thể phân chia dữ liệu cấp hàng không được hỗ trợ cho nguồn dữ liệu này. Chọn độ chi tiết dữ liệu tổng hợp.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Trả về một bảng chứa các thuộc tính thấy được và số liệu hàng tuần cho từng nhân viên được theo dõi số liệu trong phân vùng.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
     <value>Mã định danh truy vấn</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Tìm mục này trong Workplace Analytics bằng cách mở Kết quả truy vấn của bạn, sao chép liên kết truy vấn mong muốn và trích xuất ID gồm 32 chữ số cuối cùng (GUID) xuất hiện trong URL.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>Trong ứng dụng thông tin chuyên sâu nâng cao, hãy đi tới Phân tích &gt; Kết quả truy vấn, tìm truy vấn của bạn và chọn Liên kết để tải mã định danh truy vấn.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Tên truy vấn</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Nhập tên truy vấn một cách chính xác như hiển thị trên tab kết quả truy vấn Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Nhập tên truy vấn khi tìm thấy trên trang Phân tích &gt; Kết quả truy vấn trong ứng dụng thông tin chuyên sâu nâng cao.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Nhập số liệu hàng tuần và dữ liệu thuộc tính từ Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Số liệu về người của Contoso</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>Dữ_liệu_khảo_sát</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Loại sơ đồ</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Chọn Xoay để tải thuộc tính tổ chức dưới dạng cột riêng lẻ hoặc Bỏ xoay để tải thuộc tính tổ chức dưới dạng cặp khoá-giá trị, chẳng hạn như Tên thuộc tính = Tổ chức, Giá trị thuộc tính = Tài chính.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Chủ chốt</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Đã hủy chuyển</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Mã định danh phân vùng</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Tìm mục này trong Workplace Analytics bằng cách mở hồ sơ người dùng của bạn và chọn Thông tin của tôi</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>Trong ứng dụng thông tin chuyên sâu nâng cao, hãy đi tới Phân tích &gt; Kết quả truy vấn, tìm truy vấn của bạn và chọn Liên kết để tải mã định danh phân vùng.</value>
   </data>
 </root>

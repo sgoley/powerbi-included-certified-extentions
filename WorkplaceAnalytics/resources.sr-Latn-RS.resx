@@ -90,6 +90,7 @@
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="errorCode" type="xsd:string" msdata:Ordinal="5" />
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
@@ -117,64 +118,121 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationLabel" xml:space="preserve">
+  <data name="AdvancedParametersValue" errorCode="001" xml:space="preserve">
+    <value>Napredne opcije</value>
+  </data>
+  <data name="ApiTypeAggregatedDataValue" errorCode="002" xml:space="preserve">
+    <value>Agrerirani podaci</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ApiTypeCaption" errorCode="003" xml:space="preserve">
+    <value>Granularnost podataka</value>
+  </data>
+  <data name="ApiTypeDescription" errorCode="004" xml:space="preserve">
+    <value>Izaberite podatke na nivou reda da biste učitali neobrađene rezultate upita ili agregirane podatke da biste upite prebacili u bazu podataka i dobili objedinjene rezultate. Za najbolje rezultate izaberite podatke na nivou reda samo ako izaberete uvoz režima povezivanja podataka.</value>
+  </data>
+  <data name="ApiTypeRowLevelDataValue" errorCode="005" xml:space="preserve">
+    <value>Podaci na nivou reda</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="AuthenticationLabel" errorCode="006" xml:space="preserve">
     <value>Nalog organizacije</value>
   </data>
-  <data name="ButtonHelp" xml:space="preserve">
-    <value>Povezivanje sa Workplace Analytics podacima</value>
+  <data name="ButtonHelp" errorCode="007" xml:space="preserve">
+    <value>Povežite se sa Viva uvidima podataka</value>
   </data>
-  <data name="ButtonTitle" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="ButtonTitle" errorCode="008" xml:space="preserve">
+    <value>Viva uvidi</value>
   </data>
-  <data name="Category" xml:space="preserve">
+  <data name="Category" errorCode="009" xml:space="preserve">
     <value>Usluge na mreži</value>
   </data>
-  <data name="DataSourceLabel" xml:space="preserve">
-    <value>Workplace Analytics</value>
+  <data name="TableNameCaption" errorCode="010" xml:space="preserve">
+    <value>Naziv tabele</value>
   </data>
-  <data name="DocumentationName" xml:space="preserve">
-    <value>Povezivanje sa Workplace Analytics podacima</value>
+  <data name="TableNameDescription" errorCode="011" xml:space="preserve">
+    <value>Ako upit „Napredni uvidi“ prikazuje više tabela, navedite tabelu sa kojom želite da se povežete.</value>
   </data>
-  <data name="ExampleCode" xml:space="preserve">
-    <value>WorkplaceAnalytics.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+  <data name="DataSourceLabel" errorCode="012" xml:space="preserve">
+    <value>Viva uvidi</value>
   </data>
-  <data name="ExampleDescription" xml:space="preserve">
+  <data name="DocumentationName" errorCode="013" xml:space="preserve">
+    <value>Povežite se sa Viva uvidima podataka</value>
+  </data>
+  <data name="Error_AggregatedDataWithReport" errorCode="014" xml:space="preserve">
+    <value>Granularnost agregiranih podataka trenutno nije podržana kada se povezujete sa rezultatima upita navođenjem naziva ili identifikatora upita. Izaberite granularnost podataka na nivou reda da biste se povezali sa rezultatima upita.</value>
+  </data>
+  <data name="Error_RowLevelDataWithoutReport" errorCode="015" xml:space="preserve">
+    <value>Granularnost podataka na nivou reda trenutno je podržana samo kada se povezujete sa rezultatima upita. Izaberite granularnost agregiranih podataka da biste se povezali sa opštim skupom metrika osoba ili navedite naziv ili identifikator upita.</value>
+  </data>
+  <data name="Error_UnexpectedAuthenticateHeader" errorCode="016" xml:space="preserve">
+    <value>Neočekivani format ili vrednost WWW-Authenticate zaglavlja tokom potvrde identiteta.</value>
+  </data>
+  <data name="Error_UnexpectedAuthorizationUrlDiscovery" errorCode="017" xml:space="preserve">
+    <value>Neočekivani odgovor od servera tokom potvrde identiteta.</value>
+  </data>
+  <data name="Error_WpaRowLevelData" errorCode="018" xml:space="preserve">
+    <value>Granularnost podataka na nivou redova nije podržana za ovaj izvor podataka. Izaberite granularnost agreriranih podataka umesto toga.</value>
+  </data>
+  <data name="ExampleCode" errorCode="019" xml:space="preserve">
+    <value>VivaInsights.Data("5f142ea5-c08a-eb02-de68-41dccdefb141")</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ExampleDescription" errorCode="020" xml:space="preserve">
     <value>Vraća tabelu sa vidljivim atributima i sedmičnom metrikom za svakog izmerenog zaposlenog u particiji.</value>
   </data>
-  <data name="ExampleResult" xml:space="preserve">
+  <data name="ExampleResult" errorCode="021" xml:space="preserve">
     <value>#table({"Query1"}, {{"PersonId""}, {"PID"}})</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="JobIdCaption" xml:space="preserve">
-    <value>Identifikator upita</value>
+  <data name="JobIdCaption" errorCode="022" xml:space="preserve">
+    <value>Identifikatori upita</value>
   </data>
-  <data name="JobIdDescription" xml:space="preserve">
-    <value>Pronađite ovo u usluzi Workplace Analytics tako što ćete otvoriti rezultate upita, kopirati vezu željenog upita i izdvojiti poslednji 32-cifreni ID (GUID) koji se pojavljuje u URL adresi.</value>
+  <data name="JobIdDescription" errorCode="023" xml:space="preserve">
+    <value>U aplikaciji za napredne uvide idite na „Analiza“ &gt; „Rezultati upita“, pronađite vaš upit i izaberite „Veza“ da biste dobili identifikator upita.</value>
   </data>
-  <data name="JobNameCaption" xml:space="preserve">
+  <data name="JobNameCaption" errorCode="024" xml:space="preserve">
     <value>Ime upita</value>
   </data>
-  <data name="JobNameDescription" xml:space="preserve">
-    <value>Unesite ime upita tačno onako kako se prikazuje na kartici „Rezultati upita“ u usluzi Workplace Analytics</value>
+  <data name="JobNameDescription" errorCode="025" xml:space="preserve">
+    <value>Unesite naziv upita onako kako se nalazi na stranici „Analiza“ &gt; „Rezultati upita“ u aplikaciji za napredne uvide.</value>
   </data>
-  <data name="LearnMoreUrl" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/workplace-analytics/overview/get-started</value>
-  </data>
-  <data name="LongDescription" xml:space="preserve">
+  <data name="LongDescription" errorCode="026" xml:space="preserve">
     <value>Uvezite sedmičnu metriku i podatke o atributima iz usluge Workplace Analytics.</value>
   </data>
-  <data name="SampleJobId" xml:space="preserve">
+  <data name="SampleJobId" errorCode="027" xml:space="preserve">
     <value>ad4052e-0925-4b2e-99be-62789d4227ff</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="SampleJobName" xml:space="preserve">
+  <data name="SampleJobName" errorCode="028" xml:space="preserve">
     <value>Contoso metrika ljudi</value>
   </data>
-  <data name="SampleScopeId" xml:space="preserve">
+  <data name="SampleScopeId" errorCode="029" xml:space="preserve">
     <value>5f142ea5-c08a-eb02-de68-41dccdefb141</value>
+    <comment>Do not localize.</comment>
   </data>
-  <data name="ScopeIdCaption" xml:space="preserve">
+  <data name="SampleTableName" errorCode="030" xml:space="preserve">
+    <value>podaciAnkete</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeCaption" errorCode="031" xml:space="preserve">
+    <value>Tip šeme</value>
+  </data>
+  <data name="SchemaTypeDescription" errorCode="032" xml:space="preserve">
+    <value>Izaberite „Izvedeno“ da biste učitali organizacione atribute kao pojedinačne kolone ili „Opozvano izvođenje“ da biste učitali organizacione atribute kao parove ključ-vrednost, kao što su naziv atributa = organizacija, vrednost atributa = finansije.</value>
+  </data>
+  <data name="SchemaTypePivotedValue" errorCode="033" xml:space="preserve">
+    <value>Izvedeno</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="SchemaTypeUnpivotedValue" errorCode="034" xml:space="preserve">
+    <value>Izvođenje je opozvano</value>
+    <comment>Do not localize.</comment>
+  </data>
+  <data name="ScopeIdCaption" errorCode="035" xml:space="preserve">
     <value>Identifikator particije</value>
   </data>
-  <data name="ScopeIdDescription" xml:space="preserve">
-    <value>Pronađite ovo u usluzi Workplace Analytics tako što ćete otvoriti svoj korisnički profil i izabrati opciju „Moje informacije“</value>
+  <data name="ScopeIdDescription" errorCode="036" xml:space="preserve">
+    <value>U aplikaciji za napredne uvide idite na „Analiza“ &gt; „Rezultati upita“, pronađite vaš upit i izaberite „Veza“ da biste dobili identifikator particije.</value>
   </data>
 </root>
